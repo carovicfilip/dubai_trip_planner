@@ -92,29 +92,29 @@ class _HomeScreenState extends State<ExploreScreen> with SingleTickerProviderSta
           padding: const EdgeInsets.all(10),
           children: [
             // TEST BUTTON - DELETE LATER
-            // Container(
-            //   margin: const EdgeInsets.only(bottom: 16),
-            //   child: ElevatedButton.icon(
-            //     onPressed: () async {
-            //       await OnboardingService.resetOnboarding();
-            //       if (context.mounted) {
-            //         Navigator.pushReplacement(
-            //           context,
-            //           MaterialPageRoute(
-            //             builder: (_) => const OnboardingScreen(),
-            //           ),
-            //         );
-            //       }
-            //     },
-            //     icon: const Icon(Icons.refresh),
-            //     label: const Text('Test Onboarding (DELETE LATER)'),
-            //     style: ElevatedButton.styleFrom(
-            //       backgroundColor: Colors.orange,
-            //       foregroundColor: Colors.white,
-            //       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            //     ),
-            //   ),
-            // ),
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await OnboardingService.resetOnboarding();
+                  if (context.mounted) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const OnboardingScreen(),
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('Test Onboarding (DELETE LATER)'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                ),
+              ),
+            ),
             // HeaderWidget(name: "Filip", savings: "AED 520"),
             const SizedBox(height: 16),
             const PromoBanner(),

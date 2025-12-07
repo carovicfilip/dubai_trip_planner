@@ -132,30 +132,6 @@ class MoreDetailsScreen extends StatelessWidget {
             ),
           ),
 
-          // const SizedBox(height: 24),
-          // const Padding(
-          //   padding: EdgeInsets.symmetric(horizontal: 16.0),
-          //   child: Text(
-          //     "Location",
-          //     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          //   ),
-          // ),
-          // const SizedBox(height: 8),
-          // Padding(
-          //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          //   child: Text(
-          //     place.locationName ?? 'Location details coming soon.',
-          //     style: const TextStyle(color: Colors.black54),
-          //   ),
-          // ),
-          // const SizedBox(height: 16),
-          // Placeholder for future map integration
-          // SizedBox(
-          //   height: 200,
-          //   child: GoogleMap(...)
-          // ),
-          // const SizedBox(height: 8),
-          // const SizedBox(height: 24),
         ],
       ),
     );

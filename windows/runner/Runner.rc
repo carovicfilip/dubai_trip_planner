@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
+            VALUE "CompanyName", "com.carovicfilip" "\0"
             VALUE "FileDescription", "dubai_trip_planner" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "dubai_trip_planner" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2025 com.example. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025 com.carovicfilip. All rights reserved." "\0"
             VALUE "OriginalFilename", "dubai_trip_planner.exe" "\0"
             VALUE "ProductName", "dubai_trip_planner" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"

@@ -46,18 +46,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         OnboardingAnswer(text: 'I do my research', value: 'no'),
       ],
     ),
+    // OnboardingQuestion(
+    //   stepNumber: 4,
+    //   question: 'Is organizing your itinerary a stressful nightmare?',
+    //   subtitle: 'Trying to fit everything in while making sure nothing overlaps...',
+    //   answers: [
+    //     OnboardingAnswer(text: 'Yes, very stressful!', value: 'yes'),
+    //     OnboardingAnswer(text: 'It\'s challenging', value: 'sometimes'),
+    //     OnboardingAnswer(text: 'I enjoy planning', value: 'no'),
+    //   ],
+    // ),
     OnboardingQuestion(
       stepNumber: 4,
-      question: 'Is organizing your itinerary a stressful nightmare?',
-      subtitle: 'Trying to fit everything in while making sure nothing overlaps...',
-      answers: [
-        OnboardingAnswer(text: 'Yes, very stressful!', value: 'yes'),
-        OnboardingAnswer(text: 'It\'s challenging', value: 'sometimes'),
-        OnboardingAnswer(text: 'I enjoy planning', value: 'no'),
-      ],
-    ),
-    OnboardingQuestion(
-      stepNumber: 5,
       question: 'Do you wish someone would just plan everything for you?',
       subtitle: 'A personalized trip plan ready in minutes, not hours...',
       answers: [
