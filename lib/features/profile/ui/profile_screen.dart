@@ -2,10 +2,9 @@ import 'package:dubai_trip_planner/core/widgets/promo_banner.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/places_card.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:dubai_trip_planner/features/place_details/screens/more_details_screen.dart';
-import 'package:dubai_trip_planner/features/profile/ui/privacy_policy_screen.dart';
-import 'package:dubai_trip_planner/features/profile/ui/terms_of_use_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatelessWidget {
   @override
@@ -94,25 +93,21 @@ class ProfileScreen extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.privacy_tip),
                 title: const Text("Privacy Policy"),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const PrivacyPolicyScreen(),
-                    ),
-                  );
+                onTap: () async {
+                  final uri = Uri.parse('https://dubai-trip-planner.com/privacy-policy');
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.description),
                 title: const Text("Terms of Use"),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const TermsOfUseScreen(),
-                    ),
-                  );
+                onTap: () async {
+                  final uri = Uri.parse('https://dubai-trip-planner.com/terms-of-use');
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
                 },
               ),
               // ListTile(leading: Icon(Icons.support_agent), title: Text("Support"), onTap: () {}),
