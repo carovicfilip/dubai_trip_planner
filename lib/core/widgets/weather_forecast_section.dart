@@ -58,7 +58,7 @@ class _WeatherForecastSectionState extends State<WeatherForecastSection> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         const SizedBox(height: 12),
-                        Text(formattedDate, style: const TextStyle(color:  Color(0xFF101A26))),
+                        Text(formattedDate, style: const TextStyle(color:  Colors.black54)),
                         const SizedBox(height: 8),
                         Text(
                           "${day.emoji}",
@@ -67,9 +67,9 @@ class _WeatherForecastSectionState extends State<WeatherForecastSection> {
                         SizedBox(
                           height: 12,
                         ),
-                        Text("${day.minTemp.toInt()}°C | ${day.maxTemp.toInt()}°C", style: const TextStyle(color: Color(0xFF101A26)),),
+                        Text("${day.minTemp.toInt()}°C | ${day.maxTemp.toInt()}°C", style: const TextStyle(color: Colors.black54),),
                         if (day.rainProbability > 0)
-                          Text("${day.rainProbability.toInt()}%", style: const TextStyle(color:  Color(0xFF101A26))),
+                          Text("${day.rainProbability.toInt()}%", style: const TextStyle(color:  Colors.black54)),
                       ],
                     ),
                   );

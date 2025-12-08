@@ -95,7 +95,7 @@ class _PromoBannerState extends State<PromoBanner> with SingleTickerProviderStat
                       Text(
                         "Discover Dubai",
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 19,
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           shadows: [
@@ -111,7 +111,7 @@ class _PromoBannerState extends State<PromoBanner> with SingleTickerProviderStat
                       Text(
                         "Create your perfect itinerary with AI-powered trip planning",
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           color: Colors.white,
                           shadows: [
                             Shadow(
