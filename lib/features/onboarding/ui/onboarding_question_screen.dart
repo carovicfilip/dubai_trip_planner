@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
 import 'package:dubai_trip_planner/features/onboarding/models/onboarding_question.dart';
 

@@ -2,7 +2,7 @@ import 'package:dubai_trip_planner/core/models/place.dart';
 import 'package:dubai_trip_planner/core/repositories/place_repository.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/popular_place_card.dart';
 import 'package:dubai_trip_planner/features/place_details/screens/more_details_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class MostPopularSection extends StatelessWidget {
   const MostPopularSection({super.key});

@@ -1,6 +1,6 @@
 import 'package:dubai_trip_planner/core/widgets/hack_and_tips.dart';
 import 'package:dubai_trip_planner/core/widgets/weather_forecast_section.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../core/widgets/category_section.dart';
 import '../../../core/widgets/most_popular_section.dart';
 import '../../../core/widgets/recommended_section.dart';

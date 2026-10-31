@@ -1,6 +1,6 @@
 import 'package:dubai_trip_planner/core/models/place.dart';
 import 'package:dubai_trip_planner/core/widgets/favorite_button.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class PlacesCard extends StatelessWidget {
   final Place place;

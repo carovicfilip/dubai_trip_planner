@@ -1,6 +1,6 @@
 import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/itinerary_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

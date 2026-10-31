@@ -5,7 +5,7 @@ import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_plan_storage.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/itinerary_screen.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;

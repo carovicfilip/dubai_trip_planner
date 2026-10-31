@@ -5,7 +5,7 @@ import 'package:dubai_trip_planner/core/widgets/custom_back_button.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/places_card.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:dubai_trip_planner/features/place_details/screens/more_details_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 

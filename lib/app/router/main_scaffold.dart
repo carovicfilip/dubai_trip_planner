@@ -2,7 +2,7 @@ import 'package:dubai_trip_planner/features/categories/ui/categories_screen.dart
 import 'package:dubai_trip_planner/features/explore/ui/explore_screen.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
 import 'package:dubai_trip_planner/features/profile/ui/profile_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class MainScaffold extends StatefulWidget {

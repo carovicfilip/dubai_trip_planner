@@ -8,7 +8,7 @@ import 'package:dubai_trip_planner/features/onboarding/services/onboarding_servi
 import 'package:dubai_trip_planner/features/onboarding/ui/onboarding_paywall_screen.dart';
 import 'package:dubai_trip_planner/features/onboarding/ui/onboarding_screen.dart';
 import 'package:dubai_trip_planner/features/profile/ui/profile_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';

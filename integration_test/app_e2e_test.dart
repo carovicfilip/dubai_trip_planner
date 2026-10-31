@@ -12,7 +12,7 @@ import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_plan_storage.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/itinerary_screen.dart';
 import 'package:dubai_trip_planner/main.dart' as app;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
