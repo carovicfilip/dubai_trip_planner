@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Google Fonts, the weather forecast and the AI trip planner all need
+         network access. Debug and profile builds get this permission from
+         their own manifests; release builds only get it from here. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="Dubai Trip Planner"
         android:icon="@mipmap/launcher_icon">
@@ -39,6 +43,12 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- Lets url_launcher's canLaunchUrl() see a browser on Android 11+,
+             used by the Privacy Policy and Terms of Use links. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
         </intent>
     </queries>
 </manifest>
