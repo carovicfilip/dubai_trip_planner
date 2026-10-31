@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -12,6 +13,9 @@ class TripPlannerService {
 
   static const _endpoint = 'https://api.openai.com/v1/chat/completions';
   static const _model = 'gpt-4o-mini';
+  // Long itineraries take the model well over a minute to write, so this only
+  // guards against a stalled connection keeping the spinner going forever.
+  static const _requestTimeout = Duration(minutes: 2);
 
   Future<TripPlan> generatePlan({
     required DateTime startDate,
@@ -48,14 +52,21 @@ class TripPlannerService {
       ],
     };
 
-    final response = await _client.post(
-      Uri.parse(_endpoint),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $key',
-      },
-      body: jsonEncode(requestBody),
-    );
+    final http.Response response;
+    try {
+      response = await _client
+          .post(
+            Uri.parse(_endpoint),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $key',
+            },
+            body: jsonEncode(requestBody),
+          )
+          .timeout(_requestTimeout);
+    } on TimeoutException {
+      throw Exception('OpenAI did not respond within ${_requestTimeout.inMinutes} minutes. Please try again.');
+    }
 
     if (response.statusCode != 200) {
       throw Exception('OpenAI error: ${response.body}');
