@@ -10,12 +10,19 @@ class WeatherForecastSection extends StatefulWidget {
 }
 
 class _WeatherForecastSectionState extends State<WeatherForecastSection> {
+  final _service = WeatherForecastService();
   late Future<List<DailyForecast>> _forecastFuture;
 
   @override
   void initState() {
     super.initState();
-    _forecastFuture = WeatherForecastService().fetch10DayForecast();
+    _forecastFuture = _service.fetch10DayForecast();
+  }
+
+  void _retry() {
+    setState(() {
+      _forecastFuture = _service.fetch10DayForecast();
+    });
   }
 
   @override
@@ -27,14 +34,27 @@ class _WeatherForecastSectionState extends State<WeatherForecastSection> {
         const SizedBox(height: 12),
         FutureBuilder<List<DailyForecast>>(
           future: _forecastFuture,
+          // The forecast from the previous visit to this tab, shown right away.
+          initialData: _service.lastKnownForecast,
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Text("Error: ${snapshot.error}");
+            final forecast = snapshot.data;
+            if (forecast == null || forecast.isEmpty) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              return Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'The forecast is unavailable right now.',
+                      style: TextStyle(color: Colors.black54),
+                    ),
+                  ),
+                  TextButton(onPressed: _retry, child: const Text('Try again')),
+                ],
+              );
             }
 
-            final forecast = snapshot.data!;
             return SizedBox(
               height: 130,
               child: ListView.builder(

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dubai_trip_planner/app/router/main_scaffold.dart';
+import 'package:dubai_trip_planner/core/services/weather_forecast_service.dart';
 import 'package:dubai_trip_planner/features/categories/ui/categories_screen.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
@@ -26,7 +27,11 @@ void main() {
 
   final weatherFixture = File('test/fixtures/openweather_forecast_dubai.json').readAsStringSync();
 
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    // The forecast stays cached while the app runs; every test starts fresh.
+    WeatherForecastService.clearMemoryCache();
+  });
 
   /// Runs [body] with [home] as the first screen. HTTP calls (the weather
   /// section on the Explore tab) are answered from a recorded response.
@@ -132,7 +137,7 @@ void main() {
       await tester.scrollUntilVisible(find.text('Weather Forecast'), 300, scrollable: find.byType(Scrollable).first);
       await pumpFor(tester, const Duration(milliseconds: 500));
       expect(find.textContaining('°C |'), findsWidgets, reason: 'forecast cards rendered');
-      expect(find.textContaining('Error:'), findsNothing);
+      expect(find.text('The forecast is unavailable right now.'), findsNothing);
 
       // Favorite a place from "Recommended" and see it on the Profile tab
       await tester.scrollUntilVisible(find.text('Recommended'), -300, scrollable: find.byType(Scrollable).first);

@@ -104,7 +104,7 @@ void main() {
 
       await tester.scrollUntilVisible(find.text('Weather Forecast'), 250, scrollable: explore);
       final weatherLoaded = await waitFor(find.textContaining('°C |'), timeout: const Duration(seconds: 20));
-      final weatherError = find.textContaining('Error:').evaluate().isNotEmpty;
+      final weatherError = find.text('The forecast is unavailable right now.').evaluate().isNotEmpty;
       notes.add('WEATHER (real OpenWeatherMap call): ${weatherLoaded ? 'loaded' : weatherError ? 'error shown' : 'not loaded'}');
       await tester.drag(explore, const Offset(0, -200));
       await pumpFor(const Duration(milliseconds: 600));
