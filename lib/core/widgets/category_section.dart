@@ -1,6 +1,6 @@
 import 'package:dubai_trip_planner/core/models/category.dart';
 import 'package:dubai_trip_planner/features/categories/ui/categories_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class CategorySection extends StatelessWidget {
   const CategorySection({super.key});
@@ -20,7 +20,6 @@ class CategorySection extends StatelessWidget {
             children: categories.map((category) {
               return GestureDetector(
                 onTap: () {
-                  print('🖱️ Kliknuta kategorija: ${category.name} (id: ${category.id})');
                   Navigator.push(
                     context,
                     MaterialPageRoute(

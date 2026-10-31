@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -12,6 +13,40 @@ class TripPlannerService {
 
   static const _endpoint = 'https://api.openai.com/v1/chat/completions';
   static const _model = 'gpt-4o-mini';
+  // Long itineraries take the model well over a minute to write, so this only
+  // guards against a stalled connection keeping the spinner going forever.
+  static const _requestTimeout = Duration(minutes: 2);
+
+  /// Longest stay one plan may cover. Longer itineraries make the request
+  /// slow and costly, and the answer more likely to be cut off.
+  static const maxTripDays = 15;
+
+  /// Longest accommodation text sent to the model. It goes into the prompt
+  /// as typed, so it is capped like the trip length.
+  static const maxLocationLength = 100;
+
+  /// A short explanation of an error thrown by [generatePlan] that is safe to
+  /// show the user. The error itself can contain OpenAI's raw JSON, so it
+  /// belongs in the logs only.
+  static String userMessage(Object error) {
+    if (error is http.ClientException) {
+      return 'Could not reach the trip planner. Check your internet connection and try again.';
+    }
+    if (error is TimeoutException) {
+      return 'The trip planner took too long to answer. Please try again.';
+    }
+    if (error is OpenAiHttpException && error.statusCode == 429) {
+      return 'The trip planner is busy right now. Please try again in a minute.';
+    }
+    if (error is OpenAiHttpException && error.statusCode >= 500) {
+      return 'The trip planner is having problems. Please try again later.';
+    }
+    if (error is OpenAiHttpException || error is StateError) {
+      // A rejected key or a missing configuration: nothing the user can fix.
+      return 'The trip planner is unavailable right now. Please try again later.';
+    }
+    return 'We could not create your plan this time. Please try again.';
+  }
 
   Future<TripPlan> generatePlan({
     required DateTime startDate,
@@ -19,6 +54,13 @@ class TripPlannerService {
     required String location,
     required List<String> categories,
   }) async {
+    if (lengthInDays < 1 || lengthInDays > maxTripDays) {
+      throw ArgumentError.value(lengthInDays, 'lengthInDays', 'must be between 1 and $maxTripDays');
+    }
+    if (location.length > maxLocationLength) {
+      throw ArgumentError.value(location.length, 'location.length', 'must be at most $maxLocationLength');
+    }
+
     final key = dotenv.env['OPENAI_API_KEY'];
     if (key == null || key.isEmpty) {
       throw StateError('OPENAI_API_KEY is missing. Add it to your .env file.');
@@ -48,17 +90,24 @@ class TripPlannerService {
       ],
     };
 
-    final response = await _client.post(
-      Uri.parse(_endpoint),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $key',
-      },
-      body: jsonEncode(requestBody),
-    );
+    final http.Response response;
+    try {
+      response = await _client
+          .post(
+            Uri.parse(_endpoint),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $key',
+            },
+            body: jsonEncode(requestBody),
+          )
+          .timeout(_requestTimeout);
+    } on TimeoutException {
+      throw TimeoutException('OpenAI did not respond within ${_requestTimeout.inMinutes} minutes', _requestTimeout);
+    }
 
     if (response.statusCode != 200) {
-      throw Exception('OpenAI error: ${response.body}');
+      throw OpenAiHttpException(response.statusCode, response.body);
     }
 
     final Map<String, dynamic> json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -152,7 +201,7 @@ class TripPlannerService {
     final categoriesList = categories.isEmpty ? 'General must-see spots' : categories.join(', ');
 
     return '''
-You are creating a detailed ${lengthInDays}-day Dubai trip itinerary.
+You are creating a detailed $lengthInDays-day Dubai trip itinerary.
 
 Trip Details:
 - Starting date: $dateString
@@ -161,7 +210,7 @@ Trip Details:
 - Number of days: $lengthInDays
 
 Requirements:
-1. Create exactly ${lengthInDays} days of activities
+1. Create exactly $lengthInDays days of activities
 2. Each day should have a unique theme or focus area
 3. Consider proximity to the base location ($location) when planning
 4. Include specific Dubai attractions, restaurants, and experiences
@@ -185,7 +234,7 @@ Return the response in this exact JSON format:
   ]
 }
 
-Make sure to create exactly ${lengthInDays} day entries in the "days" array.
+Make sure to create exactly $lengthInDays day entries in the "days" array.
 ''';
   }
 
@@ -217,5 +266,17 @@ Make sure to create exactly ${lengthInDays} day entries in the "days" array.
     
     return cleaned;
   }
+}
+
+/// OpenAI answered with an error status. [body] holds its JSON error, which
+/// is for logs; [TripPlannerService.userMessage] explains it to the user.
+class OpenAiHttpException implements Exception {
+  OpenAiHttpException(this.statusCode, this.body);
+
+  final int statusCode;
+  final String body;
+
+  @override
+  String toString() => 'OpenAI error ($statusCode): $body';
 }
 

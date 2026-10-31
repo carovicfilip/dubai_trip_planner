@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
 import 'package:dubai_trip_planner/features/onboarding/models/onboarding_question.dart';
 
@@ -6,6 +6,7 @@ class OnboardingQuestionScreen extends StatefulWidget {
   final OnboardingQuestion question;
   final Function(String) onAnswerSelected;
   final VoidCallback onNext;
+  final int totalSteps;
   final bool isLastQuestion;
 
   const OnboardingQuestionScreen({
@@ -13,6 +14,7 @@ class OnboardingQuestionScreen extends StatefulWidget {
     required this.question,
     required this.onAnswerSelected,
     required this.onNext,
+    required this.totalSteps,
     this.isLastQuestion = false,
   });
 
@@ -35,13 +37,13 @@ class _OnboardingQuestionScreenState extends State<OnboardingQuestionScreen> {
             children: [
               // Progress indicator
               Row(
-                children: List.generate(5, (index) {
+                children: List.generate(widget.totalSteps, (index) {
                   final isCompleted = index < widget.question.stepNumber - 1;
                   final isCurrent = index == widget.question.stepNumber - 1;
                   return Expanded(
                     child: Container(
                       height: 4,
-                      margin: EdgeInsets.only(right: index < 4 ? 8 : 0),
+                      margin: EdgeInsets.only(right: index < widget.totalSteps - 1 ? 8 : 0),
                       decoration: BoxDecoration(
                         color: isCompleted || isCurrent
                             ? AppColors.primaryNavigation
@@ -100,12 +102,12 @@ class _OnboardingQuestionScreenState extends State<OnboardingQuestionScreen> {
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppColors.primaryNavigation.withOpacity(0.1)
+                              ? AppColors.primaryNavigation.withValues(alpha: 0.1)
                               : AppColors.gray50,
                           border: Border.all(
                             color: isSelected
                                 ? AppColors.primaryNavigation
-                                : AppColors.BORDER_STOKE,
+                                : AppColors.borderStroke,
                             width: isSelected ? 2 : 1,
                           ),
                           borderRadius: BorderRadius.circular(16),

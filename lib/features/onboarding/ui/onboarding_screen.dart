@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:dubai_trip_planner/features/onboarding/models/onboarding_question.dart';
 import 'package:dubai_trip_planner/features/onboarding/ui/onboarding_question_screen.dart';
 import 'package:dubai_trip_planner/features/onboarding/ui/onboarding_paywall_screen.dart';
@@ -111,6 +111,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           question: _questions[index],
           onAnswerSelected: (answer) => _onAnswerSelected(index, answer),
           onNext: _onNext,
+          totalSteps: _questions.length,
           isLastQuestion: index == _questions.length - 1,
         );
       },

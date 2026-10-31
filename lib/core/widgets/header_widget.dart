@@ -1,11 +1,11 @@
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class HeaderWidget extends StatelessWidget {
   final String name;
   final String savings;
 
-  const HeaderWidget({required this.name, required this.savings});
+  const HeaderWidget({super.key, required this.name, required this.savings});
 
   @override
   Widget build(BuildContext context) {

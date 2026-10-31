@@ -2,11 +2,13 @@ import 'package:dubai_trip_planner/core/widgets/promo_banner.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/places_card.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:dubai_trip_planner/features/place_details/screens/more_details_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final favoritesState = context.watch<FavoritesCubit>().state;

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
 import 'package:dubai_trip_planner/features/onboarding/services/onboarding_service.dart';
 import 'package:dubai_trip_planner/app/router/main_scaffold.dart';
@@ -32,7 +32,7 @@ class OnboardingPaywallScreen extends StatelessWidget {
                 width: 120,
                 height: 120,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryNavigation.withOpacity(0.1),
+                  color: AppColors.primaryNavigation.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -131,7 +131,7 @@ class OnboardingPaywallScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.primaryNavigation.withOpacity(0.1),
+            color: AppColors.primaryNavigation.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(

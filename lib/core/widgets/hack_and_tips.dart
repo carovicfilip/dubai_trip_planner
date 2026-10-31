@@ -1,5 +1,5 @@
 // lib/core/widgets/hack_and_tips.dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../features/explore/ui/widgets/hack_and_tips_card.dart';
 
 class HackAndTips extends StatelessWidget {

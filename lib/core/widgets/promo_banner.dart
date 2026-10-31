@@ -1,5 +1,5 @@
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class PromoBanner extends StatefulWidget {
   const PromoBanner({super.key});
@@ -12,8 +12,6 @@ class _PromoBannerState extends State<PromoBanner> with SingleTickerProviderStat
   late AnimationController _controller;
   late Animation<Color?> _color1;
   late Animation<Color?> _color2;
-  late Animation<Color?> _color3;
-  late Animation<Color?> _color4;
 
   @override
   void initState() {

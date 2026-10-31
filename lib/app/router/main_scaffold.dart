@@ -2,12 +2,14 @@ import 'package:dubai_trip_planner/features/categories/ui/categories_screen.dart
 import 'package:dubai_trip_planner/features/explore/ui/explore_screen.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
 import 'package:dubai_trip_planner/features/profile/ui/profile_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class MainScaffold extends StatefulWidget {
+  const MainScaffold({super.key});
+
   @override
-  _MainScaffoldState createState() => _MainScaffoldState();
+  State<MainScaffold> createState() => _MainScaffoldState();
 }
 
 class _MainScaffoldState extends State<MainScaffold> {
@@ -63,7 +65,10 @@ class _MainScaffoldState extends State<MainScaffold> {
               icon: SvgPicture.asset(
                 'assets/icons/my_trip.svg',
                 height: 38,
-                color: _currentIndex == 1 ? Colors.white : Colors.black38,
+                colorFilter: ColorFilter.mode(
+                  _currentIndex == 1 ? Colors.white : Colors.black38,
+                  BlendMode.srcIn,
+                ),
               ),
               index: 1,
             ),

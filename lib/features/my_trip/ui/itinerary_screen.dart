@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 
 import '../models/trip_plan.dart';
@@ -70,7 +70,7 @@ class _TripOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final formatter = DateFormat.yMMMMd();
-    final endDate = formatter.format(startDate.add(Duration(days: totalDays - 1)));
+    final endDate = formatter.format(_addDays(startDate, totalDays - 1));
     final categoryPreview = categories.take(3).join(', ');
     final hasMore = categories.length > 3;
 
@@ -145,9 +145,7 @@ class _DailyPlanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final dateLabel = formatter.format(
-      startDate.add(Duration(days: dayIndex)),
-    );
+    final dateLabel = formatter.format(_addDays(startDate, dayIndex));
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -174,7 +172,7 @@ class _DailyPlanCard extends StatelessWidget {
                 height: 36,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: theme.colorScheme.primary.withOpacity(0.12),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.12),
                 ),
                 child: Center(
                   child: Text(
@@ -232,4 +230,6 @@ class _DailyPlanCard extends StatelessWidget {
   }
 }
 
-
+// Calendar arithmetic on purpose: adding Duration(days: n) to a local midnight
+// lands on 23:00 of the previous day once the clocks go back, repeating a date.
+DateTime _addDays(DateTime date, int days) => DateTime(date.year, date.month, date.day + days);

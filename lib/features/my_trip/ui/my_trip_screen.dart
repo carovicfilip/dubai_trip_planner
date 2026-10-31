@@ -2,7 +2,8 @@ import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_plan_storage.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_planner_service.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/itinerary_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 
 class MyTripScreen extends StatefulWidget {
@@ -65,7 +66,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
       context: context,
       initialDate: now,
       firstDate: now,
-      lastDate: DateTime(now.year + 1),
+      lastDate: DateTime(now.year + 1, now.month, now.day),
     );
     if (picked != null) {
       setState(() => selectedDate = picked);
@@ -121,6 +122,13 @@ class _MyTripScreenState extends State<MyTripScreen> {
       return;
     }
 
+    if (_stayLength! > TripPlannerService.maxTripDays) {
+      final planFirstPart = await _askToPlanFirstPart(_stayLength!);
+      if (!mounted) return;
+      if (!planFirstPart) return;
+      _stayLengthCtrl.text = '${TripPlannerService.maxTripDays}';
+    }
+
     // Validate Step 2: Accommodation location
     if (_accommodationCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -167,15 +175,15 @@ class _MyTripScreenState extends State<MyTripScreen> {
 
       _openItinerary(plan);
     } catch (error) {
+      // The error can hold OpenAI's raw JSON: log it, show the user a short message.
+      debugPrint('Trip plan generation failed: $error');
       if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Plan generation failed: $error',
-          ),
+          content: Text(TripPlannerService.userMessage(error)),
         ),
       );
     }
@@ -189,6 +197,40 @@ class _MyTripScreenState extends State<MyTripScreen> {
         builder: (_) => ItineraryScreen(plan: plan),
       ),
     );
+  }
+
+  /// Explains the [TripPlannerService.maxTripDays] limit and how to split a
+  /// longer stay. Returns true when the user wants the first part planned now.
+  Future<bool> _askToPlanFirstPart(int days) async {
+    const maxDays = TripPlannerService.maxTripDays;
+    final nextPartStart = DateFormat.yMMMMd().format(DateUtils.addDaysToDate(selectedDate!, maxDays));
+    final planFirstPart = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        title: const Text('Up to $maxDays days per plan'),
+        content: Text(
+          'To keep every day detailed, one plan covers at most $maxDays days.\n\n'
+          'Split your $days-day stay into parts: plan the first $maxDays days now, then come back '
+          'and create a new plan starting $nextPartStart for the rest of your trip.\n\n'
+          'Note: each new plan replaces the one you have saved.',
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Change length'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Plan first $maxDays days'),
+          ),
+        ],
+      ),
+    );
+    return planFirstPart ?? false;
   }
 
   Future<void> _confirmDeleteTrip() async {
@@ -366,7 +408,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFFFF8A80),
+                                  color: Color(0xFFFF8A80),
                                 ),
                               ),
                             ),
@@ -415,7 +457,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
                         controller: _stayLengthCtrl,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                          hintText: "How many days you stay",
+                          hintText: "How many days you stay (up to ${TripPlannerService.maxTripDays})",
                           filled: true,
                           fillColor: Colors.grey.shade100,
                           border: OutlineInputBorder(
@@ -459,7 +501,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFFFF8A80),
+                                  color: Color(0xFFFF8A80),
                                 ),
                               ),
                             ),
@@ -483,6 +525,9 @@ class _MyTripScreenState extends State<MyTripScreen> {
                       const SizedBox(height: 20),
                       TextField(
                         controller: _accommodationCtrl,
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(TripPlannerService.maxLocationLength),
+                        ],
                         decoration: InputDecoration(
                           hintText: "e.g. Dubai Marina, Downtown, JBR…",
                           filled: true,
@@ -528,7 +573,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFFFF8A80),
+                                  color: Color(0xFFFF8A80),
                                 ),
                               ),
                             ),
@@ -599,7 +644,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
             style: ButtonStyle(
               backgroundColor: WidgetStateProperty.all<Color>(const Color(0xFFE8D2B8)),
               foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
-              overlayColor: WidgetStateProperty.all(Colors.white.withOpacity(0.08)),
+              overlayColor: WidgetStateProperty.all(Colors.white.withValues(alpha: 0.08)),
               shape: WidgetStateProperty.all(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),

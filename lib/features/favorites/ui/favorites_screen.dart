@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class FavoritesScreen extends StatelessWidget {
-  final List<Map<String, String>> favorites = [
+  const FavoritesScreen({super.key});
+
+  final List<Map<String, String>> favorites = const [
     {"title": "Sky Lounge", "category": "Brunch", "image": "", "desc": "Rooftop dining with skyline view"},
     {"title": "Aqua Park", "category": "Leisure", "image": "", "desc": "Water fun for the whole family"},
   ];

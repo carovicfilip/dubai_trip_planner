@@ -2,7 +2,7 @@ import 'package:dubai_trip_planner/core/models/place.dart';
 import 'package:dubai_trip_planner/core/widgets/custom_back_button.dart';
 import 'package:dubai_trip_planner/core/widgets/favorite_button.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MoreDetailsScreen extends StatelessWidget {
