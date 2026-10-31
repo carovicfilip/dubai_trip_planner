@@ -192,8 +192,8 @@ void main() {
     expect(tester.widget<TextField>(find.byType(TextField).at(1)).controller!.text, 'Business Bay');
   });
 
-  // Expected behaviour. Fails today: lastDate is DateTime(now.year + 1), i.e.
-  // 1 January of next year, so in late October only ~2 months can be picked.
+  // Regression test: lastDate used to be DateTime(now.year + 1), i.e.
+  // 1 January of next year, so in late October only ~2 months could be picked.
   testWidgets('date picker allows planning about a year ahead', (tester) async {
     await pumpMyTrip(tester);
     await tester.tap(find.text('Select date'));

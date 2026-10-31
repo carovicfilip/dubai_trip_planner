@@ -107,8 +107,8 @@ void main() {
     });
   });
 
-  // Expected behaviour. Fails today: the bar always draws 5 segments while
-  // there are only 4 questions, so it never fills up.
+  // Regression test: the bar used to draw 5 segments while there were only 4
+  // questions, so it never filled up.
   testWidgets('progress bar has one segment per question', (tester) async {
     await withApp(tester, () async {
       final segments = find.byWidgetPredicate(

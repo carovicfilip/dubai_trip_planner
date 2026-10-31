@@ -35,9 +35,9 @@ void main() {
     }
   });
 
-  // Fails on devices in a DST time zone such as Europe/Belgrade: adding
-  // Duration(days: n) to local midnight lands on 23:00 of the previous day
-  // after the clocks go back (25 Oct 2026), so a date repeats.
+  // Regression test for DST time zones such as Europe/Belgrade: adding
+  // Duration(days: n) to local midnight landed on 23:00 of the previous day
+  // after the clocks went back (25 Oct 2026), so a date repeated.
   testWidgets('day dates stay consecutive across the end of daylight saving time', (tester) async {
     await pumpItinerary(tester, planStarting(DateTime(2026, 10, 23), 5));
 

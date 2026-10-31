@@ -263,8 +263,8 @@ void main() {
   });
 
   group('timeouts', () {
-    // Expected behaviour. Fails today: the request has no timeout, so a
-    // stalled connection keeps the "Show Results" spinner going forever.
+    // Regression test: without a timeout, a stalled connection kept the
+    // "Show Results" spinner going forever.
     testWidgets('gives up on a request that never answers', (tester) async {
       final client = MockClient((_) => Completer<http.Response>().future);
       var settled = false;
