@@ -20,7 +20,7 @@ void main() {
   setUp(() {
     requests = [];
     SharedPreferences.setMockInitialValues({});
-    dotenv.testLoad(fileInput: 'OPENAI_API_KEY=sk-test-123');
+    dotenv.loadFromString(envString: 'OPENAI_API_KEY=sk-test-123');
   });
 
   MockClient openAi(Future<http.Response> Function(http.Request request) handler) {

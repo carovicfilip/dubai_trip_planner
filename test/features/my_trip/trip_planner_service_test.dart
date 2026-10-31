@@ -13,7 +13,7 @@ import '../../helpers/openai_fakes.dart';
 void main() {
   final startDate = DateTime(2026, 11, 10);
 
-  setUp(() => dotenv.testLoad(fileInput: 'OPENAI_API_KEY=sk-test-123'));
+  setUp(() => dotenv.loadFromString(envString: 'OPENAI_API_KEY=sk-test-123'));
 
   Future<TripPlan> generate(
     http.Client client, {
@@ -79,7 +79,7 @@ void main() {
 
   group('API key', () {
     test('throws StateError and sends nothing when OPENAI_API_KEY is missing', () async {
-      dotenv.testLoad(fileInput: '');
+      dotenv.loadFromString(envString: '', isOptional: true);
       var calls = 0;
       final client = MockClient((_) async {
         calls++;
@@ -91,7 +91,7 @@ void main() {
     });
 
     test('throws StateError when OPENAI_API_KEY is empty', () async {
-      dotenv.testLoad(fileInput: 'OPENAI_API_KEY=');
+      dotenv.loadFromString(envString: 'OPENAI_API_KEY=');
       await expectLater(generate(answering(itineraryJson(3))), throwsA(isA<StateError>()));
     });
   });

@@ -55,7 +55,7 @@ void main() {
   final hasRealKey = key != null && key.startsWith('sk-') && !key.contains('placeholder');
 
   Future<(TripPlan, _RecordingClient)> generate(int days, List<String> categories) async {
-    dotenv.testLoad(fileInput: 'OPENAI_API_KEY=$key');
+    dotenv.loadFromString(envString: 'OPENAI_API_KEY=$key');
     final client = _RecordingClient();
     final plan = await TripPlannerService(httpClient: client).generatePlan(
       startDate: DateTime.now().add(const Duration(days: 30)),
@@ -85,7 +85,7 @@ void main() {
   test(
     'api.openai.com is reachable and a bad key is rejected with 401',
     () async {
-      dotenv.testLoad(fileInput: 'OPENAI_API_KEY=sk-invalid-live-check');
+      dotenv.loadFromString(envString: 'OPENAI_API_KEY=sk-invalid-live-check');
       final future = TripPlannerService().generatePlan(
         startDate: DateTime.now(),
         lengthInDays: 1,
