@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class MainScaffold extends StatefulWidget {
+  const MainScaffold({super.key});
+
   @override
-  _MainScaffoldState createState() => _MainScaffoldState();
+  State<MainScaffold> createState() => _MainScaffoldState();
 }
 
 class _MainScaffoldState extends State<MainScaffold> {

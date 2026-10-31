@@ -366,7 +366,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFFFF8A80),
+                                  color: Color(0xFFFF8A80),
                                 ),
                               ),
                             ),
@@ -459,7 +459,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFFFF8A80),
+                                  color: Color(0xFFFF8A80),
                                 ),
                               ),
                             ),
@@ -528,7 +528,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFFFF8A80),
+                                  color: Color(0xFFFF8A80),
                                 ),
                               ),
                             ),

@@ -61,7 +61,7 @@ class _WeatherForecastSectionState extends State<WeatherForecastSection> {
                         Text(formattedDate, style: const TextStyle(color:  Colors.black54)),
                         const SizedBox(height: 8),
                         Text(
-                          "${day.emoji}",
+                          day.emoji,
                           style: TextStyle(fontSize: 30),
                         ),
                         SizedBox(

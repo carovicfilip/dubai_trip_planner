@@ -2,7 +2,6 @@ import 'package:dubai_trip_planner/core/widgets/hack_and_tips.dart';
 import 'package:dubai_trip_planner/core/widgets/weather_forecast_section.dart';
 import 'package:flutter/material.dart';
 import '../../../core/widgets/category_section.dart';
-import '../../../core/widgets/header_widget.dart';
 import '../../../core/widgets/most_popular_section.dart';
 import '../../../core/widgets/recommended_section.dart';
 import '../../../core/widgets/promo_banner.dart';
@@ -16,37 +15,7 @@ class ExploreScreen extends StatefulWidget {
   State<ExploreScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<ExploreScreen> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Color?> _color1;
-  late Animation<Color?> _color2;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _controller = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    )..repeat(reverse: true);
-
-    _color1 = ColorTween(
-      begin: const Color(0xFFB2FEFA),
-      end: const Color(0xFF00C9FF),
-    ).animate(_controller);
-
-    _color2 = ColorTween(
-      begin: const Color(0xFF0ED2F7),
-      end: const Color(0xFFA100FF),
-    ).animate(_controller);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
+class _HomeScreenState extends State<ExploreScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

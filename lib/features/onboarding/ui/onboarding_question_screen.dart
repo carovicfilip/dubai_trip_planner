@@ -107,7 +107,7 @@ class _OnboardingQuestionScreenState extends State<OnboardingQuestionScreen> {
                           border: Border.all(
                             color: isSelected
                                 ? AppColors.primaryNavigation
-                                : AppColors.BORDER_STOKE,
+                                : AppColors.borderStroke,
                             width: isSelected ? 2 : 1,
                           ),
                           borderRadius: BorderRadius.circular(16),

@@ -5,7 +5,7 @@ class HeaderWidget extends StatelessWidget {
   final String name;
   final String savings;
 
-  const HeaderWidget({required this.name, required this.savings});
+  const HeaderWidget({super.key, required this.name, required this.savings});
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,7 @@
 class AppAssets {
   // Images
-  static const SPLASH = 'assets/images/splash.png';
-  static const NEWSPLASH = 'assets/images/new_splash.png';
+  static const splash = 'assets/images/splash.png';
+  static const newSplash = 'assets/images/new_splash.png';
   static const paywall = 'assets/images/paywall_background.png';
   static const uploadMediaGroup = 'assets/images/upload_media_group.png';
   static const userDisabled = 'assets/images/user_disabled.png';
@@ -9,34 +9,34 @@ class AppAssets {
 
   // Icons
   // static const LOGO_IC = 'assets/icons/logo-ic.png';
-  static const APPLE_IC = 'assets/icons/apple.svg';
+  static const appleIc = 'assets/icons/apple.svg';
   static const takeImage = 'assets/icons/takeImage.svg';
   static const checkSVG = 'assets/icons/checkSVG.svg';
   static const cameraSVG = 'assets/icons/camera.svg';
   static const micSVG = 'assets/icons/mic.svg';
   static const liberarySVG = 'assets/icons/liberary.svg';
   static const documentSVG = 'assets/icons/document.svg';
-  static const FB_IC = 'assets/icons/facebook.svg';
+  static const fbIc = 'assets/icons/facebook.svg';
   static const fileSVG = 'assets/icons/file.svg';
-  static const HOME_IC = 'assets/icons/home-ic.svg';
-  static const GOOGLE_IC = 'assets/icons/google-ic.svg';
-  static const BACK_IC = 'assets/icons/back-ic.svg';
-  static const CLOSE_IC = 'assets/icons/close-ic.svg';
-  static const HOME_TAB_IC = 'assets/icons/home-tab-ic.svg';
-  static const STATUS_IC = 'assets/icons/status-ic.svg';
-  static const TAG_IC = 'assets/icons/tag-ic.svg';
+  static const homeIc = 'assets/icons/home-ic.svg';
+  static const googleIc = 'assets/icons/google-ic.svg';
+  static const backIc = 'assets/icons/back-ic.svg';
+  static const closeIc = 'assets/icons/close-ic.svg';
+  static const homeTabIc = 'assets/icons/home-tab-ic.svg';
+  static const statusIc = 'assets/icons/status-ic.svg';
+  static const tagIc = 'assets/icons/tag-ic.svg';
   static const people = 'assets/icons/people.svg';
   static const setting = 'assets/icons/setting.svg';
-  static const ADD_CAMERA_IC = 'assets/icons/add-camera-ic.svg';
+  static const addCameraIc = 'assets/icons/add-camera-ic.svg';
   static const searchSVG = 'assets/icons/search.svg';
 
-  static const CALENDAR_IC = 'assets/icons/calendar-ic.svg';
+  static const calendarIc = 'assets/icons/calendar-ic.svg';
   static const calender = 'assets/icons/calendar.svg';
-  static const LOCATION_IC = 'assets/icons/location-ic.svg';
-  static const GEOLOCATION = 'assets/icons/geolocation.svg';
+  static const locationIc = 'assets/icons/location-ic.svg';
+  static const geolocation = 'assets/icons/geolocation.svg';
   static const blackPlusIC = 'assets/icons/black_plus_ic.svg';
-  static const PROFILE_IC = 'assets/icons/profile-ic.svg';
-  static const ARROW_BACK_IC = 'assets/icons/arrow-back-ic.svg';
+  static const profileIc = 'assets/icons/profile-ic.svg';
+  static const arrowBackIc = 'assets/icons/arrow-back-ic.svg';
   static const arrowBack = 'assets/icons/arrow-back.png';
   static const arrowBackSvg = 'assets/icons/arrow-back.svg';
   static const addPlus = 'assets/icons/add-plus.png';
@@ -54,7 +54,7 @@ class AppAssets {
   static const successTickSVG = 'assets/icons/succes_tick.svg';
   static const exportIconSvg = 'assets/icons/export_icon.svg';
   static const backupIconSvg = 'assets/icons/backup_icon.svg';
-  static const IC_PASSWORD = 'assets/icons/ic_password.svg';
+  static const icPassword = 'assets/icons/ic_password.svg';
   static const threeDots = 'assets/icons/three_dots.svg';
   static const attachIcon = 'assets/icons/attach.svg';
   static const filterIcon = 'assets/icons/filter.svg';

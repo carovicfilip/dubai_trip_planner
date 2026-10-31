@@ -21,11 +21,11 @@ class AppColors {
   static const black500 = Color(0xFF202023);
 
 
-  static const PINKISH_RED = Color(0xFFFE1A59);
+  static const pinkishRed = Color(0xFFFE1A59);
 
 
-  static const RANGOON_GREEN = Color(0xFF181619);
-  static const BORDER_STOKE = Color(0xFFE1E1E1);
+  static const rangoonGreen = Color(0xFF181619);
+  static const borderStroke = Color(0xFFE1E1E1);
   static const shadowColor = Color(0x0a121212);
   static const borderColor = Color(0xffEBEBEB);
   static const lLightGrey = Color(0xffEDEDED);

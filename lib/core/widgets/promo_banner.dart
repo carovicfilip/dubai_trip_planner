@@ -12,8 +12,6 @@ class _PromoBannerState extends State<PromoBanner> with SingleTickerProviderStat
   late AnimationController _controller;
   late Animation<Color?> _color1;
   late Animation<Color?> _color2;
-  late Animation<Color?> _color3;
-  late Animation<Color?> _color4;
 
   @override
   void initState() {

@@ -20,7 +20,6 @@ class CategorySection extends StatelessWidget {
             children: categories.map((category) {
               return GestureDetector(
                 onTap: () {
-                  print('🖱️ Kliknuta kategorija: ${category.name} (id: ${category.id})');
                   Navigator.push(
                     context,
                     MaterialPageRoute(

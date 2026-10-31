@@ -163,7 +163,7 @@ class TripPlannerService {
     final categoriesList = categories.isEmpty ? 'General must-see spots' : categories.join(', ');
 
     return '''
-You are creating a detailed ${lengthInDays}-day Dubai trip itinerary.
+You are creating a detailed $lengthInDays-day Dubai trip itinerary.
 
 Trip Details:
 - Starting date: $dateString
@@ -172,7 +172,7 @@ Trip Details:
 - Number of days: $lengthInDays
 
 Requirements:
-1. Create exactly ${lengthInDays} days of activities
+1. Create exactly $lengthInDays days of activities
 2. Each day should have a unique theme or focus area
 3. Consider proximity to the base location ($location) when planning
 4. Include specific Dubai attractions, restaurants, and experiences
@@ -196,7 +196,7 @@ Return the response in this exact JSON format:
   ]
 }
 
-Make sure to create exactly ${lengthInDays} day entries in the "days" array.
+Make sure to create exactly $lengthInDays day entries in the "days" array.
 ''';
   }
 
