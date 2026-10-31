@@ -2,6 +2,7 @@ import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_plan_storage.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_planner_service.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/itinerary_screen.dart';
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 
@@ -174,15 +175,15 @@ class _MyTripScreenState extends State<MyTripScreen> {
 
       _openItinerary(plan);
     } catch (error) {
+      // The error can hold OpenAI's raw JSON: log it, show the user a short message.
+      debugPrint('Trip plan generation failed: $error');
       if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Plan generation failed: $error',
-          ),
+          content: Text(TripPlannerService.userMessage(error)),
         ),
       );
     }
@@ -524,6 +525,9 @@ class _MyTripScreenState extends State<MyTripScreen> {
                       const SizedBox(height: 20),
                       TextField(
                         controller: _accommodationCtrl,
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(TripPlannerService.maxLocationLength),
+                        ],
                         decoration: InputDecoration(
                           hintText: "e.g. Dubai Marina, Downtown, JBR…",
                           filled: true,

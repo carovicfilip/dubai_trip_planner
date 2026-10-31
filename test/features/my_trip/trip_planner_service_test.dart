@@ -242,6 +242,57 @@ void main() {
     });
   });
 
+  test('refuses an accommodation text over ${TripPlannerService.maxLocationLength} characters without calling OpenAI',
+      () async {
+    var called = false;
+    final client = MockClient((_) async {
+      called = true;
+      return jsonResponse(chatCompletionBody(itineraryJson(1)), 200);
+    });
+
+    final future = TripPlannerService(httpClient: client).generatePlan(
+      startDate: startDate,
+      lengthInDays: 3,
+      location: 'x' * (TripPlannerService.maxLocationLength + 1),
+      categories: const ['Beaches'],
+    );
+
+    await expectLater(future, throwsArgumentError);
+    expect(called, isFalse);
+  });
+
+  group('message shown to the user', () {
+    test('explains each kind of failure in plain words', () {
+      String message(Object error) => TripPlannerService.userMessage(error);
+
+      expect(message(http.ClientException('Failed host lookup')), contains('internet connection'));
+      expect(message(TimeoutException('slow')), contains('took too long'));
+      expect(message(OpenAiHttpException(429, '{}')), contains('busy'));
+      expect(message(OpenAiHttpException(503, '{}')), contains('having problems'));
+      expect(message(OpenAiHttpException(401, '{}')), contains('unavailable'));
+      expect(message(StateError('OPENAI_API_KEY is missing')), contains('unavailable'));
+      expect(message(Exception('Invalid JSON from OpenAI')), contains('could not create your plan'));
+    });
+
+    test('never repeats the raw error', () {
+      final body = openAiErrorBody('invalid_api_key', 'Incorrect API key provided: sk-test***123.');
+      final message = TripPlannerService.userMessage(OpenAiHttpException(401, body));
+
+      expect(message, isNot(contains('{')));
+      expect(message, isNot(contains('invalid_api_key')));
+    });
+
+    testWidgets('a timed-out request reports a TimeoutException', (tester) async {
+      Object? error;
+      unawaited(generate(MockClient((_) => Completer<http.Response>().future))
+          .then((_) {}, onError: (Object e) => error = e));
+
+      await tester.pump(const Duration(minutes: 3));
+
+      expect(error, isA<TimeoutException>());
+    });
+  });
+
   group('trip length limit', () {
     test('plans up to ${TripPlannerService.maxTripDays} days', () async {
       final plan = await generate(answering(itineraryJson(15)), days: 15);

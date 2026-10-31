@@ -21,6 +21,33 @@ class TripPlannerService {
   /// slow and costly, and the answer more likely to be cut off.
   static const maxTripDays = 15;
 
+  /// Longest accommodation text sent to the model. It goes into the prompt
+  /// as typed, so it is capped like the trip length.
+  static const maxLocationLength = 100;
+
+  /// A short explanation of an error thrown by [generatePlan] that is safe to
+  /// show the user. The error itself can contain OpenAI's raw JSON, so it
+  /// belongs in the logs only.
+  static String userMessage(Object error) {
+    if (error is http.ClientException) {
+      return 'Could not reach the trip planner. Check your internet connection and try again.';
+    }
+    if (error is TimeoutException) {
+      return 'The trip planner took too long to answer. Please try again.';
+    }
+    if (error is OpenAiHttpException && error.statusCode == 429) {
+      return 'The trip planner is busy right now. Please try again in a minute.';
+    }
+    if (error is OpenAiHttpException && error.statusCode >= 500) {
+      return 'The trip planner is having problems. Please try again later.';
+    }
+    if (error is OpenAiHttpException || error is StateError) {
+      // A rejected key or a missing configuration: nothing the user can fix.
+      return 'The trip planner is unavailable right now. Please try again later.';
+    }
+    return 'We could not create your plan this time. Please try again.';
+  }
+
   Future<TripPlan> generatePlan({
     required DateTime startDate,
     required int lengthInDays,
@@ -29,6 +56,9 @@ class TripPlannerService {
   }) async {
     if (lengthInDays < 1 || lengthInDays > maxTripDays) {
       throw ArgumentError.value(lengthInDays, 'lengthInDays', 'must be between 1 and $maxTripDays');
+    }
+    if (location.length > maxLocationLength) {
+      throw ArgumentError.value(location.length, 'location.length', 'must be at most $maxLocationLength');
     }
 
     final key = dotenv.env['OPENAI_API_KEY'];
@@ -73,11 +103,11 @@ class TripPlannerService {
           )
           .timeout(_requestTimeout);
     } on TimeoutException {
-      throw Exception('OpenAI did not respond within ${_requestTimeout.inMinutes} minutes. Please try again.');
+      throw TimeoutException('OpenAI did not respond within ${_requestTimeout.inMinutes} minutes', _requestTimeout);
     }
 
     if (response.statusCode != 200) {
-      throw Exception('OpenAI error: ${response.body}');
+      throw OpenAiHttpException(response.statusCode, response.body);
     }
 
     final Map<String, dynamic> json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -236,5 +266,17 @@ Make sure to create exactly $lengthInDays day entries in the "days" array.
     
     return cleaned;
   }
+}
+
+/// OpenAI answered with an error status. [body] holds its JSON error, which
+/// is for logs; [TripPlannerService.userMessage] explains it to the user.
+class OpenAiHttpException implements Exception {
+  OpenAiHttpException(this.statusCode, this.body);
+
+  final int statusCode;
+  final String body;
+
+  @override
+  String toString() => 'OpenAI error ($statusCode): $body';
 }
 

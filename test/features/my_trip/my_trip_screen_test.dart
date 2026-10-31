@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_plan_storage.dart';
+import 'package:dubai_trip_planner/features/my_trip/services/trip_planner_service.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/itinerary_screen.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
 import 'package:material_ui/material_ui.dart';
@@ -168,10 +169,19 @@ void main() {
     await tester.pumpAndSettle();
 
     final snackText = tester.widget<Text>(find.descendant(of: find.byType(SnackBar), matching: find.byType(Text))).data!;
-    // Documents what the user sees today: the raw OpenAI JSON.
-    expect(snackText, startsWith('Plan generation failed: Exception: OpenAI error: {"error"'));
+    // A rejected key is nothing the user can fix, and OpenAI's raw JSON must not show.
+    expect(snackText, 'The trip planner is unavailable right now. Please try again later.');
+    expect(snackText, isNot(contains('{')));
     expect(find.byType(ItineraryScreen), findsNothing);
     expect(find.text('Show Results'), findsOneWidget, reason: 'button is usable again');
+  });
+
+  testWidgets('the accommodation text that goes into the AI prompt is capped', (tester) async {
+    await pumpMyTrip(tester);
+    await tester.enterText(find.byType(TextField).at(1), 'Dubai Marina ' * 20);
+
+    final text = tester.widget<TextField>(find.byType(TextField).at(1)).controller!.text;
+    expect(text, hasLength(TripPlannerService.maxLocationLength));
   });
 
   testWidgets('restores the last saved plan when the screen opens', (tester) async {
