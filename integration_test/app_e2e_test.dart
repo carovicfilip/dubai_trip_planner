@@ -72,6 +72,9 @@ void main() {
       // Android can only screenshot an image-backed Flutter surface.
       if (Platform.isAndroid) await binding.convertFlutterSurfaceToImage();
       expect(await waitFor(find.text('Next')), isTrue, reason: 'splash should lead to onboarding');
+      // "Next" exists from the first frame of the page transition; let the
+      // transition finish so the screenshot is the same on every run.
+      await pumpFor(const Duration(milliseconds: 800));
       await shot('01_onboarding_question1');
 
       const answers = [
