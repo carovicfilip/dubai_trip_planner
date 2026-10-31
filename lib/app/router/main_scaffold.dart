@@ -63,7 +63,10 @@ class _MainScaffoldState extends State<MainScaffold> {
               icon: SvgPicture.asset(
                 'assets/icons/my_trip.svg',
                 height: 38,
-                color: _currentIndex == 1 ? Colors.white : Colors.black38,
+                colorFilter: ColorFilter.mode(
+                  _currentIndex == 1 ? Colors.white : Colors.black38,
+                  BlendMode.srcIn,
+                ),
               ),
               index: 1,
             ),

@@ -100,7 +100,7 @@ class _OnboardingQuestionScreenState extends State<OnboardingQuestionScreen> {
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppColors.primaryNavigation.withOpacity(0.1)
+                              ? AppColors.primaryNavigation.withValues(alpha: 0.1)
                               : AppColors.gray50,
                           border: Border.all(
                             color: isSelected

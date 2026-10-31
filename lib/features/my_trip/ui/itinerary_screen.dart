@@ -174,7 +174,7 @@ class _DailyPlanCard extends StatelessWidget {
                 height: 36,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: theme.colorScheme.primary.withOpacity(0.12),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.12),
                 ),
                 child: Center(
                   child: Text(

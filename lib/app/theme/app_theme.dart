@@ -52,7 +52,7 @@ class AppTheme {
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.all(const Color(0xFFE8D2B8)),
         foregroundColor: WidgetStateProperty.all(Colors.white),
-        overlayColor: WidgetStateProperty.all(Colors.white.withOpacity(0.1)),
+        overlayColor: WidgetStateProperty.all(Colors.white.withValues(alpha: 0.1)),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -80,32 +80,37 @@ class AppTheme {
       headerBackgroundColor: const Color(0xFFE8D2B8),
       headerForegroundColor: Colors.white,
       rangeSelectionBackgroundColor: const Color(0xFFE8D2B8),
-      rangeSelectionOverlayColor: WidgetStateProperty.all(const Color(0xFFE8D2B8).withOpacity(0.12)),
+      rangeSelectionOverlayColor: WidgetStateProperty.all(const Color(0xFFE8D2B8).withValues(alpha: 0.12)),
       todayForegroundColor: WidgetStateProperty.all(const Color(0xFFE8D2B8)),
-      todayBackgroundColor: WidgetStateProperty.all(const Color(0xFFE8D2B8).withOpacity(0.12)),
-    ), checkboxTheme: CheckboxThemeData(
- fillColor: MaterialStateProperty.resolveWith<Color?>((Set<MaterialState> states) {
- if (states.contains(MaterialState.disabled)) { return null; }
- if (states.contains(MaterialState.selected)) { return AppColors.primaryNavigation; }
- return null;
- }),
- ), radioTheme: RadioThemeData(
- fillColor: MaterialStateProperty.resolveWith<Color?>((Set<MaterialState> states) {
- if (states.contains(MaterialState.disabled)) { return null; }
- if (states.contains(MaterialState.selected)) { return AppColors.primaryNavigation; }
- return null;
- }),
- ), switchTheme: SwitchThemeData(
- thumbColor: MaterialStateProperty.resolveWith<Color?>((Set<MaterialState> states) {
- if (states.contains(MaterialState.disabled)) { return null; }
- if (states.contains(MaterialState.selected)) { return AppColors.primaryNavigation; }
- return null;
- }),
- trackColor: MaterialStateProperty.resolveWith<Color?>((Set<MaterialState> states) {
- if (states.contains(MaterialState.disabled)) { return null; }
- if (states.contains(MaterialState.selected)) { return AppColors.primaryNavigation; }
- return null;
- }),
- ),
+      todayBackgroundColor: WidgetStateProperty.all(const Color(0xFFE8D2B8).withValues(alpha: 0.12)),
+    ),
+
+    // Checkbox, radio i switch u boji aplikacije kada su selektovani
+    checkboxTheme: CheckboxThemeData(
+      fillColor: WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
+        if (states.contains(WidgetState.disabled)) { return null; }
+        if (states.contains(WidgetState.selected)) { return AppColors.primaryNavigation; }
+        return null;
+      }),
+    ),
+    radioTheme: RadioThemeData(
+      fillColor: WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
+        if (states.contains(WidgetState.disabled)) { return null; }
+        if (states.contains(WidgetState.selected)) { return AppColors.primaryNavigation; }
+        return null;
+      }),
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
+        if (states.contains(WidgetState.disabled)) { return null; }
+        if (states.contains(WidgetState.selected)) { return AppColors.primaryNavigation; }
+        return null;
+      }),
+      trackColor: WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
+        if (states.contains(WidgetState.disabled)) { return null; }
+        if (states.contains(WidgetState.selected)) { return AppColors.primaryNavigation; }
+        return null;
+      }),
+    ),
   );
 }

@@ -599,7 +599,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
             style: ButtonStyle(
               backgroundColor: WidgetStateProperty.all<Color>(const Color(0xFFE8D2B8)),
               foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
-              overlayColor: WidgetStateProperty.all(Colors.white.withOpacity(0.08)),
+              overlayColor: WidgetStateProperty.all(Colors.white.withValues(alpha: 0.08)),
               shape: WidgetStateProperty.all(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
