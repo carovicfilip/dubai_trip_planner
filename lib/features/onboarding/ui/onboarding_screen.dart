@@ -111,6 +111,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           question: _questions[index],
           onAnswerSelected: (answer) => _onAnswerSelected(index, answer),
           onNext: _onNext,
+          totalSteps: _questions.length,
           isLastQuestion: index == _questions.length - 1,
         );
       },

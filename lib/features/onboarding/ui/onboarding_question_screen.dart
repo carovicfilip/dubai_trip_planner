@@ -6,6 +6,7 @@ class OnboardingQuestionScreen extends StatefulWidget {
   final OnboardingQuestion question;
   final Function(String) onAnswerSelected;
   final VoidCallback onNext;
+  final int totalSteps;
   final bool isLastQuestion;
 
   const OnboardingQuestionScreen({
@@ -13,6 +14,7 @@ class OnboardingQuestionScreen extends StatefulWidget {
     required this.question,
     required this.onAnswerSelected,
     required this.onNext,
+    required this.totalSteps,
     this.isLastQuestion = false,
   });
 
@@ -35,13 +37,13 @@ class _OnboardingQuestionScreenState extends State<OnboardingQuestionScreen> {
             children: [
               // Progress indicator
               Row(
-                children: List.generate(5, (index) {
+                children: List.generate(widget.totalSteps, (index) {
                   final isCompleted = index < widget.question.stepNumber - 1;
                   final isCurrent = index == widget.question.stepNumber - 1;
                   return Expanded(
                     child: Container(
                       height: 4,
-                      margin: EdgeInsets.only(right: index < 4 ? 8 : 0),
+                      margin: EdgeInsets.only(right: index < widget.totalSteps - 1 ? 8 : 0),
                       decoration: BoxDecoration(
                         color: isCompleted || isCurrent
                             ? AppColors.primaryNavigation
