@@ -6,6 +6,8 @@
 //   E2E_OUT=e2e_out flutter drive --driver=test_driver/integration_test.dart \
 //     --target=integration_test/app_e2e_test.dart -d <simulator id>
 
+import 'dart:io' show Platform;
+
 import 'package:dubai_trip_planner/app/router/main_scaffold.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/popular_place_card.dart';
 import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
@@ -67,6 +69,8 @@ void main() {
 
     try {
       await app.main();
+      // Android can only screenshot an image-backed Flutter surface.
+      if (Platform.isAndroid) await binding.convertFlutterSurfaceToImage();
       expect(await waitFor(find.text('Next')), isTrue, reason: 'splash should lead to onboarding');
       await shot('01_onboarding_question1');
 
