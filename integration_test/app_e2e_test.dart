@@ -1,0 +1,197 @@
+// Full user journey on a simulator/device: onboarding, Explore, place details,
+// My Trip with a real AI call, saved itinerary, Profile, Categories. Collects
+// layout overflows and screenshots into $E2E_OUT (default ./e2e_out).
+// Clears the app's local data (SharedPreferences) first.
+//
+//   E2E_OUT=e2e_out flutter drive --driver=test_driver/integration_test.dart \
+//     --target=integration_test/app_e2e_test.dart -d <simulator id>
+
+import 'package:dubai_trip_planner/app/router/main_scaffold.dart';
+import 'package:dubai_trip_planner/features/explore/ui/widgets/popular_place_card.dart';
+import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
+import 'package:dubai_trip_planner/features/my_trip/services/trip_plan_storage.dart';
+import 'package:dubai_trip_planner/features/my_trip/ui/itinerary_screen.dart';
+import 'package:dubai_trip_planner/main.dart' as app;
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() {
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  testWidgets('full user journey on a real device', (tester) async {
+    final notes = <String>[];
+    final overflows = <String>{};
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    Future<void> pumpFor(Duration duration) async {
+      final end = DateTime.now().add(duration);
+      while (DateTime.now().isBefore(end)) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+    }
+
+    Future<bool> waitFor(Finder finder, {Duration timeout = const Duration(seconds: 30)}) async {
+      final end = DateTime.now().add(timeout);
+      while (DateTime.now().isBefore(end)) {
+        await tester.pump(const Duration(milliseconds: 200));
+        if (finder.evaluate().isNotEmpty) return true;
+      }
+      return false;
+    }
+
+    Future<void> shot(String name) async {
+      await tester.pump();
+      await binding.takeScreenshot(name);
+    }
+
+    Future<void> tapAndWait(Finder finder, {Duration wait = const Duration(milliseconds: 900)}) async {
+      await tester.tap(finder);
+      await pumpFor(wait);
+    }
+
+    final previousOnError = FlutterError.onError;
+    FlutterError.onError = (details) {
+      final text = details.exceptionAsString();
+      if (text.contains('overflowed by')) {
+        final where = RegExp(r'lib/[\w/]+\.dart:\d+').firstMatch(details.toString())?.group(0) ?? '?';
+        overflows.add('${text.split('\n').first}  <-  $where');
+        return;
+      }
+      previousOnError?.call(details);
+    };
+
+    try {
+      await app.main();
+      expect(await waitFor(find.text('Next')), isTrue, reason: 'splash should lead to onboarding');
+      await shot('01_onboarding_question1');
+
+      const answers = [
+        'Yes, absolutely!',
+        'Yes, it takes forever!',
+        'Yes, happens all the time!',
+        'Yes, that would be perfect!',
+      ];
+      for (var i = 0; i < answers.length; i++) {
+        await tester.tap(find.text(answers[i]));
+        await tester.pump();
+        if (i == answers.length - 1) await shot('02_onboarding_last_question');
+        await tapAndWait(find.text(i == answers.length - 1 ? 'See Solution' : 'Next'), wait: const Duration(milliseconds: 700));
+      }
+      await shot('03_paywall');
+
+      await tester.tap(find.text('Start Planning My Trip'), warnIfMissed: false);
+      if (!await waitFor(find.byType(MainScaffold), timeout: const Duration(seconds: 4))) {
+        notes.add('PAYWALL: "Start Planning My Trip" could not be tapped (off-screen); continuing via onPressed');
+        tester.widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Start Planning My Trip')).onPressed!();
+        expect(await waitFor(find.byType(MainScaffold)), isTrue);
+      }
+      await pumpFor(const Duration(seconds: 2));
+      await shot('04_explore_top');
+
+      final explore = find.byType(Scrollable).first;
+      await tester.scrollUntilVisible(find.text('Recommended'), 250, scrollable: explore);
+      await pumpFor(const Duration(milliseconds: 600));
+      await shot('05_explore_recommended');
+
+      await tester.scrollUntilVisible(find.text('Weather Forecast'), 250, scrollable: explore);
+      final weatherLoaded = await waitFor(find.textContaining('°C |'), timeout: const Duration(seconds: 20));
+      final weatherError = find.textContaining('Error:').evaluate().isNotEmpty;
+      notes.add('WEATHER (real OpenWeatherMap call): ${weatherLoaded ? 'loaded' : weatherError ? 'error shown' : 'not loaded'}');
+      await tester.drag(explore, const Offset(0, -200));
+      await pumpFor(const Duration(milliseconds: 600));
+      await shot('06_explore_weather_tips');
+
+      await tester.scrollUntilVisible(find.text('Most Popular Places'), -300, scrollable: explore);
+      await pumpFor(const Duration(milliseconds: 400));
+      await tapAndWait(find.byType(PopularPlaceCard).first);
+      await shot('07_place_details');
+      await tapAndWait(find.byIcon(Icons.arrow_back_ios_new));
+
+      // My Trip: fill the form and call the real OpenAI endpoint.
+      await tapAndWait(find.byType(SvgPicture).last);
+      await tapAndWait(find.text('Select date'));
+      await shot('08_date_picker');
+      await tapAndWait(find.text('OK'));
+      await tester.enterText(find.byType(TextField).at(0), '3');
+      await tester.enterText(find.byType(TextField).at(1), 'Dubai Marina');
+      FocusManager.instance.primaryFocus?.unfocus();
+      await pumpFor(const Duration(milliseconds: 500));
+      for (final category in ['Beaches', 'Restaurants', 'Rooftops']) {
+        await tester.ensureVisible(find.text(category));
+        await pumpFor(const Duration(milliseconds: 300));
+        await tester.tap(find.text(category));
+        await tester.pump();
+      }
+      await pumpFor(const Duration(milliseconds: 400));
+      await shot('09_my_trip_form');
+
+      final stopwatch = Stopwatch()..start();
+      await tester.tap(find.text('Show Results'));
+      await tester.pump(const Duration(milliseconds: 300));
+      await shot('10_my_trip_loading');
+      final finished = await waitFor(
+        find.byWidgetPredicate((w) => w is ItineraryScreen || w is SnackBar),
+        timeout: const Duration(seconds: 120),
+      );
+      stopwatch.stop();
+      if (find.byType(ItineraryScreen).evaluate().isNotEmpty) {
+        await pumpFor(const Duration(milliseconds: 800));
+        notes.add('AI: itinerary generated in ${stopwatch.elapsed.inMilliseconds} ms');
+        await shot('11_ai_itinerary');
+        await tapAndWait(find.byType(BackButton));
+      } else if (finished) {
+        final snack = tester.widget<Text>(find.descendant(of: find.byType(SnackBar), matching: find.byType(Text))).data;
+        notes.add('AI: error after ${stopwatch.elapsed.inMilliseconds} ms -> $snack');
+        await pumpFor(const Duration(milliseconds: 400));
+        await shot('11_ai_error_snackbar');
+      } else {
+        notes.add('AI: no result after 120 s');
+      }
+      await pumpFor(const Duration(seconds: 4));
+
+      // Seed a plan with long month names to check the itinerary layout.
+      await TripPlanStorage.savePlan(TripPlan(
+        location: 'Jumeirah Beach Residence',
+        startDate: DateTime(2026, 11, 28),
+        lengthInDays: 4,
+        categories: const ['Beaches', 'Restaurants', 'Rooftops', 'Nightlife'],
+        days: const [
+          DailyPlan(title: 'Day 1: JBR & Dubai Marina', highlights: [
+            'Morning: Swim at JBR Beach and breakfast at Lighthouse café',
+            'Afternoon: Dubai Marina Walk and a dhow cruise',
+            'Evening: Dinner at Pier 7 with marina views',
+          ]),
+          DailyPlan(title: 'Day 2: Downtown Dubai', highlights: [
+            'Morning: At the Top, Burj Khalifa (levels 124–125)',
+            'Afternoon: The Dubai Mall and the Dubai Aquarium',
+            'Evening: Dubai Fountain show from the boardwalk',
+          ]),
+          DailyPlan(title: 'Day 3: Old Dubai', highlights: ['Morning: Al Fahidi', 'Evening: Gold Souk']),
+          DailyPlan(title: 'Day 4: Palm Jumeirah', highlights: ['Morning: Aquaventure', 'Evening: Atlantis']),
+        ],
+      ));
+      await tapAndWait(find.byIcon(Icons.person));
+      await shot('12_profile');
+      await tapAndWait(find.byType(SvgPicture).last);
+      await shot('13_my_trip_saved_plan');
+      await tapAndWait(find.text('Your Tailored Itinerary'));
+      await shot('14_itinerary_seeded');
+      await tapAndWait(find.byType(BackButton));
+
+      await tapAndWait(find.byIcon(Icons.explore_outlined), wait: const Duration(milliseconds: 1500));
+      await shot('15_categories');
+    } finally {
+      FlutterError.onError = previousOnError;
+      // reportData also carries the screenshots, so add to it instead of replacing it.
+      final report = binding.reportData ??= <String, dynamic>{};
+      report['device'] = '${tester.view.physicalSize / tester.view.devicePixelRatio} @${tester.view.devicePixelRatio}x';
+      report['notes'] = notes;
+      report['overflows'] = overflows.toList()..sort();
+    }
+  });
+}
