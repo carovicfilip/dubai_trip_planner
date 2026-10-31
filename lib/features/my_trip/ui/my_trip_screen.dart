@@ -65,7 +65,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
       context: context,
       initialDate: now,
       firstDate: now,
-      lastDate: DateTime(now.year + 1),
+      lastDate: DateTime(now.year + 1, now.month, now.day),
     );
     if (picked != null) {
       setState(() => selectedDate = picked);
