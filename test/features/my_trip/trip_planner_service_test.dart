@@ -242,6 +242,26 @@ void main() {
     });
   });
 
+  group('trip length limit', () {
+    test('plans up to ${TripPlannerService.maxTripDays} days', () async {
+      final plan = await generate(answering(itineraryJson(15)), days: 15);
+      expect(plan.days, hasLength(15));
+    });
+
+    for (final days in [0, 16, 365]) {
+      test('refuses $days days without calling OpenAI', () async {
+        var called = false;
+        final client = MockClient((_) async {
+          called = true;
+          return jsonResponse(chatCompletionBody(itineraryJson(1)), 200);
+        });
+
+        await expectLater(generate(client, days: days), throwsArgumentError);
+        expect(called, isFalse);
+      });
+    }
+  });
+
   group('timeouts', () {
     // Expected behaviour. Fails today: the request has no timeout, so a
     // stalled connection keeps the "Show Results" spinner going forever.

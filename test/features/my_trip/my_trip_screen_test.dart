@@ -10,6 +10,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/openai_fakes.dart';
@@ -203,18 +204,59 @@ void main() {
     expect(daysAhead, greaterThanOrEqualTo(364), reason: 'last selectable date is ${dialog.lastDate}');
   });
 
-  // Documents current behaviour: there is no upper limit, so a 365-day
-  // itinerary is requested from the model in a single call.
-  testWidgets('accepts an unrealistic trip length and sends it to the AI', (tester) async {
-    final response = Completer<http.Response>();
-    await pumpMyTrip(tester, client: openAi((_) => response.future));
-    await fillValidForm(tester, days: '365');
+  group('trip length limit (15 days per plan)', () {
+    TextField durationField(WidgetTester tester) => tester.widget<TextField>(find.byType(TextField).at(0));
 
-    await tapShowResults(tester);
+    testWidgets('a longer stay gets advice on splitting the trip, and no AI call', (tester) async {
+      await pumpMyTrip(tester);
+      await fillValidForm(tester, days: '20');
 
-    expect(requests, hasLength(1));
-    expect(requests.single.body, contains('Create exactly 365 days'));
-    response.complete(jsonResponse(chatCompletionBody(itineraryJson(1)), 200));
-    await tester.pumpAndSettle();
+      await tapShowResults(tester);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Up to 15 days per plan'), findsOneWidget);
+      expect(find.textContaining('Split your 20-day stay into parts'), findsOneWidget);
+      final secondPartStart = DateUtils.addDaysToDate(DateUtils.dateOnly(DateTime.now()), 15);
+      expect(find.textContaining('new plan starting ${DateFormat.yMMMMd().format(secondPartStart)}'), findsOneWidget);
+
+      await tester.tap(find.text('Change length'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Up to 15 days per plan'), findsNothing);
+      expect(durationField(tester).controller!.text, '20');
+      expect(requests, isEmpty);
+    });
+
+    testWidgets('"Plan first 15 days" shortens the stay and plans it', (tester) async {
+      final response = Completer<http.Response>();
+      await pumpMyTrip(tester, client: openAi((_) => response.future));
+      await fillValidForm(tester, days: '20');
+
+      await tapShowResults(tester);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Plan first 15 days'));
+      await tester.pump();
+
+      expect(durationField(tester).controller!.text, '15');
+      expect(requests, hasLength(1));
+      expect(requests.single.body, contains('Create exactly 15 days'));
+
+      response.complete(jsonResponse(chatCompletionBody(itineraryJson(15)), 200));
+      await tester.pumpAndSettle();
+      expect(find.byType(ItineraryScreen), findsOneWidget);
+    });
+
+    testWidgets('exactly 15 days is planned without asking', (tester) async {
+      final response = Completer<http.Response>();
+      await pumpMyTrip(tester, client: openAi((_) => response.future));
+      await fillValidForm(tester, days: '15');
+
+      await tapShowResults(tester);
+
+      expect(find.text('Up to 15 days per plan'), findsNothing);
+      expect(requests, hasLength(1));
+      response.complete(jsonResponse(chatCompletionBody(itineraryJson(15)), 200));
+      await tester.pumpAndSettle();
+    });
   });
 }

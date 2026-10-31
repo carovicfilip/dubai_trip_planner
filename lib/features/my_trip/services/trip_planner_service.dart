@@ -17,12 +17,20 @@ class TripPlannerService {
   // guards against a stalled connection keeping the spinner going forever.
   static const _requestTimeout = Duration(minutes: 2);
 
+  /// Longest stay one plan may cover. Longer itineraries make the request
+  /// slow and costly, and the answer more likely to be cut off.
+  static const maxTripDays = 15;
+
   Future<TripPlan> generatePlan({
     required DateTime startDate,
     required int lengthInDays,
     required String location,
     required List<String> categories,
   }) async {
+    if (lengthInDays < 1 || lengthInDays > maxTripDays) {
+      throw ArgumentError.value(lengthInDays, 'lengthInDays', 'must be between 1 and $maxTripDays');
+    }
+
     final key = dotenv.env['OPENAI_API_KEY'];
     if (key == null || key.isEmpty) {
       throw StateError('OPENAI_API_KEY is missing. Add it to your .env file.');
