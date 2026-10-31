@@ -33,6 +33,15 @@ itineraries (OpenAI).
     --target=integration_test/app_e2e_test.dart -d <device id>
   ```
 
+## Release builds (Android)
+
+Release builds are signed with the upload key from `android/key.properties`,
+which points to `android/app/upload-keystore.jks` (alias `upload`). Neither
+file is in git, so keep a backup of both, e.g. in a password manager. Without
+them `flutter build appbundle` fails on purpose instead of signing with the
+debug key, which Google Play rejects. Google Play re-signs the app with its own
+app signing key, and a lost upload key can be reset in the Play Console.
+
 ## Notes
 
 - Material widgets come from the `material_ui` package. Import
