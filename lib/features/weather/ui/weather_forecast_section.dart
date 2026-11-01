@@ -56,7 +56,8 @@ class _WeatherForecastSectionState extends State<WeatherForecastSection> {
             }
 
             return SizedBox(
-              height: 130,
+              // Tall enough for the extra line of a day with rain.
+              height: 140,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: forecast.length,

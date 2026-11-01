@@ -109,6 +109,9 @@ void main() {
       await pumpFor(const Duration(milliseconds: 400));
       await tapAndWait(find.byType(PopularPlaceCard).first);
       await shot('07_place_details');
+      await tester.drag(find.text('About'), const Offset(0, -320));
+      await pumpFor(const Duration(milliseconds: 600));
+      await shot('07b_place_details_scrolled');
       await tapAndWait(find.byIcon(Icons.arrow_back_ios_new));
 
       // My Trip: fill the form and call the real OpenAI endpoint.

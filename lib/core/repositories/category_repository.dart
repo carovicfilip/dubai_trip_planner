@@ -48,5 +48,13 @@ class CategoryRepository {
 
   static List<Category> get allCategories => _categories;
 
+  /// The name of the category with this id, or null when there is none.
+  static String? getCategoryName(String id) {
+    for (final category in _categories) {
+      if (category.id == id) return category.name;
+    }
+    return null;
+  }
+
   static int getCategoryIndex(Category category) => _categories.indexOf(category);
 }

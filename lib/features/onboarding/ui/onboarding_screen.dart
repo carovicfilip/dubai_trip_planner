@@ -1,6 +1,5 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
+import 'package:dubai_trip_planner/core/widgets/glass_button.dart';
 import 'package:dubai_trip_planner/core/widgets/photo_message.dart';
 import 'package:dubai_trip_planner/features/onboarding/ui/onboarding_paywall_screen.dart';
 import 'package:flutter/services.dart';
@@ -115,7 +114,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  _GlassButton(
+                  GlassButton(
                     label: _currentPage == _pages.length - 1 ? 'Get Started' : 'Next',
                     onPressed: _onNext,
                   ),
@@ -126,41 +125,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// A pill of frosted glass that lets the photo show through.
-class _GlassButton extends StatelessWidget {
-  const _GlassButton({required this.label, required this.onPressed});
-
-  final String label;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipPath(
-      clipper: const ShapeBorderClipper(shape: StadiumBorder()),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-        child: TextButton(
-          onPressed: onPressed,
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: Colors.white.withValues(alpha: 0.12),
-            fixedSize: const Size(220, 58),
-            shape: StadiumBorder(side: BorderSide(color: Colors.white.withValues(alpha: 0.45))),
-          ),
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: Text(
-              label,
-              key: ValueKey(label),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-          ),
         ),
       ),
     );
