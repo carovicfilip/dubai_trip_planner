@@ -1,6 +1,7 @@
 // Full user journey on a simulator/device: onboarding, Explore, place details,
-// My Trip with a real AI call, saved itinerary, Profile, Categories. Collects
-// layout overflows and screenshots into $E2E_OUT (default ./e2e_out).
+// My Trip with a real AI call, saved itinerary, Profile, Categories, and the
+// splash shown the next time the app opens. Collects layout overflows and
+// screenshots into $E2E_OUT (default ./e2e_out).
 // Clears the app's local data (SharedPreferences) first.
 //
 //   E2E_OUT=e2e_out flutter drive --driver=test_driver/integration_test.dart \
@@ -71,24 +72,15 @@ void main() {
       await app.main();
       // Android can only screenshot an image-backed Flutter surface.
       if (Platform.isAndroid) await binding.convertFlutterSurfaceToImage();
-      expect(await waitFor(find.text('Next')), isTrue, reason: 'splash should lead to onboarding');
-      // "Next" exists from the first frame of the page transition; let the
-      // transition finish so the screenshot is the same on every run.
+      expect(await waitFor(find.text('Next')), isTrue, reason: 'the app should open on onboarding');
+      // Let the first photo fade in so the screenshot is the same on every run.
       await pumpFor(const Duration(milliseconds: 800));
-      await shot('01_onboarding_question1');
-
-      const answers = [
-        'Yes, absolutely!',
-        'Yes, it takes forever!',
-        'Yes, happens all the time!',
-        'Yes, that would be perfect!',
-      ];
-      for (var i = 0; i < answers.length; i++) {
-        await tester.tap(find.text(answers[i]));
-        await tester.pump();
-        if (i == answers.length - 1) await shot('02_onboarding_last_question');
-        await tapAndWait(find.text(i == answers.length - 1 ? 'See Solution' : 'Next'), wait: const Duration(milliseconds: 700));
-      }
+      await shot('01_onboarding_page1');
+      await tapAndWait(find.text('Next'));
+      await shot('02_onboarding_page2');
+      await tapAndWait(find.text('Next'));
+      await shot('02b_onboarding_page3');
+      await tapAndWait(find.text('Get Started'), wait: const Duration(milliseconds: 700));
       await shot('03_paywall');
 
       await tester.tap(find.text('Start Planning My Trip'), warnIfMissed: false);
@@ -196,6 +188,13 @@ void main() {
 
       await tapAndWait(find.byIcon(Icons.explore_outlined), wait: const Duration(milliseconds: 1500));
       await shot('15_categories');
+
+      // Opening the app again now that onboarding is done.
+      await tester.pumpWidget(app.MyApp(key: UniqueKey(), prefs: prefs, onboardingCompleted: true));
+      expect(await waitFor(find.text('Welcome Back')), isTrue, reason: 'a returning user is welcomed back');
+      await pumpFor(const Duration(milliseconds: 800));
+      await shot('16_welcome_back_splash');
+      expect(await waitFor(find.byType(MainScaffold), timeout: const Duration(seconds: 5)), isTrue);
     } finally {
       FlutterError.onError = previousOnError;
       // reportData also carries the screenshots, so add to it instead of replacing it.

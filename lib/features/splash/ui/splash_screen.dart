@@ -1,9 +1,13 @@
 import 'dart:async';
-import 'package:material_ui/material_ui.dart';
-import '../../../app/router/main_scaffold.dart';
-import '../../onboarding/ui/onboarding_screen.dart';
-import '../../onboarding/services/onboarding_service.dart';
 
+import 'package:dubai_trip_planner/app/router/main_scaffold.dart';
+import 'package:dubai_trip_planner/core/constants/app_color.dart';
+import 'package:dubai_trip_planner/core/widgets/photo_message.dart';
+import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
+
+/// Welcomes back a user who has already been through onboarding, on the way
+/// to the main app.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -17,19 +21,13 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _redirectTimer = Timer(const Duration(seconds: 2), () async {
-      if (!mounted) return;
-      
-      final isOnboardingCompleted = await OnboardingService.isOnboardingCompleted();
-      
-      if (!mounted) return;
-      
+    _redirectTimer = Timer(const Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => isOnboardingCompleted 
-              ? MainScaffold() 
-              : const OnboardingScreen(),
+        PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: 400),
+          pageBuilder: (_, _, _) => const MainScaffold(),
+          transitionsBuilder: (_, animation, _, child) => FadeTransition(opacity: animation, child: child),
         ),
       );
     });
@@ -43,16 +41,16 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-        ),
-        child: Image.asset(
-          'assets/images/splash_screen.jpg',
-          fit: BoxFit.cover,
+    return const AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: AppColors.darkNavy,
+        body: PhotoMessage(
+          image: 'assets/images/splash.webp',
+          title: 'Welcome Back',
+          label: 'DUBAI',
+          text: "Your next adventure is waiting. Let's pick up where you left off.",
+          bottomSpace: 72,
         ),
       ),
     );

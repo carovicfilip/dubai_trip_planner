@@ -16,7 +16,7 @@ void main() {
         if (!File(path).existsSync()) missing.add('${file.path}: $path');
       }
     }
-    expect(checked, greaterThan(40), reason: 'the pattern should find the place images, icons and splash');
+    expect(checked, greaterThan(40), reason: 'the pattern should find the place images, icons, onboarding photos and splash');
     expect(missing, isEmpty);
   });
 }

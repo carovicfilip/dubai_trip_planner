@@ -1,7 +1,49 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:dubai_trip_planner/features/onboarding/models/onboarding_question.dart';
-import 'package:dubai_trip_planner/features/onboarding/ui/onboarding_question_screen.dart';
+import 'dart:ui' show ImageFilter;
+
+import 'package:dubai_trip_planner/core/constants/app_color.dart';
+import 'package:dubai_trip_planner/core/widgets/photo_message.dart';
 import 'package:dubai_trip_planner/features/onboarding/ui/onboarding_paywall_screen.dart';
+import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
+
+class _OnboardingPage {
+  const _OnboardingPage({
+    required this.image,
+    required this.label,
+    required this.title,
+    required this.text,
+  });
+
+  final String image;
+  final String label;
+  final String title;
+  final String text;
+}
+
+const _pages = [
+  _OnboardingPage(
+    image: 'assets/images/onboarding_1.webp',
+    label: 'DISCOVER',
+    title: "Dubai's Best,\nAll in One Place",
+    text: 'No more endless searching. Top places, handpicked and ready to explore.',
+  ),
+  _OnboardingPage(
+    image: 'assets/images/onboarding_2.webp',
+    label: 'EXPLORE',
+    title: 'Find Your Way\nAround Dubai',
+    text: 'Opening hours, locations, your favorites and the weather, all at hand.',
+  ),
+  _OnboardingPage(
+    image: 'assets/images/onboarding_3.webp',
+    label: 'PLAN',
+    title: 'Your Days,\nPlanned for You',
+    text: 'A day-by-day itinerary built around your hotel and your interests.',
+  ),
+];
+
+/// The height of the button and dots at the bottom of the screen; the text of
+/// every page stays above them.
+const _controlsHeight = 136.0;
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -13,71 +55,20 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  final Map<int, String> _answers = {};
 
-  final List<OnboardingQuestion> _questions = [
-    OnboardingQuestion(
-      stepNumber: 1,
-      question: 'Planning a trip to Dubai feels overwhelming, doesn\'t it?',
-      subtitle: 'So many places, so little time to research...',
-      answers: [
-        OnboardingAnswer(text: 'Yes, absolutely!', value: 'yes'),
-        OnboardingAnswer(text: 'Sometimes', value: 'sometimes'),
-        OnboardingAnswer(text: 'Not really', value: 'no'),
-      ],
-    ),
-    OnboardingQuestion(
-      stepNumber: 2,
-      question: 'Do you waste hours searching for the best places to visit?',
-      subtitle: 'Scrolling through endless reviews and conflicting recommendations...',
-      answers: [
-        OnboardingAnswer(text: 'Yes, it takes forever!', value: 'yes'),
-        OnboardingAnswer(text: 'I try to be quick', value: 'sometimes'),
-        OnboardingAnswer(text: 'I know what I want', value: 'no'),
-      ],
-    ),
-    OnboardingQuestion(
-      stepNumber: 3,
-      question: 'Have you ever missed out on amazing experiences because you didn\'t know about them?',
-      subtitle: 'Finding out about that perfect spot only after you\'ve left...',
-      answers: [
-        OnboardingAnswer(text: 'Yes, happens all the time!', value: 'yes'),
-        OnboardingAnswer(text: 'Occasionally', value: 'sometimes'),
-        OnboardingAnswer(text: 'I do my research', value: 'no'),
-      ],
-    ),
-    // OnboardingQuestion(
-    //   stepNumber: 4,
-    //   question: 'Is organizing your itinerary a stressful nightmare?',
-    //   subtitle: 'Trying to fit everything in while making sure nothing overlaps...',
-    //   answers: [
-    //     OnboardingAnswer(text: 'Yes, very stressful!', value: 'yes'),
-    //     OnboardingAnswer(text: 'It\'s challenging', value: 'sometimes'),
-    //     OnboardingAnswer(text: 'I enjoy planning', value: 'no'),
-    //   ],
-    // ),
-    OnboardingQuestion(
-      stepNumber: 4,
-      question: 'Do you wish someone would just plan everything for you?',
-      subtitle: 'A personalized trip plan ready in minutes, not hours...',
-      answers: [
-        OnboardingAnswer(text: 'Yes, that would be perfect!', value: 'yes'),
-        OnboardingAnswer(text: 'That sounds nice', value: 'sometimes'),
-        OnboardingAnswer(text: 'I prefer to plan myself', value: 'no'),
-      ],
-    ),
-  ];
-
-  void _onAnswerSelected(int questionIndex, String answer) {
-    setState(() {
-      _answers[questionIndex] = answer;
-    });
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // So that no page shows up empty while its photo is decoded.
+    for (final page in _pages) {
+      precacheImage(AssetImage(page.image), context);
+    }
   }
 
   void _onNext() {
-    if (_currentPage < _questions.length - 1) {
+    if (_currentPage < _pages.length - 1) {
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,
       );
     } else {
@@ -97,25 +88,108 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PageView.builder(
-      controller: _pageController,
-      physics: const NeverScrollableScrollPhysics(),
-      onPageChanged: (index) {
-        setState(() {
-          _currentPage = index;
-        });
-      },
-      itemCount: _questions.length,
-      itemBuilder: (context, index) {
-        return OnboardingQuestionScreen(
-          question: _questions[index],
-          onAnswerSelected: (answer) => _onAnswerSelected(index, answer),
-          onNext: _onNext,
-          totalSteps: _questions.length,
-          isLastQuestion: index == _questions.length - 1,
-        );
-      },
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: AppColors.darkNavy,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            PageView.builder(
+              controller: _pageController,
+              onPageChanged: (index) => setState(() => _currentPage = index),
+              itemCount: _pages.length,
+              itemBuilder: (context, index) {
+                final page = _pages[index];
+                return PhotoMessage(
+                  image: page.image,
+                  title: page.title,
+                  label: page.label,
+                  text: page.text,
+                  bottomSpace: _controlsHeight,
+                );
+              },
+            ),
+            // Stays in place while the pages slide underneath.
+            SafeArea(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  _GlassButton(
+                    label: _currentPage == _pages.length - 1 ? 'Get Started' : 'Next',
+                    onPressed: _onNext,
+                  ),
+                  const SizedBox(height: 28),
+                  _PageDots(count: _pages.length, current: _currentPage),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
+/// A pill of frosted glass that lets the photo show through.
+class _GlassButton extends StatelessWidget {
+  const _GlassButton({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipPath(
+      clipper: const ShapeBorderClipper(shape: StadiumBorder()),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+        child: TextButton(
+          onPressed: onPressed,
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.white.withValues(alpha: 0.12),
+            fixedSize: const Size(220, 58),
+            shape: StadiumBorder(side: BorderSide(color: Colors.white.withValues(alpha: 0.45))),
+          ),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: Text(
+              label,
+              key: ValueKey(label),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PageDots extends StatelessWidget {
+  const _PageDots({required this.count, required this.current});
+
+  final int count;
+  final int current;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < count; i++)
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            width: i == current ? 22 : 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: i == current ? 0.9 : 0.4),
+              borderRadius: BorderRadius.circular(3),
+            ),
+          ),
+      ],
+    );
+  }
+}

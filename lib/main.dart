@@ -6,19 +6,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'app/theme/app_theme.dart';
+import 'features/onboarding/services/onboarding_service.dart';
+import 'features/onboarding/ui/onboarding_screen.dart';
 import 'features/splash/ui/splash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
   final prefs = await SharedPreferences.getInstance();
-  runApp(MyApp(prefs: prefs));
+  final onboardingCompleted = await OnboardingService.isOnboardingCompleted();
+  runApp(MyApp(prefs: prefs, onboardingCompleted: onboardingCompleted));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, required this.prefs});
+  const MyApp({super.key, required this.prefs, required this.onboardingCompleted});
 
   final SharedPreferences prefs;
+  final bool onboardingCompleted;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +35,7 @@ class MyApp extends StatelessWidget {
         title: 'Dubai Trip Planner',
         theme: AppTheme.lightTheme,
         debugShowCheckedModeBanner: false,
-        home: SplashScreen(),
+        home: onboardingCompleted ? const SplashScreen() : const OnboardingScreen(),
       ),
     );
   }

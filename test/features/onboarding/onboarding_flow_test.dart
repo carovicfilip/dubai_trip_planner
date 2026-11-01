@@ -10,7 +10,9 @@ import 'package:dubai_trip_planner/features/onboarding/services/onboarding_servi
 import 'package:dubai_trip_planner/features/onboarding/ui/onboarding_paywall_screen.dart';
 import 'package:dubai_trip_planner/features/onboarding/ui/onboarding_screen.dart';
 import 'package:dubai_trip_planner/features/profile/ui/profile_screen.dart';
+import 'package:dubai_trip_planner/features/splash/ui/splash_screen.dart';
 import 'package:dubai_trip_planner/features/weather/services/weather_forecast_service.dart';
+import 'package:dubai_trip_planner/main.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -20,13 +22,6 @@ import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  const firstAnswers = [
-    'Yes, absolutely!',
-    'Yes, it takes forever!',
-    'Yes, happens all the time!',
-    'Yes, that would be perfect!',
-  ];
-
   final weatherFixture = File('test/fixtures/openweather_forecast_dubai.json').readAsStringSync();
 
   setUp(() {
@@ -37,7 +32,13 @@ void main() {
 
   /// Runs [body] with [home] as the first screen. HTTP calls (the weather
   /// section on the Explore tab) are answered from a recorded response.
-  Future<void> withApp(WidgetTester tester, Future<void> Function() body, {Widget home = const OnboardingScreen()}) async {
+  Future<void> withApp(
+    WidgetTester tester,
+    Future<void> Function() body, {
+    Widget home = const OnboardingScreen(),
+    Widget? app,
+    bool checkOverflow = false,
+  }) async {
     // Large surface on purpose: the test font draws every glyph 1em wide, far
     // wider than Poppins, so phone-size layout is checked on a real device.
     tester.view.physicalSize = const Size(800 * 3, 1600 * 3);
@@ -49,19 +50,20 @@ void main() {
     // that do not happen with Poppins on a device; only those are ignored.
     final reportError = FlutterError.onError!;
     FlutterError.onError = (details) {
-      if (!details.exceptionAsString().contains('A RenderFlex overflowed')) reportError(details);
+      if (checkOverflow || !details.exceptionAsString().contains('A RenderFlex overflowed')) reportError(details);
     };
 
     try {
       await http.runWithClient(
         () async {
-          await tester.pumpWidget(MultiBlocProvider(
-            providers: [
-              BlocProvider(create: (_) => FavoritesCubit(prefs)),
-              BlocProvider(create: (_) => MyTripCubit(TripPlannerService())),
-            ],
-            child: MaterialApp(home: home),
-          ));
+          await tester.pumpWidget(app ??
+              MultiBlocProvider(
+                providers: [
+                  BlocProvider(create: (_) => FavoritesCubit(prefs)),
+                  BlocProvider(create: (_) => MyTripCubit(TripPlannerService())),
+                ],
+                child: MaterialApp(home: home),
+              ));
           await body();
         },
         () => MockClient((_) async => http.Response(weatherFixture, 200)),
@@ -79,18 +81,46 @@ void main() {
     }
   }
 
-  ElevatedButton nextButton(WidgetTester tester) => tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+  Future<void> tapAndSettle(WidgetTester tester, String button) async {
+    await tester.tap(find.text(button));
+    await tester.pumpAndSettle();
+  }
 
-  testWidgets('4 questions → paywall → main app, and completion is remembered', (tester) async {
+  Future<void> goToPaywall(WidgetTester tester) async {
+    await tapAndSettle(tester, 'Next');
+    await tapAndSettle(tester, 'Next');
+    await tapAndSettle(tester, 'Get Started');
+  }
+
+  group('opening the app', () {
+    testWidgets('the first time goes straight to onboarding', (tester) async {
+      final prefs = await SharedPreferences.getInstance();
+      await withApp(tester, app: MyApp(prefs: prefs, onboardingCompleted: false), () async {
+        expect(find.byType(OnboardingScreen), findsOneWidget);
+        expect(find.byType(SplashScreen), findsNothing);
+      });
+    });
+
+    testWidgets('after onboarding welcomes the user back for 2 seconds, then shows the main app', (tester) async {
+      final prefs = await SharedPreferences.getInstance();
+      await withApp(tester, app: MyApp(prefs: prefs, onboardingCompleted: true), () async {
+        expect(find.text('Welcome Back'), findsOneWidget);
+        expect(find.byType(OnboardingScreen), findsNothing);
+
+        await tester.pump(const Duration(milliseconds: 1900));
+        expect(find.byType(SplashScreen), findsOneWidget);
+        expect(find.byType(MainScaffold), findsNothing);
+
+        await pumpFor(tester, const Duration(seconds: 1));
+        expect(find.byType(MainScaffold), findsOneWidget);
+        expect(find.byType(SplashScreen), findsNothing);
+      });
+    });
+  });
+
+  testWidgets('3 pages → paywall → main app, and completion is remembered', (tester) async {
     await withApp(tester, () async {
-      for (var i = 0; i < firstAnswers.length; i++) {
-        expect(nextButton(tester).onPressed, isNull, reason: 'Next is disabled until question ${i + 1} is answered');
-        await tester.tap(find.text(firstAnswers[i]));
-        await tester.pump();
-        expect(nextButton(tester).onPressed, isNotNull);
-        await tester.tap(find.text(i == firstAnswers.length - 1 ? 'See Solution' : 'Next'));
-        await tester.pumpAndSettle();
-      }
+      await goToPaywall(tester);
 
       expect(find.byType(OnboardingPaywallScreen), findsOneWidget);
       expect(await OnboardingService.isOnboardingCompleted(), isFalse);
@@ -99,6 +129,7 @@ void main() {
       await pumpFor(tester, const Duration(seconds: 1));
 
       expect(find.byType(MainScaffold), findsOneWidget);
+      expect(find.byType(SplashScreen), findsNothing, reason: 'the welcome back is for the next time');
       expect(await OnboardingService.isOnboardingCompleted(), isTrue);
     });
   });
@@ -112,25 +143,54 @@ void main() {
     });
   });
 
-  // Regression test: the bar used to draw 5 segments while there were only 4
-  // questions, so it never filled up.
-  testWidgets('progress bar has one segment per question', (tester) async {
+  testWidgets('every page shows a photo and explains a benefit, with nothing to answer', (tester) async {
     await withApp(tester, () async {
-      final segments = find.byWidgetPredicate(
-        (w) => w is Container && w.constraints == const BoxConstraints.tightFor(height: 4),
-      );
-      expect(segments, findsNWidgets(firstAnswers.length));
+      expect(find.text("Dubai's Best,\nAll in One Place"), findsOneWidget);
+      await tapAndSettle(tester, 'Next');
+      expect(find.text('Find Your Way\nAround Dubai'), findsOneWidget);
+      await tapAndSettle(tester, 'Next');
+      expect(find.text('Your Days,\nPlanned for You'), findsOneWidget);
+
+      // The sharp photo, and the blurred copy of it that fades in at the bottom.
+      final photos = tester.widgetList<Image>(find.byType(Image)).map((image) => image.image);
+      expect(photos.toSet(), {const AssetImage('assets/images/onboarding_3.webp')});
+      expect(find.byType(RadioListTile<String>), findsNothing);
+      expect(find.textContaining('Yes,'), findsNothing);
+    });
+  });
+
+  testWidgets('the text and button fit a small phone', (tester) async {
+    await withApp(tester, () async {
+      tester.view.physicalSize = const Size(320 * 3, 568 * 3);
+      for (final button in ['Next', 'Next']) {
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        await tapAndSettle(tester, button);
+      }
+      expect(tester.takeException(), isNull);
+    }, checkOverflow: true);
+  });
+
+  testWidgets('swiping changes the page, and the button and dots follow', (tester) async {
+    await withApp(tester, () async {
+      expect(find.byType(AnimatedContainer), findsNWidgets(3), reason: 'one dot per page');
+
+      await tester.fling(find.byType(PageView), const Offset(-600, 0), 2000);
+      await tester.pumpAndSettle();
+      expect(find.text('Find Your Way\nAround Dubai'), findsOneWidget);
+      expect(find.text('Next'), findsOneWidget);
+
+      await tester.fling(find.byType(PageView), const Offset(-600, 0), 2000);
+      await tester.pumpAndSettle();
+      expect(find.text('Your Days,\nPlanned for You'), findsOneWidget);
+      expect(find.text('Get Started'), findsOneWidget);
+      expect(find.text('Next'), findsNothing);
     });
   });
 
   testWidgets('main app: Explore content, weather, bottom navigation and favorites', (tester) async {
     await withApp(tester, () async {
-      for (var i = 0; i < firstAnswers.length; i++) {
-        await tester.tap(find.text(firstAnswers[i]));
-        await tester.pump();
-        await tester.tap(find.text(i == firstAnswers.length - 1 ? 'See Solution' : 'Next'));
-        await tester.pumpAndSettle();
-      }
+      await goToPaywall(tester);
       await tester.tap(find.text('Start Planning My Trip'));
       await pumpFor(tester, const Duration(seconds: 2));
 
