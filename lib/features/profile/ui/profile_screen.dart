@@ -1,7 +1,8 @@
-import 'package:dubai_trip_planner/core/widgets/promo_banner.dart';
-import 'package:dubai_trip_planner/features/explore/ui/widgets/places_card.dart';
+import 'package:dubai_trip_planner/core/constants/app_color.dart';
+import 'package:dubai_trip_planner/core/widgets/places_card.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
-import 'package:dubai_trip_planner/features/place_details/screens/more_details_screen.dart';
+import 'package:dubai_trip_planner/features/my_trip/ui/widgets/promo_banner.dart';
+import 'package:dubai_trip_planner/features/place_details/ui/place_details_screen.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -21,7 +22,7 @@ class ProfileScreen extends StatelessWidget {
           'Profile',
           style: TextStyle(fontSize: 18, color: Colors.white),
         ),
-        backgroundColor:   Color(0xFF101A26),
+        backgroundColor: AppColors.darkNavy,
         shadowColor: Colors.black26,
       ),
       body: SafeArea(
@@ -73,7 +74,7 @@ class ProfileScreen extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => MoreDetailsScreen(
+                                builder: (_) => PlaceDetailsScreen(
                                   place: place,
                                 ),
                               ),
@@ -81,7 +82,6 @@ class ProfileScreen extends StatelessWidget {
                           },
                           child: PlacesCard(
                             place: place,
-                            index: index,
                             isFavorite: favoritesState.isFavorite(place.id),
                             onFavoriteToggle: () =>
                                 context.read<FavoritesCubit>().toggleFavorite(place),

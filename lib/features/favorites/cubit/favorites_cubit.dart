@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dubai_trip_planner/core/models/place.dart';
+import 'package:dubai_trip_planner/core/repositories/place_repository.dart';
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,7 +32,7 @@ class FavoritesCubit extends Cubit<FavoritesState> {
     emit(state.copyWith(favorites: const {}));
   }
 
-  Future<void> _loadFavorites() async {
+  void _loadFavorites() {
     final stored = _prefs.getStringList(_favoritesKey);
     if (stored == null || stored.isEmpty) return;
 
@@ -39,7 +40,12 @@ class FavoritesCubit extends Cubit<FavoritesState> {
     for (final item in stored) {
       try {
         final decoded = jsonDecode(item) as Map<String, dynamic>;
-        final place = Place.fromJson(decoded);
+        // The id is worked out again because favorites saved by older
+        // versions used the place's position in its list as the id.
+        final place = Place.fromJson({
+          ...decoded,
+          'id': PlaceRepository.placeId(decoded['categoryId'] as String, decoded['name'] as String),
+        });
         map[place.id] = place;
       } catch (_) {
         // ignore corrupt entries

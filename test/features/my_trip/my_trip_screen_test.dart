@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dubai_trip_planner/features/my_trip/cubit/my_trip_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_plan_storage.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_planner_service.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/itinerary_screen.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -32,22 +34,23 @@ void main() {
     });
   }
 
-  /// MyTripScreen creates its own TripPlannerService(); building it inside
-  /// http.runWithClient makes that service use [client].
-  Future<void> pumpMyTrip(WidgetTester tester, {http.Client? client}) async {
+  /// Shows [home] (My Trip by default) under a MyTripCubit whose trip planner
+  /// sends its OpenAI requests to [client].
+  Future<void> pumpMyTrip(WidgetTester tester, {http.Client? client, Widget home = const MyTripScreen()}) async {
     // Large surface on purpose: the test font draws every glyph 1em wide, far
     // wider than Poppins, so phone-size layout is checked on a real device.
     tester.view.physicalSize = const Size(800 * 3, 1600 * 3);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
 
-    await http.runWithClient(
-      () async {
-        await tester.pumpWidget(const MaterialApp(home: MyTripScreen()));
-        await tester.pumpAndSettle();
-      },
-      () => client ?? openAi((_) async => throw StateError('unexpected OpenAI call')),
+    final planner = TripPlannerService(
+      httpClient: client ?? openAi((_) async => throw StateError('unexpected OpenAI call')),
     );
+    await tester.pumpWidget(BlocProvider(
+      create: (_) => MyTripCubit(planner),
+      child: MaterialApp(home: home),
+    ));
+    await tester.pumpAndSettle();
   }
 
   Future<void> pickToday(WidgetTester tester) async {
@@ -200,6 +203,41 @@ void main() {
     expect(find.textContaining('4 days · Business Bay'), findsOneWidget);
     expect(tester.widget<TextField>(find.byType(TextField).at(0)).controller!.text, '4');
     expect(tester.widget<TextField>(find.byType(TextField).at(1)).controller!.text, 'Business Bay');
+  });
+
+  // Regression test: the tab bar builds My Trip from scratch on every visit.
+  // Leaving the tab while a plan was being generated dropped the spinner, so
+  // the user could pay for the same plan twice, and lost what they had typed.
+  testWidgets('leaving My Trip while a plan is generated keeps the request and the form', (tester) async {
+    final response = Completer<http.Response>();
+    var onMyTrip = true;
+    late StateSetter switchTab;
+    await pumpMyTrip(
+      tester,
+      client: openAi((_) => response.future),
+      home: StatefulBuilder(builder: (context, setState) {
+        switchTab = setState;
+        return onMyTrip ? const MyTripScreen() : const Scaffold(body: Text('Explore'));
+      }),
+    );
+    await fillValidForm(tester);
+    await tapShowResults(tester);
+
+    switchTab(() => onMyTrip = false);
+    await tester.pump();
+    switchTab(() => onMyTrip = true);
+    await tester.pump();
+
+    expect(find.byType(CircularProgressIndicator), findsOneWidget, reason: 'the plan is still being generated');
+    expect(tester.widget<TextField>(find.byType(TextField).at(1)).controller!.text, 'Dubai Marina');
+    await tester.tap(find.byType(TextButton), warnIfMissed: false);
+    await tester.pump();
+
+    response.complete(jsonResponse(chatCompletionBody(itineraryJson(3)), 200));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Your Tailored Itinerary'), findsOneWidget);
+    expect(requests, hasLength(1));
   });
 
   // Regression test: lastDate used to be DateTime(now.year + 1), i.e.

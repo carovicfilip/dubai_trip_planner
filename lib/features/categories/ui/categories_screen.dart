@@ -1,10 +1,12 @@
+import 'package:dubai_trip_planner/core/constants/app_color.dart';
 import 'package:dubai_trip_planner/core/models/category.dart';
 import 'package:dubai_trip_planner/core/models/place.dart';
+import 'package:dubai_trip_planner/core/repositories/category_repository.dart';
 import 'package:dubai_trip_planner/core/repositories/place_repository.dart';
 import 'package:dubai_trip_planner/core/widgets/custom_back_button.dart';
-import 'package:dubai_trip_planner/features/explore/ui/widgets/places_card.dart';
+import 'package:dubai_trip_planner/core/widgets/places_card.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
-import 'package:dubai_trip_planner/features/place_details/screens/more_details_screen.dart';
+import 'package:dubai_trip_planner/features/place_details/ui/place_details_screen.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -62,7 +64,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
           'Explore Categories',
           style: TextStyle(fontSize: 18, color: Colors.white),
         ),
-        backgroundColor:   Color(0xFF101A26),
+        backgroundColor: AppColors.darkNavy,
         shadowColor: Colors.black26,
       ),
       body: ScrollablePositionedList.builder(
@@ -97,7 +99,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       category.name,
                       style: const TextStyle(
                         fontSize: 18,
-                        color: Color(0xFF101A26),
+                        color: AppColors.darkNavy,
                       ),
                     ),
                   ],
@@ -120,13 +122,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => MoreDetailsScreen(place: place),
+                                    builder: (_) => PlaceDetailsScreen(place: place),
                                   ),
                                 );
                               },
                               child: PlacesCard(
                                 place: place,
-                                index: placeIndex,
                                 isFavorite: favoritesState.isFavorite(place.id),
                                 onFavoriteToggle: () =>
                                     context.read<FavoritesCubit>().toggleFavorite(place),

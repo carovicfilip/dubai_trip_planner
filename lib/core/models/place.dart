@@ -32,6 +32,13 @@ class Place {
     );
   }
 
+  /// The rating [reviewSummary] starts with, e.g. 4.7 for
+  /// "4.7 (166k reviews)", or 0 when there is none.
+  double get rating {
+    final match = RegExp(r'^(\d+\.?\d*)').firstMatch(reviewSummary ?? '');
+    return double.tryParse(match?.group(1) ?? '') ?? 0;
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

@@ -1,3 +1,4 @@
+import 'package:dubai_trip_planner/core/constants/app_color.dart';
 import 'package:dubai_trip_planner/features/categories/ui/categories_screen.dart';
 import 'package:dubai_trip_planner/features/explore/ui/explore_screen.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
@@ -14,31 +15,41 @@ class MainScaffold extends StatefulWidget {
 
 class _MainScaffoldState extends State<MainScaffold> {
   int _currentIndex = 0;
-  final _screens = [
+
+  // Only the selected tab is built, so switching tabs starts each screen
+  // over. State that has to survive that lives in cubits above the app
+  // (FavoritesCubit, MyTripCubit) or in caches (the weather forecast).
+  static const _screens = [
     ExploreScreen(),
     MyTripScreen(),
     CategoryScreen(),
     ProfileScreen(),
   ];
 
-  Widget _buildNavItem({required Widget icon, required int index}) {
+  Widget _buildNavItem({required Widget icon, required int index, required String label}) {
     final bool isSelected = _currentIndex == index;
-    return GestureDetector(
-      onTap: () => setState(() => _currentIndex = index),
-      child: Container(
-        padding: const EdgeInsets.all(10), // veći padding = veći krug
-        decoration: isSelected
-            ? BoxDecoration(
-          color: const Color(0xFF101A26),
-          shape: BoxShape.circle,
-        )
-            : null,
-        child: IconTheme(
-          data: IconThemeData(
-            color: isSelected ? Colors.white : Colors.black38,
-            size: 30,
+    // The icons say nothing to a screen reader; the label names the tab.
+    return Semantics(
+      label: label,
+      button: true,
+      selected: isSelected,
+      child: GestureDetector(
+        onTap: () => setState(() => _currentIndex = index),
+        child: Container(
+          padding: const EdgeInsets.all(10), // veći padding = veći krug
+          decoration: isSelected
+              ? BoxDecoration(
+            color: AppColors.darkNavy,
+            shape: BoxShape.circle,
+          )
+              : null,
+          child: IconTheme(
+            data: IconThemeData(
+              color: isSelected ? Colors.white : Colors.black38,
+              size: 30,
+            ),
+            child: icon,
           ),
-          child: icon,
         ),
       ),
     );
@@ -60,7 +71,7 @@ class _MainScaffoldState extends State<MainScaffold> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildNavItem(icon: const Icon(Icons.home_filled), index: 0),
+            _buildNavItem(icon: const Icon(Icons.home_filled), index: 0, label: 'Explore'),
             _buildNavItem(
               icon: SvgPicture.asset(
                 'assets/icons/my_trip.svg',
@@ -71,9 +82,10 @@ class _MainScaffoldState extends State<MainScaffold> {
                 ),
               ),
               index: 1,
+              label: 'My Trip',
             ),
-            _buildNavItem(icon: const Icon(Icons.explore_outlined), index: 2),
-            _buildNavItem(icon: const Icon(Icons.person), index: 3),
+            _buildNavItem(icon: const Icon(Icons.explore_outlined), index: 2, label: 'Categories'),
+            _buildNavItem(icon: const Icon(Icons.person), index: 3, label: 'Profile'),
           ],
         ),
       ),

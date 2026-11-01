@@ -1,26 +1,17 @@
 import 'dart:convert';
 
 import 'package:dubai_trip_planner/core/models/place.dart';
+import 'package:dubai_trip_planner/core/repositories/place_repository.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  const burj = Place(
-    id: 'must_see_0',
-    categoryId: 'must_see',
-    name: 'Burj Khalifa',
-    description: 'Tallest building in the world',
-    imageUrl: 'assets/places_images/must_see_1.jpg',
-    reviewSummary: '4.7 (166k reviews)',
-  );
-  const mall = Place(
-    id: 'shopping_0',
-    categoryId: 'shopping',
-    name: 'The Dubai Mall',
-    description: 'Huge mall',
-    imageUrl: 'assets/places_images/shopping_1.webp',
-  );
+  Place placeNamed(String categoryId, String name) =>
+      PlaceRepository.getPlacesByCategory(categoryId).firstWhere((p) => p.name == name);
+
+  final burj = placeNamed('must_see', 'Burj Khalifa');
+  final mall = placeNamed('shopping', 'Dubai Mall');
 
   late SharedPreferences prefs;
 
@@ -51,8 +42,22 @@ void main() {
 
     final after = FavoritesCubit(prefs);
 
-    expect(after.state.favoritesList.map((p) => p.id), ['must_see_0', 'shopping_0']);
-    expect(after.state.favorites['must_see_0']!.reviewSummary, '4.7 (166k reviews)');
+    expect(after.state.favoritesList.map((p) => p.id), [burj.id, mall.id]);
+    expect(after.state.favorites[burj.id]!.reviewSummary, burj.reviewSummary);
+  });
+
+  // Older versions used the place's position in its list as the id, which
+  // pointed at a different place as soon as places were added or reordered.
+  test('a favorite saved with an old position-based id gets the stable id', () async {
+    SharedPreferences.setMockInitialValues({
+      'favorites_places': [jsonEncode({...burj.toJson(), 'id': 'must_see_0'})],
+    });
+    prefs = await SharedPreferences.getInstance();
+
+    final cubit = FavoritesCubit(prefs);
+
+    expect(cubit.state.favoritesList.map((p) => p.id), [burj.id]);
+    expect(cubit.state.isFavorite(burj.id), isTrue);
   });
 
   test('skips corrupt stored entries and keeps the valid ones', () async {
@@ -63,7 +68,7 @@ void main() {
 
     final cubit = FavoritesCubit(prefs);
 
-    expect(cubit.state.favoritesList.map((p) => p.id), ['must_see_0']);
+    expect(cubit.state.favoritesList.map((p) => p.id), [burj.id]);
   });
 
   test('clear() removes all favorites', () async {

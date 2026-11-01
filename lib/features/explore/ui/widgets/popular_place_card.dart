@@ -1,4 +1,6 @@
+import 'package:dubai_trip_planner/core/constants/app_color.dart';
 import 'package:dubai_trip_planner/core/models/place.dart';
+import 'package:dubai_trip_planner/core/widgets/place_image.dart';
 import 'package:material_ui/material_ui.dart';
 
 class PopularPlaceCard extends StatelessWidget {
@@ -30,36 +32,7 @@ class PopularPlaceCard extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(24),
-            child: place.imageUrl.isNotEmpty
-                ? Image.asset(
-                    place.imageUrl,
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      debugPrint('Error loading image: ${place.imageUrl}');
-                      debugPrint('Error: $error');
-                      return Container(
-                        width: double.infinity,
-                        height: double.infinity,
-                        color: Colors.grey[300],
-                        child: const Center(
-                          child: Icon(
-                            Icons.image_not_supported,
-                            size: 50,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      );
-                    },
-                  )
-                : const Center(
-                    child: Icon(
-                      Icons.image_not_supported,
-                      size: 50,
-                      color: Colors.grey,
-                    ),
-                  ),
+            child: PlaceImage(place.imageUrl),
           ),
         ),
         Positioned(
@@ -67,10 +40,6 @@ class PopularPlaceCard extends StatelessWidget {
           child: Container(
             width: 320,
             padding: const EdgeInsets.only(left: 22, bottom: 12),
-            // decoration: BoxDecoration(
-            //   color: Colors.black26,
-            //   borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
-            // ),
             child: Text(
               place.name,
               style: const TextStyle(
@@ -94,7 +63,7 @@ class PopularPlaceCard extends StatelessWidget {
                   foreground: Paint()
                     ..shader = const LinearGradient(
                       colors: [
-                        Color(0xFF101A26),
+                        AppColors.darkNavy,
                         Color(0xFF003398),
                         Color(0xFFA3C8F8),
                       ],

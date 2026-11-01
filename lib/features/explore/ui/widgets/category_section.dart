@@ -1,4 +1,4 @@
-import 'package:dubai_trip_planner/core/models/category.dart';
+import 'package:dubai_trip_planner/core/repositories/category_repository.dart';
 import 'package:dubai_trip_planner/features/categories/ui/categories_screen.dart';
 import 'package:material_ui/material_ui.dart';
 

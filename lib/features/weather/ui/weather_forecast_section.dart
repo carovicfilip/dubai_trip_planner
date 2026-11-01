@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
-import '../services/weather_forecast_service.dart';
+import 'package:dubai_trip_planner/features/weather/services/weather_forecast_service.dart';
 
 class WeatherForecastSection extends StatefulWidget {
   const WeatherForecastSection({super.key});

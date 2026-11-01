@@ -48,7 +48,8 @@ dependencies:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icons/app_icon2.png"
+  # Kept out of the bundled assets folders: only this tool reads it.
+  image_path: "assets/launcher/app_icon2.png"
 
 dev_dependencies:
   flutter_test:

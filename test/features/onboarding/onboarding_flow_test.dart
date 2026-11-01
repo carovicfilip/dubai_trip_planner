@@ -1,14 +1,16 @@
 import 'dart:io';
 
 import 'package:dubai_trip_planner/app/router/main_scaffold.dart';
-import 'package:dubai_trip_planner/core/services/weather_forecast_service.dart';
 import 'package:dubai_trip_planner/features/categories/ui/categories_screen.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
+import 'package:dubai_trip_planner/features/my_trip/cubit/my_trip_cubit.dart';
+import 'package:dubai_trip_planner/features/my_trip/services/trip_planner_service.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
 import 'package:dubai_trip_planner/features/onboarding/services/onboarding_service.dart';
 import 'package:dubai_trip_planner/features/onboarding/ui/onboarding_paywall_screen.dart';
 import 'package:dubai_trip_planner/features/onboarding/ui/onboarding_screen.dart';
 import 'package:dubai_trip_planner/features/profile/ui/profile_screen.dart';
+import 'package:dubai_trip_planner/features/weather/services/weather_forecast_service.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -53,8 +55,11 @@ void main() {
     try {
       await http.runWithClient(
         () async {
-          await tester.pumpWidget(BlocProvider(
-            create: (_) => FavoritesCubit(prefs),
+          await tester.pumpWidget(MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (_) => FavoritesCubit(prefs)),
+              BlocProvider(create: (_) => MyTripCubit(TripPlannerService())),
+            ],
             child: MaterialApp(home: home),
           ));
           await body();
@@ -132,7 +137,6 @@ void main() {
       // Explore tab
       expect(find.text('Most Popular Places'), findsOneWidget);
       expect(find.text('Burj Khalifa'), findsWidgets);
-      expect(find.text('Test Onboarding (DELETE LATER)'), findsOneWidget, reason: 'debug button is visible to users');
 
       await tester.scrollUntilVisible(find.text('Weather Forecast'), 300, scrollable: find.byType(Scrollable).first);
       await pumpFor(tester, const Duration(milliseconds: 500));

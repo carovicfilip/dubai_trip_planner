@@ -5,7 +5,6 @@ class DummyPlace {
   final String? openingHours;
   final String? location;
   final String? reviewSummary;
-  final String? link;
 
   const DummyPlace({
     this.name,
@@ -14,7 +13,6 @@ class DummyPlace {
     this.openingHours,
     this.location,
     this.reviewSummary,
-    this.link,
   });
 }
 
@@ -349,7 +347,7 @@ const Map<String, List<DummyPlace>> dummyPlacesByCategory = {
   'desert_adventure': [
     DummyPlace(
       name: 'Skyhub Paramotors',
-      imageUrl: 'assets/places_images/desert_adventure_1.png',
+      imageUrl: 'assets/places_images/desert_adventure_1.jpg',
       description:
           'Skyhub Paramotors Dubai offers an exhilarating aerial adventure that lets you soar above the desert in a powered paraglider. Guided by certified pilots, the experience combines the thrill of flight with breathtaking views of sand dunes, wildlife, and the vast Arabian landscape at sunrise or sunset. Safe, smooth, and suitable even for first-timers, the paramotor flight provides a unique perspective of Dubai\'s natural beauty away from the city skyline. It\'s an unforgettable, adrenaline-filled activity for adventure seekers looking to experience the desert from the sky.',
     ),

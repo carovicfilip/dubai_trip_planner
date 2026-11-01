@@ -1,4 +1,6 @@
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
+import 'package:dubai_trip_planner/features/my_trip/cubit/my_trip_cubit.dart';
+import 'package:dubai_trip_planner/features/my_trip/services/trip_planner_service.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,8 +22,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => FavoritesCubit(prefs),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => FavoritesCubit(prefs)),
+        BlocProvider(create: (_) => MyTripCubit(TripPlannerService())),
+      ],
       child: MaterialApp(
         title: 'Dubai Trip Planner',
         theme: AppTheme.lightTheme,

@@ -42,11 +42,29 @@ them `flutter build appbundle` fails on purpose instead of signing with the
 debug key, which Google Play rejects. Google Play re-signs the app with its own
 app signing key, and a lost upload key can be reset in the Play Console.
 
+## Project structure
+
+- `lib/core/`: models, repositories (place and category data) and widgets
+  shared by several features. Code in `core/` never imports from `features/`.
+- `lib/features/<feature>/`: one folder per feature, with `ui/` for screens
+  and widgets, `services/` for data access (APIs, local storage) and `cubit/`
+  for state that has to outlive a screen.
+- The tab bar builds only the selected tab, so every tab starts over when it
+  is opened again. State that must survive that lives in the cubits provided
+  in `main.dart` (`FavoritesCubit`, `MyTripCubit`) or in a cache (the weather
+  forecast).
+- Place ids are made from the category and the name (`must_see_burj-khalifa`),
+  so places can be added or reordered without moving saved favorites.
+- Bundled images are kept close to the size they are shown at (place photos
+  at most 1920 px, category icons 256 px); a test fails if a larger one is
+  added.
+
 ## Notes
 
 - Material widgets come from the `material_ui` package. Import
   `package:material_ui/material_ui.dart`, not `package:flutter/material.dart`.
   Mixing the two gives type errors, because `ThemeData`, `TextTheme` and the
   widgets are different classes in each.
-- Launcher icons are generated with `dart run flutter_launcher_icons`; the
-  configuration is in `pubspec.yaml`.
+- Launcher icons are generated with `dart run flutter_launcher_icons` from
+  `assets/launcher/app_icon2.png`; the configuration is in `pubspec.yaml`.
+  `assets/launcher/` is not bundled into the app.

@@ -1,3 +1,4 @@
+import 'package:dubai_trip_planner/core/constants/app_color.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 
@@ -77,7 +78,7 @@ class _TripOverview extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF101A26),
+        color: AppColors.darkNavy,
         borderRadius: BorderRadius.circular(24),
         boxShadow: const [
           BoxShadow(
@@ -212,7 +213,7 @@ class _DailyPlanCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.check_circle_outline, size: 18, color: Color(0xFFE8D2B8)),
+                  const Icon(Icons.check_circle_outline, size: 18, color: AppColors.primaryNavigation),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(

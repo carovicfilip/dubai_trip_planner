@@ -1,14 +1,15 @@
 import 'package:dubai_trip_planner/core/models/place.dart';
 import 'package:dubai_trip_planner/core/widgets/custom_back_button.dart';
 import 'package:dubai_trip_planner/core/widgets/favorite_button.dart';
+import 'package:dubai_trip_planner/core/widgets/place_image.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MoreDetailsScreen extends StatelessWidget {
+class PlaceDetailsScreen extends StatelessWidget {
   final Place place;
 
-  const MoreDetailsScreen({super.key, required this.place});
+  const PlaceDetailsScreen({super.key, required this.place});
 
   @override
   Widget build(BuildContext context) {
@@ -26,29 +27,7 @@ class MoreDetailsScreen extends StatelessWidget {
                   bottomLeft: Radius.circular(30),
                   bottomRight: Radius.circular(30),
                 ),
-                child: place.imageUrl.isNotEmpty
-                    ? Image.asset(
-                        place.imageUrl,
-                        width: double.infinity,
-                        height: 300,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          debugPrint('Error loading image: ${place.imageUrl}');
-                          debugPrint('Error: $error');
-                          return Container(
-                            width: double.infinity,
-                            height: 300,
-                            color: Colors.grey[300],
-                            child: const Icon(Icons.image_not_supported, size: 50),
-                          );
-                        },
-                      )
-                    : Container(
-                        width: double.infinity,
-                        height: 300,
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.image_not_supported, size: 50),
-                      ),
+                child: PlaceImage(place.imageUrl, height: 300),
               ),
               Positioned(
                 top: 2,
@@ -63,31 +42,8 @@ class MoreDetailsScreen extends StatelessWidget {
                   onPressed: () => context.read<FavoritesCubit>().toggleFavorite(place),
                 ),
               ),
-              // 👇 Tvoj container u donjem desnom uglu, koji prelazi ispod sadržaja
-              // Positioned(
-              //   bottom: -60,
-              //   right: 28,
-              //   child: Container(
-              //     width: 130,
-              //     height: 130,
-              //     decoration: BoxDecoration(
-              //       shape: BoxShape.circle,
-              //       border: Border.all(
-              //         color: Colors.white, // 👈 beli border
-              //         width: 2,
-              //       ),
-              //       image: DecorationImage(
-              //         image: NetworkImage(place.imageUrl),
-              //         fit: BoxFit.cover, // 👈 da lepo popuni krug
-              //       ),
-              //     ),
-              //   ),
-              // ),
-
             ],
           ),
-
-
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -101,20 +57,19 @@ class MoreDetailsScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 10,
               children: [
-                if (place.reviewSummary != null && place.reviewSummary!.isNotEmpty)
+                if (place.reviewSummary?.isNotEmpty ?? false)
                   _InfoChip(
                     icon: Icons.star_rounded,
                     label: place.reviewSummary!,
                   ),
-                if (place.reviewSummary != null && place.reviewSummary!.isNotEmpty && place.openingHours != null && place.openingHours!.isNotEmpty) const SizedBox(height: 10),
-                if (place.openingHours != null && place.openingHours!.isNotEmpty)
+                if (place.openingHours?.isNotEmpty ?? false)
                   _InfoChip(
                     icon: Icons.access_time_rounded,
                     label: place.openingHours!,
                   ),
-                if ((place.reviewSummary != null && place.reviewSummary!.isNotEmpty || place.openingHours != null && place.openingHours!.isNotEmpty) && place.location != null && place.location!.isNotEmpty) const SizedBox(height: 10),
-                if (place.location != null && place.location!.isNotEmpty)
+                if (place.location?.isNotEmpty ?? false)
                   _InfoChip(
                     icon: Icons.pin_drop,
                     label: place.location!,
@@ -123,7 +78,6 @@ class MoreDetailsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 30),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
@@ -131,7 +85,6 @@ class MoreDetailsScreen extends StatelessWidget {
               style: const TextStyle(fontSize: 15, color: Colors.black87),
             ),
           ),
-
         ],
       ),
     );
