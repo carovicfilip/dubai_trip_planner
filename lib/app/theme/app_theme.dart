@@ -1,8 +1,20 @@
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
+  // Neither status bar style sets the system navigation bar, so leaving a
+  // screen never leaves that screen's navigation bar color behind on Android.
+  static const statusBarOnLight = SystemUiOverlayStyle(
+    statusBarBrightness: Brightness.light,
+    statusBarIconBrightness: Brightness.dark,
+  );
+  static const statusBarOnPhoto = SystemUiOverlayStyle(
+    statusBarBrightness: Brightness.dark,
+    statusBarIconBrightness: Brightness.light,
+  );
+
   static ThemeData lightTheme = ThemeData(
     fontFamily: 'Montserrat',
     scaffoldBackgroundColor: const Color(0xFFF8F8F8),

@@ -7,12 +7,12 @@ import 'package:dubai_trip_planner/features/my_trip/cubit/my_trip_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_planner_service.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
 import 'package:dubai_trip_planner/features/onboarding/services/onboarding_service.dart';
-import 'package:dubai_trip_planner/features/onboarding/ui/onboarding_paywall_screen.dart';
 import 'package:dubai_trip_planner/features/onboarding/ui/onboarding_screen.dart';
 import 'package:dubai_trip_planner/features/profile/ui/profile_screen.dart';
 import 'package:dubai_trip_planner/features/splash/ui/splash_screen.dart';
 import 'package:dubai_trip_planner/features/weather/services/weather_forecast_service.dart';
 import 'package:dubai_trip_planner/main.dart';
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -30,12 +30,12 @@ void main() {
     WeatherForecastService.clearMemoryCache();
   });
 
-  /// Runs [body] with [home] as the first screen. HTTP calls (the weather
-  /// section on the Explore tab) are answered from a recorded response.
+  /// Runs [body] with onboarding as the first screen, or with [app] when it is
+  /// given. HTTP calls (the weather section on the Explore tab) are answered
+  /// from a recorded response.
   Future<void> withApp(
     WidgetTester tester,
     Future<void> Function() body, {
-    Widget home = const OnboardingScreen(),
     Widget? app,
     bool checkOverflow = false,
   }) async {
@@ -62,7 +62,7 @@ void main() {
                   BlocProvider(create: (_) => FavoritesCubit(prefs)),
                   BlocProvider(create: (_) => MyTripCubit(TripPlannerService())),
                 ],
-                child: MaterialApp(home: home),
+                child: const MaterialApp(home: OnboardingScreen()),
               ));
           await body();
         },
@@ -86,10 +86,18 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> goToPaywall(WidgetTester tester) async {
+  Future<void> finishOnboarding(WidgetTester tester) async {
     await tapAndSettle(tester, 'Next');
     await tapAndSettle(tester, 'Next');
-    await tapAndSettle(tester, 'Get Started');
+    await tester.tap(find.text('Get Started'));
+    await pumpFor(tester, const Duration(seconds: 1));
+  }
+
+  /// The color of the status bar icons on the screen being shown.
+  Brightness? statusBarIcons(WidgetTester tester) {
+    final view = tester.binding.renderViews.first;
+    final top = Offset(view.paintBounds.center.dx, 1);
+    return view.debugLayer!.find<SystemUiOverlayStyle>(top)?.statusBarIconBrightness;
   }
 
   group('opening the app', () {
@@ -101,11 +109,23 @@ void main() {
       });
     });
 
+    // Regression test: the white icons of the screens over a photo stayed on
+    // the light screens after them, where they could hardly be seen.
+    testWidgets('status bar icons are white over a photo and dark on the light main app', (tester) async {
+      final prefs = await SharedPreferences.getInstance();
+      await withApp(tester, app: MyApp(prefs: prefs, onboardingCompleted: false), () async {
+        expect(statusBarIcons(tester), Brightness.light);
+        await finishOnboarding(tester);
+        expect(statusBarIcons(tester), Brightness.dark);
+      });
+    });
+
     testWidgets('after onboarding welcomes the user back for 2 seconds, then shows the main app', (tester) async {
       final prefs = await SharedPreferences.getInstance();
       await withApp(tester, app: MyApp(prefs: prefs, onboardingCompleted: true), () async {
         expect(find.text('Welcome Back'), findsOneWidget);
         expect(find.byType(OnboardingScreen), findsNothing);
+        expect(statusBarIcons(tester), Brightness.light);
 
         await tester.pump(const Duration(milliseconds: 1900));
         expect(find.byType(SplashScreen), findsOneWidget);
@@ -114,31 +134,20 @@ void main() {
         await pumpFor(tester, const Duration(seconds: 1));
         expect(find.byType(MainScaffold), findsOneWidget);
         expect(find.byType(SplashScreen), findsNothing);
+        expect(statusBarIcons(tester), Brightness.dark);
       });
     });
   });
 
-  testWidgets('3 pages → paywall → main app, and completion is remembered', (tester) async {
+  testWidgets('3 pages → main app, and completion is remembered', (tester) async {
     await withApp(tester, () async {
-      await goToPaywall(tester);
-
-      expect(find.byType(OnboardingPaywallScreen), findsOneWidget);
       expect(await OnboardingService.isOnboardingCompleted(), isFalse);
 
-      await tester.tap(find.text('Start Planning My Trip'));
-      await pumpFor(tester, const Duration(seconds: 1));
+      await finishOnboarding(tester);
 
       expect(find.byType(MainScaffold), findsOneWidget);
+      expect(find.byType(OnboardingScreen), findsNothing);
       expect(find.byType(SplashScreen), findsNothing, reason: 'the welcome back is for the next time');
-      expect(await OnboardingService.isOnboardingCompleted(), isTrue);
-    });
-  });
-
-  testWidgets('"Continue without premium" also enters the app', (tester) async {
-    await withApp(tester, home: const OnboardingPaywallScreen(), () async {
-      await tester.tap(find.text('Continue without premium'));
-      await pumpFor(tester, const Duration(seconds: 1));
-      expect(find.byType(MainScaffold), findsOneWidget);
       expect(await OnboardingService.isOnboardingCompleted(), isTrue);
     });
   });
@@ -190,9 +199,8 @@ void main() {
 
   testWidgets('main app: Explore content, weather, bottom navigation and favorites', (tester) async {
     await withApp(tester, () async {
-      await goToPaywall(tester);
-      await tester.tap(find.text('Start Planning My Trip'));
-      await pumpFor(tester, const Duration(seconds: 2));
+      await finishOnboarding(tester);
+      await pumpFor(tester, const Duration(seconds: 1));
 
       // Explore tab
       expect(find.text('Most Popular Places'), findsOneWidget);

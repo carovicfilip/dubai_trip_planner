@@ -1,7 +1,9 @@
+import 'package:dubai_trip_planner/app/router/main_scaffold.dart';
+import 'package:dubai_trip_planner/app/theme/app_theme.dart';
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
 import 'package:dubai_trip_planner/core/widgets/glass_button.dart';
 import 'package:dubai_trip_planner/core/widgets/photo_message.dart';
-import 'package:dubai_trip_planner/features/onboarding/ui/onboarding_paywall_screen.dart';
+import 'package:dubai_trip_planner/features/onboarding/services/onboarding_service.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -54,6 +56,7 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  bool _finishing = false;
 
   @override
   void didChangeDependencies() {
@@ -71,12 +74,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      // Navigate to paywall screen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const OnboardingPaywallScreen()),
-      );
+      _finish();
     }
+  }
+
+  Future<void> _finish() async {
+    // A second tap during the fade must not open the main app again.
+    if (_finishing) return;
+    _finishing = true;
+    await OnboardingService.completeOnboarding();
+    if (mounted) Navigator.pushReplacement(context, MainScaffold.fadeInRoute());
   }
 
   @override
@@ -88,7 +95,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: AppTheme.statusBarOnPhoto,
       child: Scaffold(
         backgroundColor: AppColors.darkNavy,
         body: Stack(

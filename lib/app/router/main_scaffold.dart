@@ -9,6 +9,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});
 
+  /// The way in from the full-screen photos of onboarding and the splash.
+  static Route<void> fadeInRoute() => PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 400),
+        pageBuilder: (_, _, _) => const MainScaffold(),
+        transitionsBuilder: (_, animation, _, child) => FadeTransition(opacity: animation, child: child),
+      );
+
   @override
   State<MainScaffold> createState() => _MainScaffoldState();
 }

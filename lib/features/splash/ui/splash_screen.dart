@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dubai_trip_planner/app/router/main_scaffold.dart';
+import 'package:dubai_trip_planner/app/theme/app_theme.dart';
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
 import 'package:dubai_trip_planner/core/widgets/photo_message.dart';
 import 'package:flutter/services.dart';
@@ -22,14 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     _redirectTimer = Timer(const Duration(seconds: 2), () {
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 400),
-          pageBuilder: (_, _, _) => const MainScaffold(),
-          transitionsBuilder: (_, animation, _, child) => FadeTransition(opacity: animation, child: child),
-        ),
-      );
+      Navigator.pushReplacement(context, MainScaffold.fadeInRoute());
     });
   }
 
@@ -42,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return const AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: AppTheme.statusBarOnPhoto,
       child: Scaffold(
         backgroundColor: AppColors.darkNavy,
         body: PhotoMessage(

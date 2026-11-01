@@ -80,15 +80,8 @@ void main() {
       await shot('02_onboarding_page2');
       await tapAndWait(find.text('Next'));
       await shot('02b_onboarding_page3');
-      await tapAndWait(find.text('Get Started'), wait: const Duration(milliseconds: 700));
-      await shot('03_paywall');
-
-      await tester.tap(find.text('Start Planning My Trip'), warnIfMissed: false);
-      if (!await waitFor(find.byType(MainScaffold), timeout: const Duration(seconds: 4))) {
-        notes.add('PAYWALL: "Start Planning My Trip" could not be tapped (off-screen); continuing via onPressed');
-        tester.widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Start Planning My Trip')).onPressed!();
-        expect(await waitFor(find.byType(MainScaffold)), isTrue);
-      }
+      await tester.tap(find.text('Get Started'));
+      expect(await waitFor(find.byType(MainScaffold)), isTrue, reason: 'onboarding should lead to the main app');
       await pumpFor(const Duration(seconds: 2));
       await shot('04_explore_top');
 

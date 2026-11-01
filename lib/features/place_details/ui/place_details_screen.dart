@@ -1,6 +1,7 @@
 import 'dart:math' show max;
 import 'dart:ui' show ImageFilter;
 
+import 'package:dubai_trip_planner/app/theme/app_theme.dart';
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
 import 'package:dubai_trip_planner/core/models/place.dart';
 import 'package:dubai_trip_planner/core/repositories/category_repository.dart';
@@ -28,7 +29,7 @@ class PlaceDetailsScreen extends StatelessWidget {
     final titleAreaHeight = max(screenHeight * 0.46, 300.0);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: AppTheme.statusBarOnPhoto,
       child: Scaffold(
         backgroundColor: AppColors.darkNavy,
         body: Stack(
