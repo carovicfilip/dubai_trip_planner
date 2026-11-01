@@ -20,24 +20,27 @@ class BottomBlur extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        photo,
-        ShaderMask(
-          blendMode: BlendMode.dstIn,
-          shaderCallback: (bounds) => LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: [begin, end],
-            colors: const [Colors.transparent, Colors.white],
-          ).createShader(bounds),
-          child: ImageFiltered(
-            imageFilter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma, tileMode: TileMode.clamp),
-            child: photo,
+    // A blur reaches beyond the photo; the clip keeps it off whatever is around.
+    return ClipRect(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          photo,
+          ShaderMask(
+            blendMode: BlendMode.dstIn,
+            shaderCallback: (bounds) => LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: [begin, end],
+              colors: const [Colors.transparent, Colors.white],
+            ).createShader(bounds),
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma, tileMode: TileMode.clamp),
+              child: photo,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

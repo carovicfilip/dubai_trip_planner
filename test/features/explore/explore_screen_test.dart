@@ -4,6 +4,7 @@ import 'package:dubai_trip_planner/app/router/main_scaffold.dart';
 import 'package:dubai_trip_planner/app/theme/theme_cubit.dart';
 import 'package:dubai_trip_planner/core/repositories/category_repository.dart';
 import 'package:dubai_trip_planner/core/repositories/place_repository.dart';
+import 'package:dubai_trip_planner/core/widgets/gradient_hero.dart';
 import 'package:dubai_trip_planner/features/explore/ui/explore_screen.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/popular_place_card.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
@@ -14,7 +15,6 @@ import 'package:dubai_trip_planner/features/place_details/ui/place_details_scree
 import 'package:dubai_trip_planner/features/weather/services/weather_forecast_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -76,11 +76,12 @@ void main() {
     await withMainApp(tester, () async {
       await pumpFor(tester, const Duration(seconds: 1));
 
-      final titles = ['Discover Dubai', 'Most Popular Places', 'Categories', 'Recommended', 'Weather Forecast', 'Hack & Tips'];
+      final titles = ['Welcome to', 'Most Popular Places', 'Categories', 'Recommended', 'Weather Forecast', 'Hack & Tips'];
       final tops = [for (final title in titles) tester.getTopLeft(find.text(title).first).dy];
       expect(tops, [...tops]..sort(), reason: 'sections appear in this order: $titles');
 
-      expect(find.text('Plan a Trip'), findsOneWidget);
+      expect(find.text('Welcome to'), findsOneWidget);
+      expect(find.text('Plan My Trip'), findsOneWidget);
       expect(find.byType(PopularPlaceCard), findsWidgets);
       expect(find.text(PlaceRepository.getFeaturedPlaces().first.name), findsWidgets);
       for (final category in CategoryRepository.allCategories.take(3)) {
@@ -92,14 +93,31 @@ void main() {
     });
   });
 
-  testWidgets('the status bar icons are dark on this light screen', (tester) async {
+  testWidgets('the status bar icons are white over the dark header', (tester) async {
     await withMainApp(tester, () async {
       await pumpFor(tester, const Duration(milliseconds: 300));
 
       final view = tester.binding.renderViews.first;
       final style = view.debugLayer!.find<SystemUiOverlayStyle>(Offset(view.paintBounds.center.dx, 1));
 
-      expect(style?.statusBarIconBrightness, Brightness.dark);
+      expect(style?.statusBarIconBrightness, Brightness.light);
+    });
+  });
+
+  testWidgets('a band for the status bar appears only once the header has scrolled away', (tester) async {
+    await withMainApp(tester, () async {
+      // Short enough for the list to scroll.
+      tester.view.physicalSize = const Size(800 * 3, 1000 * 3);
+      await pumpFor(tester, const Duration(milliseconds: 300));
+      double bandOpacity() => tester
+          .widget<Opacity>(find.ancestor(of: find.byKey(HeroListView.statusBarBandKey), matching: find.byType(Opacity)))
+          .opacity;
+      expect(bandOpacity(), 0);
+
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
+      await pumpFor(tester, const Duration(milliseconds: 500));
+
+      expect(bandOpacity(), 1);
     });
   });
 
@@ -140,7 +158,7 @@ void main() {
     // screen, which must stay above the bar.
     testWidgets('the other tabs stay above it', (tester) async {
       await withMainApp(tester, () async {
-        await tester.tap(find.byType(SvgPicture));
+        await tester.tap(find.text('My Trip'));
         await pumpFor(tester, const Duration(milliseconds: 500));
 
         expect(find.byType(MyTripScreen), findsOneWidget);

@@ -202,15 +202,4 @@ class DailyForecast {
         'icon': icon,
         'rainProbability': rainProbability,
       };
-
-  String get emoji {
-    if (icon.contains('01')) return '☀️';
-    if (icon.contains('02') || icon.contains('03')) return '⛅';
-    if (icon.contains('04')) return '☁️';
-    if (icon.contains('09') || icon.contains('10')) return '🌧️';
-    if (icon.contains('11')) return '🌩️';
-    if (icon.contains('13')) return '❄️';
-    if (icon.contains('50')) return '🌫️';
-    return '';
-  }
 }

@@ -55,6 +55,30 @@ void main() {
     }
   }
 
+  test('maps OpenWeatherMap icon codes to outline icons', () {
+    expect(weatherIcon('01d'), Icons.wb_sunny_outlined);
+    expect(weatherIcon('01n'), Icons.wb_sunny_outlined);
+    expect(weatherIcon('03n'), Icons.filter_drama_outlined);
+    expect(weatherIcon('04d'), Icons.cloud_outlined);
+    expect(weatherIcon('10d'), Icons.water_drop_outlined);
+    expect(weatherIcon('11d'), Icons.thunderstorm_outlined);
+    expect(weatherIcon('13d'), Icons.ac_unit_outlined);
+    expect(weatherIcon('50d'), Icons.foggy);
+    expect(weatherIcon('unknown'), Icons.cloud_outlined);
+  });
+
+  testWidgets('the forecast cards show one-color outline icons instead of emoji', (tester) async {
+    await withApi(() => http.Response(currentForecast(), 200), () async {
+      await tester.pumpWidget(section);
+      await tester.pumpAndSettle();
+
+      final icons = tester.widgetList<Icon>(find.byType(Icon)).toList();
+      expect(icons, isNotEmpty);
+      expect(icons.map((icon) => icon.color).toSet(), hasLength(1), reason: 'all in the same color');
+      expect(find.text('☀️'), findsNothing);
+    });
+  });
+
   testWidgets('a failed request shows a short message instead of the raw error, and can be retried', (tester) async {
     var response = http.Response('{"cod":401,"message":"Invalid API key"}', 401);
     await withApi(() => response, () async {

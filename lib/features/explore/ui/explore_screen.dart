@@ -1,5 +1,6 @@
 import 'package:dubai_trip_planner/app/theme/app_theme.dart';
 import 'package:dubai_trip_planner/core/constants/app_palette.dart';
+import 'package:dubai_trip_planner/core/widgets/gradient_hero.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/category_section.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/hack_and_tips.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/most_popular_section.dart';
@@ -20,9 +21,11 @@ class ExploreScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final palette = context.palette;
     final safeArea = MediaQuery.paddingOf(context);
+    Widget section(Widget child) => Padding(padding: const EdgeInsets.symmetric(horizontal: 10), child: child);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: AppTheme.statusBarFor(context),
+      // Over the dark header, in both themes.
+      value: AppTheme.statusBarOnDark,
       child: Theme(
         data: theme.copyWith(
           textTheme: theme.textTheme.copyWith(
@@ -43,74 +46,65 @@ class ExploreScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              ListView(
+              HeroListView(
                 // The list runs on under the status bar and the floating
                 // navigation bar.
-                padding: EdgeInsets.fromLTRB(10, safeArea.top + 10, 10, safeArea.bottom + 16),
+                padding: EdgeInsets.only(bottom: safeArea.bottom + 16),
                 children: [
-                  // Debug builds only: lets the developer go through onboarding
-                  // again. Release builds leave it out.
-                  if (kDebugMode)
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      child: ElevatedButton.icon(
-                        onPressed: () async {
-                          await OnboardingService.resetOnboarding();
-                          if (context.mounted) {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const OnboardingScreen(),
-                              ),
-                            );
-                          }
-                        },
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Restart onboarding (debug only)'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: palette.tile,
-                          foregroundColor: palette.muted,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                        ),
-                      ),
-                    ),
-                  const SizedBox(height: 16),
-                  const PromoBanner(),
+                  GradientHero(
+                    lightTitle: 'Welcome to',
+                    boldTitle: 'Dubai!',
+                    trailing: kDebugMode ? const _RestartOnboardingButton() : null,
+                    child: const PromoBanner(),
+                  ),
                   const SizedBox(height: 24),
-                  const MostPopularSection(),
+                  section(const MostPopularSection()),
                   const SizedBox(height: 24),
-                  const CategorySection(),
+                  section(const CategorySection()),
                   const SizedBox(height: 30),
-                  const RecommendedSection(),
+                  section(const RecommendedSection()),
                   const SizedBox(height: 30),
-                  const WeatherForecastSection(),
+                  section(const WeatherForecastSection()),
                   const SizedBox(height: 30),
-                  const HackAndTips(),
+                  section(const HackAndTips()),
                   const SizedBox(height: 16),
                 ],
-              ),
-              // What scrolls under the status bar fades away, so the clock stays
-              // readable.
-              Align(
-                alignment: Alignment.topCenter,
-                child: IgnorePointer(
-                  child: Container(
-                    height: safeArea.top + 12,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [palette.pageGradient.first, palette.pageGradient.first.withValues(alpha: 0)],
-                      ),
-                    ),
-                  ),
-                ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Debug builds only: lets the developer go through onboarding again. Release
+/// builds leave it out.
+class _RestartOnboardingButton extends StatelessWidget {
+  const _RestartOnboardingButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton.icon(
+      onPressed: () async {
+        await OnboardingService.resetOnboarding();
+        if (context.mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const OnboardingScreen(),
+            ),
+          );
+        }
+      },
+      style: TextButton.styleFrom(
+        backgroundColor: Colors.white.withValues(alpha: 0.14),
+        foregroundColor: Colors.white,
+        visualDensity: VisualDensity.compact,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+      ),
+      icon: const Icon(Icons.refresh, size: 16),
+      label: const Text('Restart onboarding', style: TextStyle(fontSize: 11)),
     );
   }
 }

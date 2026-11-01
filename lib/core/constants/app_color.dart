@@ -7,6 +7,13 @@ class AppColors {
 
   static const sand = Color(0xFFE8D2B8);
 
+  // The dark, glowing header of the Explore and Profile tabs and its card.
+  static const heroDeep = Color(0xFF1E100B);
+  static const heroBrown = Color(0xFF633019);
+  static const heroEmber = Color(0xFFB65327);
+  static const heroOrange = Color(0xFFFF6D29);
+  static const heroAmber = Color(0xFFFFB38A);
+
 
   static const disabled = Color(0xFFB1B1B1);
 

@@ -16,7 +16,6 @@ import 'package:dubai_trip_planner/main.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -111,12 +110,12 @@ void main() {
       });
     });
 
-    testWidgets('status bar icons are white on onboarding and dark on the light home screen', (tester) async {
+    testWidgets('status bar icons are white on onboarding and over the dark home header', (tester) async {
       final prefs = await SharedPreferences.getInstance();
       await withApp(tester, app: MyApp(prefs: prefs, onboardingCompleted: false), () async {
         expect(statusBarIcons(tester), Brightness.light);
         await finishOnboarding(tester);
-        expect(statusBarIcons(tester), Brightness.dark);
+        expect(statusBarIcons(tester), Brightness.light);
       });
     });
 
@@ -148,7 +147,7 @@ void main() {
         await pumpFor(tester, const Duration(seconds: 1));
         expect(find.byType(MainScaffold), findsOneWidget);
         expect(find.byType(SplashScreen), findsNothing);
-        expect(statusBarIcons(tester), Brightness.dark);
+        expect(statusBarIcons(tester), Brightness.light);
       });
     });
   });
@@ -237,7 +236,7 @@ void main() {
       expect(find.text("You haven't added any favorites yet."), findsNothing);
       expect(find.byIcon(Icons.favorite), findsOneWidget);
 
-      await tester.tap(find.byType(SvgPicture));
+      await tester.tap(find.text('My Trip'));
       await pumpFor(tester, const Duration(milliseconds: 500));
       expect(find.byType(MyTripScreen), findsOneWidget);
 

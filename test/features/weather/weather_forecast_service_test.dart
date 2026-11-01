@@ -48,7 +48,7 @@ void main() {
       expect(day.minTemp, lessThanOrEqualTo(day.maxTemp));
       expect(day.minTemp, inInclusiveRange(5, 55), reason: 'Dubai temperature in °C');
       expect(day.rainProbability, inInclusiveRange(0, 100));
-      expect(day.emoji, isNotEmpty, reason: 'unknown icon code ${day.icon}');
+      expect(day.icon, isNotEmpty);
     }
     final dates = days.map((d) => d.date).toList();
     expect(dates.toSet(), hasLength(dates.length), reason: 'one entry per calendar day');
@@ -59,18 +59,6 @@ void main() {
   test('returns at most 6 days although the method is called fetch10DayForecast', () async {
     final days = await fetchWith(MockClient((_) async => http.Response(fixture, 200)));
     expect(days.length, lessThanOrEqualTo(6));
-  });
-
-  test('maps OpenWeatherMap icon codes to emoji', () {
-    DailyForecast withIcon(String icon) =>
-        DailyForecast(date: DateTime(2026), minTemp: 20, maxTemp: 30, icon: icon, rainProbability: 0);
-
-    expect(withIcon('01d').emoji, '☀️');
-    expect(withIcon('03n').emoji, '⛅');
-    expect(withIcon('04d').emoji, '☁️');
-    expect(withIcon('10d').emoji, '🌧️');
-    expect(withIcon('11d').emoji, '🌩️');
-    expect(withIcon('50d').emoji, '🌫️');
   });
 
   test('throws when the API answers with an error (e.g. revoked key)', () async {

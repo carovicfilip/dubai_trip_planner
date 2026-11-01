@@ -4,6 +4,17 @@ import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:dubai_trip_planner/features/weather/services/weather_forecast_service.dart';
 
+/// The outline icon for an OpenWeatherMap icon code such as "01d".
+IconData weatherIcon(String code) {
+  if (code.contains('01')) return Icons.wb_sunny_outlined;
+  if (code.contains('02') || code.contains('03')) return Icons.filter_drama_outlined;
+  if (code.contains('09') || code.contains('10')) return Icons.water_drop_outlined;
+  if (code.contains('11')) return Icons.thunderstorm_outlined;
+  if (code.contains('13')) return Icons.ac_unit_outlined;
+  if (code.contains('50')) return Icons.foggy;
+  return Icons.cloud_outlined;
+}
+
 class WeatherForecastSection extends StatefulWidget {
   const WeatherForecastSection({super.key});
 
@@ -79,10 +90,7 @@ class _WeatherForecastSectionState extends State<WeatherForecastSection> {
                         const SizedBox(height: 12),
                         Text(formattedDate, style: TextStyle(color: palette.muted)),
                         const SizedBox(height: 8),
-                        Text(
-                          day.emoji,
-                          style: TextStyle(fontSize: 30),
-                        ),
+                        Icon(weatherIcon(day.icon), size: 32, color: palette.ink),
                         SizedBox(
                           height: 12,
                         ),

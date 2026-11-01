@@ -57,6 +57,8 @@ void main() {
     await withRealApp(tester, () async {
       await showProfile(tester, tester.element(find.byType(OnboardingScreen)));
       expect(find.text('Dark theme'), findsOneWidget);
+      expect(find.text('Your'), findsOneWidget);
+      expect(find.text('Plan My Trip'), findsOneWidget);
       expect(tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value, isFalse);
       expect(brightness(tester), Brightness.light);
 
@@ -73,6 +75,17 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
       expect(brightness(tester), Brightness.light);
+    });
+  });
+
+  // The header is dark in the light theme too, so dark icons would not show.
+  testWidgets('the status bar icons stay white over the Profile header in the light theme', (tester) async {
+    await withRealApp(tester, () async {
+      await showProfile(tester, tester.element(find.byType(OnboardingScreen)));
+
+      final view = tester.binding.renderViews.first;
+      final style = view.debugLayer!.find<SystemUiOverlayStyle>(Offset(view.paintBounds.center.dx, 1));
+      expect(style?.statusBarIconBrightness, Brightness.light);
     });
   });
 
