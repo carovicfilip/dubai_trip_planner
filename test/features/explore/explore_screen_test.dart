@@ -13,6 +13,7 @@ import 'package:dubai_trip_planner/features/my_trip/services/trip_planner_servic
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
 import 'package:dubai_trip_planner/features/place_details/ui/place_details_screen.dart';
 import 'package:dubai_trip_planner/features/weather/services/weather_forecast_service.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -55,7 +56,7 @@ void main() {
               BlocProvider(create: (_) => MyTripCubit(TripPlannerService())),
               BlocProvider(create: (_) => ThemeCubit(prefs)),
             ],
-            child: const MaterialApp(home: MainScaffold()),
+            child: const MaterialApp(localizationsDelegates: appLocalizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, home: MainScaffold()),
           ));
           await body();
         },
@@ -167,15 +168,15 @@ void main() {
       });
     });
 
-    // Regression guard: My Trip pins "Show Results" to the bottom of its
-    // screen, which must stay above the bar.
+    // Regression guard: My Trip pins its button to the bottom of its screen,
+    // which must stay above the bar.
     testWidgets('the other tabs stay above it', (tester) async {
       await withMainApp(tester, () async {
         await tester.tap(find.text('My Trip'));
         await pumpFor(tester, const Duration(milliseconds: 500));
 
         expect(find.byType(MyTripScreen), findsOneWidget);
-        final buttonBottom = tester.getBottomLeft(find.text('Show Results')).dy;
+        final buttonBottom = tester.getBottomLeft(find.text('Next')).dy;
         final barTop = tester.getTopLeft(find.byIcon(Icons.person)).dy;
         expect(buttonBottom, lessThan(barTop));
       });

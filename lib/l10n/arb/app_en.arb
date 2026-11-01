@@ -1,0 +1,603 @@
+{
+  "@@locale": "en",
+  "appTitle": "Dubai Trip Planner",
+  "@appTitle": {
+    "description": "The name of the app in the task switcher."
+  },
+  "changeLanguage": "Change language",
+  "@changeLanguage": {
+    "description": "Read out by screen readers for the language button."
+  },
+  "dubaiLabel": "DUBAI",
+  "@dubaiLabel": {
+    "description": "A short widely spaced label under titles, in capitals where the script has them."
+  },
+  "next": "Next",
+  "@next": {
+    "description": "Button that goes on to the next page or step."
+  },
+  "listSeparator": ", ",
+  "@listSeparator": {
+    "description": "Between the items of a short list, with its trailing space."
+  },
+  "navExplore": "Explore",
+  "@navExplore": {
+    "description": "Tab of the bottom bar, at most about 11 characters."
+  },
+  "navMyTrip": "My Trip",
+  "@navMyTrip": {
+    "description": "Tab of the bottom bar, at most about 11 characters."
+  },
+  "navCategories": "Categories",
+  "@navCategories": {
+    "description": "Tab of the bottom bar, at most about 11 characters."
+  },
+  "navProfile": "Profile",
+  "@navProfile": {
+    "description": "Tab of the bottom bar, at most about 11 characters."
+  },
+  "exploreHeroLight": "Welcome to",
+  "@exploreHeroLight": {
+    "description": "First line of the big title on the home screen."
+  },
+  "exploreHeroBold": "Dubai!",
+  "@exploreHeroBold": {
+    "description": "Second, bold line of the big title on the home screen."
+  },
+  "mostPopularTitle": "Most Popular Places",
+  "categoriesTitle": "Categories",
+  "recommendedTitle": "Recommended",
+  "weatherTitle": "Weather Forecast",
+  "tipsTitle": "Hack & Tips",
+  "tipNolCardTitle": "Use Nol Card for Transport",
+  "@tipNolCardTitle": {
+    "description": "Title of a tip card, two short lines at most."
+  },
+  "tipNolCardText": "Pay less for metro, buses, and water taxis by using a Nol card.",
+  "@tipNolCardText": {
+    "description": "Text of a tip card, three short lines at most."
+  },
+  "tipSunsetTitle": "Burj Khalifa Sunset View",
+  "@tipSunsetTitle": {
+    "description": "Title of a tip card, two short lines at most."
+  },
+  "tipSunsetText": "Visit around 4–5 PM to catch both daylight and sunset views.",
+  "@tipSunsetText": {
+    "description": "Text of a tip card, three short lines at most."
+  },
+  "tipWaterTitle": "Stay Hydrated",
+  "@tipWaterTitle": {
+    "description": "Title of a tip card, two short lines at most."
+  },
+  "tipWaterText": "Dubai heat is intense! Always carry water while exploring.",
+  "@tipWaterText": {
+    "description": "Text of a tip card, three short lines at most."
+  },
+  "tipSafariTitle": "Book Desert Safari Early",
+  "@tipSafariTitle": {
+    "description": "Title of a tip card, two short lines at most."
+  },
+  "tipSafariText": "Book online in advance to get better deals and avoid scams.",
+  "@tipSafariText": {
+    "description": "Text of a tip card, three short lines at most."
+  },
+  "tipCareemTitle": "Use Careem App",
+  "@tipCareemTitle": {
+    "description": "Title of a tip card, two short lines at most."
+  },
+  "tipCareemText": "Cheaper than Uber and better tailored for Dubai.",
+  "@tipCareemText": {
+    "description": "Text of a tip card, three short lines at most."
+  },
+  "tipDressTitle": "Respect Dress Code",
+  "@tipDressTitle": {
+    "description": "Title of a tip card, two short lines at most."
+  },
+  "tipDressText": "Wear modest clothes in malls and religious places.",
+  "@tipDressText": {
+    "description": "Text of a tip card, three short lines at most."
+  },
+  "tipBargainTitle": "Bargain in Gold Souk",
+  "@tipBargainTitle": {
+    "description": "Title of a tip card, two short lines at most."
+  },
+  "tipBargainText": "Negotiating is expected. Don't accept the first price!",
+  "@tipBargainText": {
+    "description": "Text of a tip card, three short lines at most."
+  },
+  "tipFridayTitle": "Souks Open Late on Fridays",
+  "@tipFridayTitle": {
+    "description": "Title of a tip card, two short lines at most."
+  },
+  "tipFridayText": "Many Gold Souk shops open only in the afternoon on Fridays.",
+  "@tipFridayText": {
+    "description": "Text of a tip card, three short lines at most."
+  },
+  "tipTaxFreeTitle": "Ask for Tax-Free Shopping",
+  "@tipTaxFreeTitle": {
+    "description": "Title of a tip card, two short lines at most."
+  },
+  "tipTaxFreeText": "Get VAT refunds at the airport with a tax-free receipt.",
+  "@tipTaxFreeText": {
+    "description": "Text of a tip card, three short lines at most."
+  },
+  "tipAbraTitle": "Ride an Abra",
+  "@tipAbraTitle": {
+    "description": "Title of a tip card, two short lines at most."
+  },
+  "tipAbraText": "Cross Dubai Creek for 1 AED on a traditional wooden boat.",
+  "@tipAbraText": {
+    "description": "Text of a tip card, three short lines at most."
+  },
+  "promoTitle": "Your perfect Dubai trip,\nplanned in minutes",
+  "@promoTitle": {
+    "description": "Two lines, each at most about 28 characters."
+  },
+  "promoText": "Dates, hotel, interests.\nWe do the rest.",
+  "@promoText": {
+    "description": "Two short lines next to the button."
+  },
+  "promoButton": "Plan My Trip",
+  "@promoButton": {
+    "description": "A small button, at most about 12 characters."
+  },
+  "onboardingDiscoverLabel": "DISCOVER",
+  "@onboardingDiscoverLabel": {
+    "description": "One widely spaced word, in capitals where the script has them."
+  },
+  "onboardingDiscoverTitle": "Dubai's Best,\nAll in One Place",
+  "@onboardingDiscoverTitle": {
+    "description": "Two lines in very large type, each at most about 18 characters."
+  },
+  "onboardingDiscoverText": "No more endless searching. Top places, handpicked and ready to explore.",
+  "onboardingExploreLabel": "EXPLORE",
+  "@onboardingExploreLabel": {
+    "description": "One widely spaced word, in capitals where the script has them."
+  },
+  "onboardingExploreTitle": "Find Your Way\nAround Dubai",
+  "@onboardingExploreTitle": {
+    "description": "Two lines in very large type, each at most about 18 characters."
+  },
+  "onboardingExploreText": "Opening hours, locations, your favorites and the weather, all at hand.",
+  "onboardingPlanLabel": "PLAN",
+  "@onboardingPlanLabel": {
+    "description": "One widely spaced word, in capitals where the script has them."
+  },
+  "onboardingPlanTitle": "Your Days,\nPlanned for You",
+  "@onboardingPlanTitle": {
+    "description": "Two lines in very large type, each at most about 18 characters."
+  },
+  "onboardingPlanText": "A day-by-day itinerary built around your hotel and your interests.",
+  "onboardingGetStarted": "Get Started",
+  "splashTitle": "Welcome Back",
+  "splashText": "Your next adventure is waiting. Let's pick up where you left off.",
+  "profileHeroLight": "Your",
+  "@profileHeroLight": {
+    "description": "First line of the big title on the Profile tab."
+  },
+  "profileHeroBold": "Profile",
+  "@profileHeroBold": {
+    "description": "Second, bold line of the big title on the Profile tab."
+  },
+  "favoritesTitle": "Favorites",
+  "favoritesEmpty": "You haven't added any favorites yet.",
+  "darkTheme": "Dark theme",
+  "privacyPolicy": "Privacy Policy",
+  "termsOfUse": "Terms of Use",
+  "categoriesScreenTitle": "Explore Categories",
+  "categoryEmpty": "No places found for this category yet.",
+  "categoryMustSee": "Must-See",
+  "@categoryMustSee": {
+    "description": "A category of places."
+  },
+  "categoryRestaurants": "Restaurants",
+  "@categoryRestaurants": {
+    "description": "A category of places."
+  },
+  "categoryNightlife": "Nightlife",
+  "@categoryNightlife": {
+    "description": "A category of places."
+  },
+  "categoryBeachesPools": "Beaches & Pools",
+  "@categoryBeachesPools": {
+    "description": "A category of places."
+  },
+  "categoryCultureMuseums": "Culture & Museums",
+  "@categoryCultureMuseums": {
+    "description": "A category of places."
+  },
+  "categoryShopping": "Shopping",
+  "@categoryShopping": {
+    "description": "A category of places."
+  },
+  "categoryDesertAdventure": "Desert Adventure",
+  "@categoryDesertAdventure": {
+    "description": "A category of places."
+  },
+  "categoryFamilyFun": "Family Fun",
+  "@categoryFamilyFun": {
+    "description": "A category of places."
+  },
+  "addToFavorites": "Add to Favorites",
+  "@addToFavorites": {
+    "description": "Button, at most about 24 characters."
+  },
+  "savedToFavorites": "Saved to Favorites",
+  "@savedToFavorites": {
+    "description": "Button, at most about 24 characters."
+  },
+  "placeAbout": "About",
+  "@placeAbout": {
+    "description": "Heading of the description of a place."
+  },
+  "placeRating": "Rating",
+  "@placeRating": {
+    "description": "Heading of the rating of a place."
+  },
+  "placeOpeningHours": "Opening hours",
+  "@placeOpeningHours": {
+    "description": "Heading of the opening hours of a place."
+  },
+  "noReviews": "No reviews yet",
+  "reviewCount": "{count, plural, =1{{formatted} review} other{{formatted} reviews}}",
+  "@reviewCount": {
+    "description": "How many reviews a place has; formatted is the same number written short, like 166k.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewSummary": "{rating} ({reviews})",
+  "@reviewSummary": {
+    "description": "A rating with its reviews, like 4.7 (166k reviews).",
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      },
+      "reviews": {
+        "type": "String"
+      }
+    }
+  },
+  "weatherUnavailable": "The forecast is unavailable right now.",
+  "tryAgain": "Try again",
+  "weatherDatePattern": "d MMMM",
+  "@weatherDatePattern": {
+    "description": "An intl DateFormat pattern for the day and month on a forecast card. Not a text."
+  },
+  "ratingQuestion": "How do you like\nthe app so far?",
+  "ratingBad": "I don't like it",
+  "@ratingBad": {
+    "description": "Read out by screen readers for the unhappy face."
+  },
+  "ratingOkay": "It's okay",
+  "@ratingOkay": {
+    "description": "Read out by screen readers for the neutral face."
+  },
+  "ratingGood": "I love it",
+  "@ratingGood": {
+    "description": "Read out by screen readers for the happy face."
+  },
+  "tripTitle": "Plan Your Trip",
+  "@tripTitle": {
+    "description": "Title of the trip form, at most about 22 characters."
+  },
+  "tripStepLabel": "Step {step} of {total}",
+  "@tripStepLabel": {
+    "description": "Read out by screen readers.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "tripPlanning": "Planning your trip…",
+  "tripShowResults": "Show Results",
+  "deleteTripTitle": "Delete Trip?",
+  "deleteTripText": "Are you sure you want to delete this trip? This action cannot be undone.",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "tripDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@tripDays": {
+    "description": "The length of a stay.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "savedPlanTitle": "Your Tailored Itinerary",
+  "itineraryStay": "{count, plural, =1{1-day stay in {location}} other{{count}-day stay in {location}}}",
+  "@itineraryStay": {
+    "description": "Title of an itinerary; location is what the user typed.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "plannerErrorOffline": "Could not reach the trip planner. Check your internet connection and try again.",
+  "plannerErrorTimeout": "The trip planner took too long to answer. Please try again.",
+  "plannerErrorBusy": "The trip planner is busy right now. Please try again in a minute.",
+  "plannerErrorServer": "The trip planner is having problems. Please try again later.",
+  "plannerErrorUnavailable": "The trip planner is unavailable right now. Please try again later.",
+  "plannerErrorGeneric": "We could not create your plan this time. Please try again.",
+  "planFreeTime": "Free time: relax near your accommodation or go back to a favorite place from the other days.",
+  "planDayTitle": "Day {number}",
+  "@planDayTitle": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "planDayThemeTitle": "Day {number}: {theme}",
+  "@planDayThemeTitle": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "theme": {
+        "type": "String"
+      }
+    }
+  },
+  "planFreeDayTitle": "Day {number}: Free day",
+  "@planFreeDayTitle": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "planGettingThere": "Getting there: {travel}",
+  "@planGettingThere": {
+    "placeholders": {
+      "travel": {
+        "type": "String"
+      }
+    }
+  },
+  "planBreakfast": "Breakfast:",
+  "@planBreakfast": {
+    "description": "Starts an activity of an itinerary, with its colon."
+  },
+  "planMorning": "Morning:",
+  "@planMorning": {
+    "description": "Starts an activity of an itinerary, with its colon."
+  },
+  "planLunch": "Lunch:",
+  "@planLunch": {
+    "description": "Starts an activity of an itinerary, with its colon."
+  },
+  "planAfternoon": "Afternoon:",
+  "@planAfternoon": {
+    "description": "Starts an activity of an itinerary, with its colon."
+  },
+  "planDinner": "Dinner:",
+  "@planDinner": {
+    "description": "Starts an activity of an itinerary, with its colon."
+  },
+  "planEvening": "Evening:",
+  "@planEvening": {
+    "description": "Starts an activity of an itinerary, with its colon."
+  },
+  "planNight": "Night:",
+  "@planNight": {
+    "description": "Starts an activity of an itinerary, with its colon."
+  },
+  "interestRestaurants": "Restaurants",
+  "@interestRestaurants": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestAttractions": "Attractions",
+  "@interestAttractions": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestCafes": "Cafes",
+  "@interestCafes": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestBreakfast": "Breakfast and brunch",
+  "@interestBreakfast": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestBakeries": "Bakeries",
+  "@interestBakeries": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestBars": "Bars",
+  "@interestBars": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestShopping": "Shopping",
+  "@interestShopping": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestNightlife": "Nightlife",
+  "@interestNightlife": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestMuseums": "Museums",
+  "@interestMuseums": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestArtMuseums": "Art museums",
+  "@interestArtMuseums": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestScienceMuseums": "Science & space museums",
+  "@interestScienceMuseums": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestThemeParks": "Theme parks",
+  "@interestThemeParks": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestArtsCulture": "Arts and culture",
+  "@interestArtsCulture": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestParks": "Parks and gardens",
+  "@interestParks": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestBeaches": "Beaches",
+  "@interestBeaches": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestPools": "Pools",
+  "@interestPools": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestAsianFood": "Asian food",
+  "@interestAsianFood": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestSushi": "Sushi",
+  "@interestSushi": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestPizzas": "Pizzas",
+  "@interestPizzas": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestGelato": "Gelato",
+  "@interestGelato": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestDesserts": "Desserts",
+  "@interestDesserts": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestRooftops": "Rooftops",
+  "@interestRooftops": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestFun": "Fun things to do",
+  "@interestFun": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "interestSpas": "Spas",
+  "@interestSpas": {
+    "description": "Something a traveler can be interested in, on a small selectable chip."
+  },
+  "areaDubaiMarina": "Dubai Marina",
+  "@areaDubaiMarina": {
+    "description": "The name of a part of Dubai, on a small selectable chip."
+  },
+  "areaPalmJumeirah": "Palm Jumeirah",
+  "@areaPalmJumeirah": {
+    "description": "The name of a part of Dubai, on a small selectable chip."
+  },
+  "areaOudMetha": "Oud Metha",
+  "@areaOudMetha": {
+    "description": "The name of a part of Dubai, on a small selectable chip."
+  },
+  "areaAlBarsha": "Al Barsha",
+  "@areaAlBarsha": {
+    "description": "The name of a part of Dubai, on a small selectable chip."
+  },
+  "areaBurDubai": "Bur Dubai",
+  "@areaBurDubai": {
+    "description": "The name of a part of Dubai, on a small selectable chip."
+  },
+  "areaJumeirah": "Jumeirah",
+  "@areaJumeirah": {
+    "description": "The name of a part of Dubai, on a small selectable chip."
+  },
+  "areaTradeCentre": "Dubai World Trade Centre (DWTC)",
+  "@areaTradeCentre": {
+    "description": "The name of a part of Dubai, on a small selectable chip."
+  },
+  "areaDeira": "Deira",
+  "@areaDeira": {
+    "description": "The name of a part of Dubai, on a small selectable chip."
+  },
+  "areaJebelAli": "Jebel Ali",
+  "@areaJebelAli": {
+    "description": "The name of a part of Dubai, on a small selectable chip."
+  },
+  "areaDowntownDubai": "Downtown Dubai",
+  "@areaDowntownDubai": {
+    "description": "The name of a part of Dubai, on a small selectable chip."
+  },
+  "tripArrivalTitle": "When do you arrive?",
+  "tripArrivalText": "Pick your arrival day and length of stay.",
+  "tripHowManyDays": "How many days?",
+  "tripStayingLonger": "Staying longer? Plan these {days} days first, then start a new plan from {date}.",
+  "@tripStayingLonger": {
+    "description": "days is always the longest stay one plan can cover, 15; date is a short date.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "tripLocationTitle": "Where are you staying?",
+  "tripLocationText": "Your hotel or area, so days start close by.",
+  "tripLocationHint": "Hotel name or area",
+  "tripPopularAreas": "Popular areas",
+  "tripInterestsTitle": "What do you love?",
+  "tripInterestsText": "Pick at least one to shape your days.",
+  "tripInterestsGenerating": "This can take a minute or two.",
+  "tripMostPopular": "Most popular",
+  "tripMoreCategories": "More categories",
+  "itineraryTitle": "Your Itinerary",
+  "itineraryShowGrid": "Show as a grid",
+  "itineraryShowDeck": "Show as a deck",
+  "itineraryDayOf": "Day {day} of {total}",
+  "@itineraryDayOf": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "itineraryPreviousDay": "Previous day",
+  "itineraryNextDay": "Next day",
+  "itineraryEditDay": "Edit this day",
+  "itineraryDoneEditing": "Done editing",
+  "itineraryDoneCount": "{done} of {total} done",
+  "@itineraryDoneCount": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "itineraryEmptyDay": "Nothing planned for this day yet.",
+  "itineraryAddToDay": "Add to this day",
+  "itineraryAddTitle": "Add to Day {number}",
+  "@itineraryAddTitle": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "itineraryAddHint": "e.g. Coffee at the Marina",
+  "itineraryAdd": "Add",
+  "itineraryItemRemoved": "Removed from this day",
+  "itineraryUndo": "Undo",
+  "itineraryMoveItem": "Move"
+}

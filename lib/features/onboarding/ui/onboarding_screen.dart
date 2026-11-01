@@ -4,6 +4,7 @@ import 'package:dubai_trip_planner/core/constants/app_color.dart';
 import 'package:dubai_trip_planner/core/widgets/glass_button.dart';
 import 'package:dubai_trip_planner/core/widgets/photo_message.dart';
 import 'package:dubai_trip_planner/features/onboarding/services/onboarding_service.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -21,26 +22,32 @@ class _OnboardingPage {
   final String text;
 }
 
-const _pages = [
-  _OnboardingPage(
-    image: 'assets/images/onboarding_1.webp',
-    label: 'DISCOVER',
-    title: "Dubai's Best,\nAll in One Place",
-    text: 'No more endless searching. Top places, handpicked and ready to explore.',
-  ),
-  _OnboardingPage(
-    image: 'assets/images/onboarding_2.webp',
-    label: 'EXPLORE',
-    title: 'Find Your Way\nAround Dubai',
-    text: 'Opening hours, locations, your favorites and the weather, all at hand.',
-  ),
-  _OnboardingPage(
-    image: 'assets/images/onboarding_3.webp',
-    label: 'PLAN',
-    title: 'Your Days,\nPlanned for You',
-    text: 'A day-by-day itinerary built around your hotel and your interests.',
-  ),
+const _photos = [
+  'assets/images/onboarding_1.webp',
+  'assets/images/onboarding_2.webp',
+  'assets/images/onboarding_3.webp',
 ];
+
+List<_OnboardingPage> _pagesIn(AppLocalizations l10n) => [
+      _OnboardingPage(
+        image: _photos[0],
+        label: l10n.onboardingDiscoverLabel,
+        title: l10n.onboardingDiscoverTitle,
+        text: l10n.onboardingDiscoverText,
+      ),
+      _OnboardingPage(
+        image: _photos[1],
+        label: l10n.onboardingExploreLabel,
+        title: l10n.onboardingExploreTitle,
+        text: l10n.onboardingExploreText,
+      ),
+      _OnboardingPage(
+        image: _photos[2],
+        label: l10n.onboardingPlanLabel,
+        title: l10n.onboardingPlanTitle,
+        text: l10n.onboardingPlanText,
+      ),
+    ];
 
 /// The height of the button and dots at the bottom of the screen; the text of
 /// every page stays above them.
@@ -62,13 +69,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // So that no page shows up empty while its photo is decoded.
-    for (final page in _pages) {
-      precacheImage(AssetImage(page.image), context);
+    for (final photo in _photos) {
+      precacheImage(AssetImage(photo), context);
     }
   }
 
   void _onNext() {
-    if (_currentPage < _pages.length - 1) {
+    if (_currentPage < _photos.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,
@@ -94,6 +101,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final pages = _pagesIn(l10n);
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: AppTheme.statusBarOnDark,
       child: Scaffold(
@@ -104,9 +114,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             PageView.builder(
               controller: _pageController,
               onPageChanged: (index) => setState(() => _currentPage = index),
-              itemCount: _pages.length,
+              itemCount: pages.length,
               itemBuilder: (context, index) {
-                final page = _pages[index];
+                final page = pages[index];
                 return PhotoMessage(
                   image: page.image,
                   title: page.title,
@@ -122,11 +132,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   GlassButton(
-                    label: _currentPage == _pages.length - 1 ? 'Get Started' : 'Next',
+                    label: _currentPage == pages.length - 1 ? l10n.onboardingGetStarted : l10n.next,
                     onPressed: _onNext,
                   ),
                   const SizedBox(height: 28),
-                  _PageDots(count: _pages.length, current: _currentPage),
+                  _PageDots(count: pages.length, current: _currentPage),
                   const SizedBox(height: 20),
                 ],
               ),

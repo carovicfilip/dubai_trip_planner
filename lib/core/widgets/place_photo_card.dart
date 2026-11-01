@@ -3,10 +3,10 @@ import 'dart:ui' show ImageFilter;
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
 import 'package:dubai_trip_planner/core/constants/app_palette.dart';
 import 'package:dubai_trip_planner/core/models/place.dart';
-import 'package:dubai_trip_planner/core/repositories/category_repository.dart';
 import 'package:dubai_trip_planner/core/widgets/favorite_button.dart';
 import 'package:dubai_trip_planner/core/widgets/glass_card.dart';
 import 'package:dubai_trip_planner/core/widgets/place_image.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// A place: a small round photo and the favorite button at the top, then the
@@ -34,11 +34,11 @@ class PlacePhotoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    final category = CategoryRepository.getCategoryName(place.categoryId);
+    final l10n = context.l10n;
 
     return GlassCard(
       width: compact ? 230 : 270,
-      margin: const EdgeInsets.only(right: 16),
+      margin: const EdgeInsetsDirectional.only(end: 16),
       padding: EdgeInsets.all(compact ? 10 : 12),
       radius: compact ? 30 : 34,
       child: Column(
@@ -65,20 +65,26 @@ class PlacePhotoCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  place.name,
+                  l10n.placeText(place).name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(color: palette.ink, fontSize: compact ? 17 : 22, height: 1.2),
                 ),
-                if (category != null) ...[
-                  SizedBox(height: compact ? 4 : 6),
-                  Text(
-                    category.toUpperCase(),
+                SizedBox(height: compact ? 4 : 6),
+                // Shrinks to fit rather than cutting off a long category name.
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    l10n.categoryName(place.categoryId).toUpperCase(),
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: palette.muted, fontSize: compact ? 9 : 11, letterSpacing: compact ? 4 : 5),
+                    style: TextStyle(
+                      color: palette.muted,
+                      fontSize: compact ? 9 : 11,
+                      letterSpacing: context.labelSpacing(compact ? 4 : 5),
+                    ),
                   ),
-                ],
+                ),
               ],
             ),
           ),
@@ -91,10 +97,10 @@ class PlacePhotoCard extends StatelessWidget {
                 children: [
                   PlaceImage(place.imageUrl),
                   if (!compact)
-                    Positioned(
-                      left: 10,
+                    PositionedDirectional(
+                      start: 10,
                       bottom: 10,
-                      child: _RatingOnPhoto(summary: place.reviewSummary ?? 'No reviews yet'),
+                      child: _RatingOnPhoto(summary: l10n.reviewSummaryText(place)),
                     ),
                 ],
               ),

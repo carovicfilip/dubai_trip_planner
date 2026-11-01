@@ -3,6 +3,7 @@ import 'dart:math' show cos, pi, sin;
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
 import 'package:dubai_trip_planner/core/widgets/liquid_glass_painter.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -52,6 +53,7 @@ class _PromoBannerState extends State<PromoBanner> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Semantics(
       button: true,
       child: GestureDetector(
@@ -62,6 +64,8 @@ class _PromoBannerState extends State<PromoBanner> with SingleTickerProviderStat
             // Smoke behind the text: the glow of the header is at its brightest
             // right there, too bright for white text to stay legible.
             gradient: LinearGradient(
+              begin: AlignmentDirectional.centerStart,
+              end: AlignmentDirectional.centerEnd,
               stops: const [0.35, 0.8],
               colors: [AppColors.heroDeep.withValues(alpha: 0.38), AppColors.heroDeep.withValues(alpha: 0)],
             ),
@@ -80,7 +84,13 @@ class _PromoBannerState extends State<PromoBanner> with SingleTickerProviderStat
             child: Stack(
               children: [
                 Positioned.fill(
-                  child: RepaintBoundary(child: CustomPaint(painter: _FlowingLightPainter(_controller))),
+                  child: RepaintBoundary(
+                    // The light stays around the button, on the left in Arabic.
+                    child: Transform.flip(
+                      flipX: Directionality.of(context) == TextDirection.rtl,
+                      child: CustomPaint(painter: _FlowingLightPainter(_controller)),
+                    ),
+                  ),
                 ),
                 const Positioned.fill(child: CustomPaint(painter: LiquidGlassPainter(radius: 24))),
                 Padding(
@@ -101,8 +111,8 @@ class _PromoBannerState extends State<PromoBanner> with SingleTickerProviderStat
                         ],
                       ),
                       const SizedBox(height: 4),
-                      const Text(
-                        'Your perfect Dubai trip,\nplanned in minutes',
+                      Text(
+                        l10n.promoTitle,
                         style: TextStyle(color: Colors.white, fontSize: 18, height: 1.2),
                       ),
                       const SizedBox(height: 6),
@@ -110,7 +120,7 @@ class _PromoBannerState extends State<PromoBanner> with SingleTickerProviderStat
                         children: [
                           Expanded(
                             child: Text(
-                              'Dates, hotel, interests.\nWe do the rest.',
+                              l10n.promoText,
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.9),
                                 fontSize: 11,
@@ -149,6 +159,10 @@ class _PlanButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    // The arrow leans the way it points, which is to the left in Arabic.
+    final lean = Directionality.of(context) == TextDirection.rtl ? -2.5 : 2.5;
+
     return RepaintBoundary(
       child: CustomPaint(
         painter: _ButtonLightPainter(progress, ripples: ripples),
@@ -164,13 +178,13 @@ class _PlanButton extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Plan My Trip',
+                    Text(
+                      l10n.promoButton,
                       style: TextStyle(color: AppColors.heroDeep, fontSize: 13, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(width: 4),
                     Transform.translate(
-                      offset: Offset(2.5 * breath, 0),
+                      offset: Offset(lean * breath, 0),
                       child: const Icon(Icons.arrow_forward_rounded, size: 16, color: AppColors.heroDeep),
                     ),
                   ],

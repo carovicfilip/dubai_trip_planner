@@ -1,5 +1,7 @@
 class Category {
   final String id;
+
+  /// In English; the screens show AppLocalizations.categoryName(id).
   final String name;
   final String iconPath;
 

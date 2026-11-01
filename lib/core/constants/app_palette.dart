@@ -17,6 +17,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.accent,
     required this.onAccent,
     required this.heroCard,
+    required this.success,
+    required this.successSurface,
   });
 
   final Color surface;
@@ -34,6 +36,10 @@ class AppPalette extends ThemeExtension<AppPalette> {
   /// The dark card of a saved trip plan, dark in both themes.
   final Color heroCard;
 
+  /// Something finished: a checked item, and a card with all of its items checked.
+  final Color success;
+  final Color successSurface;
+
   static const light = AppPalette(
     surface: Color(0xFFF7F8FA),
     pageGradient: [Color(0xFFFFFFFF), Color(0xFFF7F8FA), Color(0xFFEEF1F5)],
@@ -45,6 +51,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     accent: AppColors.darkNavy,
     onAccent: Colors.white,
     heroCard: AppColors.darkNavy,
+    success: Color(0xFF1F9D63),
+    successSurface: Color(0xFFE5F6EC),
   );
 
   static const dark = AppPalette(
@@ -58,6 +66,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     accent: Colors.white,
     onAccent: AppColors.darkNavy,
     heroCard: Color(0xFF223040),
+    success: Color(0xFF3CCB8A),
+    successSurface: Color(0xFF17382C),
   );
 
   @override
@@ -72,6 +82,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? accent,
     Color? onAccent,
     Color? heroCard,
+    Color? success,
+    Color? successSurface,
   }) {
     return AppPalette(
       surface: surface ?? this.surface,
@@ -84,6 +96,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
       accent: accent ?? this.accent,
       onAccent: onAccent ?? this.onAccent,
       heroCard: heroCard ?? this.heroCard,
+      success: success ?? this.success,
+      successSurface: successSurface ?? this.successSurface,
     );
   }
 
@@ -104,6 +118,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
       accent: Color.lerp(accent, other.accent, t)!,
       onAccent: Color.lerp(onAccent, other.onAccent, t)!,
       heroCard: Color.lerp(heroCard, other.heroCard, t)!,
+      success: Color.lerp(success, other.success, t)!,
+      successSurface: Color.lerp(successSurface, other.successSurface, t)!,
     );
   }
 }

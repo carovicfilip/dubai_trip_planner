@@ -9,6 +9,7 @@ import 'package:dubai_trip_planner/core/widgets/frosted_app_bar.dart';
 import 'package:dubai_trip_planner/core/widgets/place_photo_card.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:dubai_trip_planner/features/place_details/ui/place_details_screen.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -57,10 +58,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
+    final l10n = context.l10n;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: FrostedAppBar(
-        title: 'Explore Categories',
+        title: l10n.categoriesScreenTitle,
         // 👇 Ako postoji selectedCategory, prikaži custom back btn
         leading: widget.selectedCategory != null
             ? const CustomBackButton()
@@ -91,11 +93,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   children: [
                     CategoryIcon(category.iconPath, size: 40),
                     const SizedBox(width: 10),
-                    Text(
-                      category.name,
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: palette.ink,
+                    Flexible(
+                      child: Text(
+                        l10n.categoryName(category.id),
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: palette.ink,
+                        ),
                       ),
                     ),
                   ],
@@ -106,7 +110,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 // A little more than the cards, to leave room for their shadow.
                 height: PlacePhotoCard.compactHeight + 14,
                 child: places.isEmpty
-                    ? const Center(child: Text('No places found for this category yet.'))
+                    ? Center(child: Text(l10n.categoryEmpty))
                     : ListView.builder(
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.only(bottom: 14),

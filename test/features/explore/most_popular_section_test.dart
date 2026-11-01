@@ -3,6 +3,7 @@ import 'package:dubai_trip_planner/features/explore/ui/widgets/most_popular_sect
 import 'package:dubai_trip_planner/features/explore/ui/widgets/popular_place_card.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:dubai_trip_planner/features/place_details/ui/place_details_screen.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -13,7 +14,7 @@ void main() {
 
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  Future<void> pumpDeck(WidgetTester tester, {bool disableAnimations = false}) async {
+  Future<void> pumpDeck(WidgetTester tester, {bool disableAnimations = false, Locale? locale}) async {
     tester.view.physicalSize = const Size(800, 1600) * 3;
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -22,7 +23,7 @@ void main() {
       create: (_) => FavoritesCubit(prefs),
       child: MediaQuery(
         data: MediaQueryData(size: const Size(800, 1600), disableAnimations: disableAnimations),
-        child: const MaterialApp(home: Scaffold(body: MostPopularSection())),
+        child: MaterialApp(locale: locale, localizationsDelegates: appLocalizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, home: Scaffold(body: MostPopularSection())),
       ),
     ));
   }
@@ -43,6 +44,39 @@ void main() {
     await tester.fling(deck(), Offset(dx, 0), 1000);
     await tester.pumpAndSettle();
   }
+
+  group('in Arabic, where everything runs from right to left', () {
+    Map<String, Rect> cardsByName(WidgetTester tester) => {
+          for (final element in find.byType(PopularPlaceCard).evaluate())
+            (element.widget as PopularPlaceCard).place.name: tester.getRect(find.byWidget(element.widget)),
+        };
+
+    testWidgets('the next card is on the left and the previous one on the right', (tester) async {
+      await pumpDeck(tester, locale: const Locale('ar'));
+
+      final cards = cardsByName(tester);
+      final middle = cards[places.first]!;
+      expect(cards[places[1]]!.center.dx, lessThan(middle.center.dx));
+      expect(cards[places.last]!.center.dx, greaterThan(middle.center.dx));
+    });
+
+    testWidgets('a swipe to the right brings the next card, the way the finger moves', (tester) async {
+      await pumpDeck(tester, locale: const Locale('ar'));
+
+      await swipe(tester, 300);
+
+      expect(await frontPlace(tester), places[1]);
+    });
+
+    testWidgets('a tap on a side card brings that card to the middle', (tester) async {
+      await pumpDeck(tester, locale: const Locale('ar'));
+
+      await tester.tapAt(cardsByName(tester)[places[1]]!.center);
+      await tester.pumpAndSettle();
+
+      expect(await frontPlace(tester), places[1]);
+    });
+  });
 
   testWidgets('shows a large card in the middle between two smaller ones, without numbers', (tester) async {
     await pumpDeck(tester);

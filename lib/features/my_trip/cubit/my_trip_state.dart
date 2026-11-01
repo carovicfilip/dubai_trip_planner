@@ -1,65 +1,71 @@
 part of 'my_trip_cubit.dart';
 
 /// What keeps the form from being planned, in the order its steps are checked.
-enum MyTripFormError { missingDate, missingLength, tooLong, missingLocation, missingCategories }
+enum MyTripFormError { missingDate, missingLength, missingLocation, missingCategories }
 
 @immutable
 class MyTripState {
   const MyTripState({
+    this.step = 0,
     this.startDate,
-    this.stayLength = '',
+    this.stayLengthDays,
     this.location = '',
     this.categories = const {},
-    this.savedPlan,
+    this.savedPlans = const [],
     this.isGenerating = false,
   });
 
-  final DateTime? startDate;
+  /// The last step of the form; they are counted from 0.
+  static const lastStep = 2;
 
-  /// The trip length as typed, so the text field always shows the state.
-  final String stayLength;
+  /// The step of the form on screen.
+  final int step;
+  final DateTime? startDate;
+  final int? stayLengthDays;
   final String location;
   final Set<String> categories;
-  final TripPlan? savedPlan;
+
+  /// The newest first.
+  final List<TripPlan> savedPlans;
   final bool isGenerating;
 
-  /// [stayLength] in days, or null while it is not a positive whole number.
-  int? get stayLengthDays {
-    final days = int.tryParse(stayLength.trim());
-    return days != null && days > 0 ? days : null;
-  }
-
   bool get isFormEmpty =>
-      startDate == null && stayLength.trim().isEmpty && location.trim().isEmpty && categories.isEmpty;
+      startDate == null && stayLengthDays == null && location.trim().isEmpty && categories.isEmpty;
 
   /// The first problem in the form, or null when it can be planned.
   MyTripFormError? get formError {
-    final days = stayLengthDays;
     if (startDate == null) return MyTripFormError.missingDate;
-    if (days == null) return MyTripFormError.missingLength;
-    if (days > TripPlannerService.maxTripDays) return MyTripFormError.tooLong;
+    if (stayLengthDays == null) return MyTripFormError.missingLength;
     if (location.trim().isEmpty) return MyTripFormError.missingLocation;
     if (categories.isEmpty) return MyTripFormError.missingCategories;
     return null;
   }
 
-  static const _unchanged = Object();
+  /// Whether the step on screen is filled in, so the user can go on.
+  bool get isStepComplete {
+    return switch (step) {
+      0 => startDate != null && stayLengthDays != null,
+      1 => location.trim().isNotEmpty,
+      _ => categories.isNotEmpty,
+    };
+  }
 
-  /// [savedPlan] can be set to null, so leaving it out means "unchanged".
   MyTripState copyWith({
+    int? step,
     DateTime? startDate,
-    String? stayLength,
+    int? stayLengthDays,
     String? location,
     Set<String>? categories,
-    Object? savedPlan = _unchanged,
+    List<TripPlan>? savedPlans,
     bool? isGenerating,
   }) {
     return MyTripState(
+      step: step ?? this.step,
       startDate: startDate ?? this.startDate,
-      stayLength: stayLength ?? this.stayLength,
+      stayLengthDays: stayLengthDays ?? this.stayLengthDays,
       location: location ?? this.location,
       categories: categories != null ? Set.unmodifiable(categories) : this.categories,
-      savedPlan: identical(savedPlan, _unchanged) ? this.savedPlan : savedPlan as TripPlan?,
+      savedPlans: savedPlans ?? this.savedPlans,
       isGenerating: isGenerating ?? this.isGenerating,
     );
   }

@@ -2,6 +2,7 @@ import 'package:dubai_trip_planner/core/constants/app_palette.dart';
 import 'package:dubai_trip_planner/core/models/place.dart';
 import 'package:dubai_trip_planner/core/widgets/favorite_button.dart';
 import 'package:dubai_trip_planner/core/widgets/place_image.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:material_ui/material_ui.dart';
 
 class PlacesCard extends StatelessWidget {
@@ -19,9 +20,10 @@ class PlacesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
+    final l10n = context.l10n;
     return Container(
       width: 250,
-      margin: const EdgeInsets.only(right: 20),
+      margin: const EdgeInsetsDirectional.only(end: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -39,9 +41,9 @@ class PlacesCard extends StatelessWidget {
                 ),
               ),
               // Favorite button - top right
-              Positioned(
+              PositionedDirectional(
                 top: 10,
-                right: 10,
+                end: 10,
                 child: FavoriteButton(
                   isFavorite: isFavorite,
                   onPressed: onFavoriteToggle,
@@ -71,7 +73,7 @@ class PlacesCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  place.name,
+                  l10n.placeText(place).name,
                   style: TextStyle(
                     color: palette.ink,
                     fontWeight: FontWeight.w500,
@@ -85,7 +87,7 @@ class PlacesCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        place.reviewSummary ?? 'No reviews yet',
+                        l10n.reviewSummaryText(place),
                         style: TextStyle(
                           color: palette.muted,
                           fontSize: 13,

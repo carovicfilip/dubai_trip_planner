@@ -1,5 +1,6 @@
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
 import 'package:dubai_trip_planner/core/widgets/bottom_blur.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// A photo over the whole screen that melts into a short message at the bottom.
@@ -74,7 +75,7 @@ class PhotoMessage extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   label,
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 13, letterSpacing: 7),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 13, letterSpacing: context.labelSpacing(7)),
                 ),
                 const SizedBox(height: 16),
                 Text(

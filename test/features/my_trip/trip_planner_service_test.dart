@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui' show Locale;
 
 import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_planner_service.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -11,6 +13,7 @@ import 'package:http/testing.dart';
 import '../../helpers/openai_fakes.dart';
 
 void main() {
+  final english = lookupAppLocalizations(const Locale('en'));
   final startDate = DateTime(2026, 11, 10);
 
   setUp(() => dotenv.loadFromString(envString: 'OPENAI_API_KEY=sk-test-123'));
@@ -78,7 +81,38 @@ void main() {
         'accommodation': 'Dubai Marina',
         'interests': ['Beaches', 'Restaurants'],
         'dates': ['Tuesday, 10 November 2026', 'Wednesday, 11 November 2026', 'Thursday, 12 November 2026'],
+        'language': 'English',
       });
+    });
+
+    test('asks for the plan in the language of the app', () async {
+      for (final (code, name) in const [('ar', 'Arabic'), ('ru', 'Russian'), ('de', 'German'), ('fr', 'French')]) {
+        late http.Request sent;
+        await TripPlannerService(
+          httpClient: MockClient((request) async {
+            sent = request;
+            return jsonResponse(chatCompletionBody(itineraryJson(1)), 200);
+          }),
+        ).generatePlan(startDate: startDate, lengthInDays: 1, location: 'Deira', categories: const ['Spas'], languageCode: code);
+
+        final details = tripDetailsSent(sent);
+        expect(details['language'], name);
+        // The form itself stays in English; only the answer changes language.
+        expect(details['interests'], ['Spas']);
+        expect(details['dates'], ['Tuesday, 10 November 2026']);
+        expect(messagesOf(sent).first['content'], contains('"language"'));
+      }
+    });
+
+    test('writes the words the app adds to a plan in that language too', () async {
+      final plan = await TripPlannerService(
+        httpClient: MockClient((_) async => jsonResponse(chatCompletionBody(itineraryJson(1)), 200)),
+      ).generatePlan(startDate: startDate, lengthInDays: 2, location: 'Deira', categories: const ['Spas'], languageCode: 'de');
+
+      expect(plan.days.first.title, 'Tag 1: Theme 1');
+      expect(plan.days.first.highlights.first, 'Vormittag: Place 1 of day 1 (Area 1) – Activity 1 of day 1.\nAnfahrt: 5 min walk');
+      expect(plan.days.last.title, 'Tag 2: Freier Tag');
+      expect(plan.days.last.highlights, [lookupAppLocalizations(const Locale('de')).planFreeTime]);
     });
 
     test('asks for "General must-see spots" when no category is given', () async {
@@ -301,7 +335,7 @@ void main() {
       expect(plan.days, hasLength(7));
       for (final day in plan.days.sublist(4)) {
         expect(day.title, endsWith(': Free day'));
-        expect(day.highlights, [TripPlannerService.freeTimeHighlight]);
+        expect(day.highlights, [english.planFreeTime]);
       }
     });
 
@@ -312,7 +346,7 @@ void main() {
         ],
       });
       final plan = await generate(answering(content), days: 1);
-      expect(plan.days.single.highlights, [TripPlannerService.freeTimeHighlight]);
+      expect(plan.days.single.highlights, [english.planFreeTime]);
     });
   });
 
@@ -420,7 +454,7 @@ void main() {
 
   group('message shown to the user', () {
     test('explains each kind of failure in plain words', () {
-      String message(Object error) => TripPlannerService.userMessage(error);
+      String message(Object error) => TripPlannerService.userMessage(error, english);
 
       expect(message(http.ClientException('Failed host lookup')), contains('internet connection'));
       expect(message(TimeoutException('slow')), contains('took too long'));
@@ -433,7 +467,7 @@ void main() {
 
     test('never repeats the raw error', () {
       final body = openAiErrorBody('invalid_api_key', 'Incorrect API key provided: sk-test***123.');
-      final message = TripPlannerService.userMessage(OpenAiHttpException(401, body));
+      final message = TripPlannerService.userMessage(OpenAiHttpException(401, body), english);
 
       expect(message, isNot(contains('{')));
       expect(message, isNot(contains('invalid_api_key')));

@@ -6,6 +6,7 @@ import 'package:dubai_trip_planner/core/widgets/place_photo_card.dart';
 import 'package:dubai_trip_planner/features/categories/ui/categories_screen.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:dubai_trip_planner/features/place_details/ui/place_details_screen.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -25,7 +26,7 @@ void main() {
     final favorites = FavoritesCubit(await SharedPreferences.getInstance());
     await tester.pumpWidget(BlocProvider.value(
       value: favorites,
-      child: MaterialApp(theme: theme, home: const CategoryScreen()),
+      child: MaterialApp(localizationsDelegates: appLocalizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, theme: theme, home: const CategoryScreen()),
     ));
     await tester.pump();
     return favorites;

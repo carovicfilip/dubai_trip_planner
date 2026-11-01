@@ -12,6 +12,7 @@ import 'package:dubai_trip_planner/features/onboarding/ui/onboarding_screen.dart
 import 'package:dubai_trip_planner/features/profile/ui/profile_screen.dart';
 import 'package:dubai_trip_planner/features/splash/ui/splash_screen.dart';
 import 'package:dubai_trip_planner/features/weather/services/weather_forecast_service.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:dubai_trip_planner/main.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
@@ -63,7 +64,7 @@ void main() {
                   BlocProvider(create: (_) => MyTripCubit(TripPlannerService())),
                   BlocProvider(create: (_) => ThemeCubit(prefs)),
                 ],
-                child: const MaterialApp(home: OnboardingScreen()),
+                child: const MaterialApp(localizationsDelegates: appLocalizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, home: OnboardingScreen()),
               ));
           await body();
         },

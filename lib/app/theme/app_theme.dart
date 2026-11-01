@@ -1,3 +1,4 @@
+import 'package:dubai_trip_planner/app/language/app_language.dart';
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
 import 'package:dubai_trip_planner/core/constants/app_palette.dart';
 import 'package:flutter/services.dart';
@@ -20,10 +21,29 @@ class AppTheme {
   static SystemUiOverlayStyle statusBarFor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark ? statusBarOnDark : statusBarOnLight;
 
-  static final ThemeData lightTheme = _build(AppPalette.light, const ColorScheme.light());
-  static final ThemeData darkTheme = _build(AppPalette.dark, const ColorScheme.dark());
+  static final _lightThemes = <AppLanguage, ThemeData>{};
+  static final _darkThemes = <AppLanguage, ThemeData>{};
+  static final _textThemes = <AppLanguage, TextTheme>{};
 
-  static ThemeData _build(AppPalette palette, ColorScheme scheme) {
+  // Built once per language: a theme is costly to build, and these are asked
+  // for every time the app rebuilds above MaterialApp.
+  static ThemeData lightFor(AppLanguage language) =>
+      _lightThemes[language] ??= _build(AppPalette.light, const ColorScheme.light(), language);
+  static ThemeData darkFor(AppLanguage language) =>
+      _darkThemes[language] ??= _build(AppPalette.dark, const ColorScheme.dark(), language);
+
+  static ThemeData get lightTheme => lightFor(AppLanguage.en);
+  static ThemeData get darkTheme => darkFor(AppLanguage.en);
+
+  /// Poppins has no Arabic or Cyrillic letters, so those languages get a font
+  /// with the same round, geometric look that has them.
+  static TextTheme textThemeFor(AppLanguage language) => _textThemes[language] ??= switch (language) {
+        AppLanguage.ar => GoogleFonts.tajawalTextTheme(),
+        AppLanguage.ru => GoogleFonts.montserratTextTheme(),
+        AppLanguage.en || AppLanguage.de || AppLanguage.fr => GoogleFonts.poppinsTextTheme(),
+      };
+
+  static ThemeData _build(AppPalette palette, ColorScheme scheme, AppLanguage language) {
     return ThemeData(
       fontFamily: 'Montserrat',
       scaffoldBackgroundColor: palette.surface,
@@ -36,7 +56,7 @@ class AppTheme {
         surface: palette.card,
         onSurface: palette.ink,
       ),
-      textTheme: GoogleFonts.poppinsTextTheme().apply(bodyColor: palette.ink, displayColor: palette.ink),
+      textTheme: textThemeFor(language).apply(bodyColor: palette.ink, displayColor: palette.ink),
 
       // Definisanje boja za selekciju teksta i input polja
       textSelectionTheme: TextSelectionThemeData(

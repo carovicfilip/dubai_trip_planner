@@ -9,9 +9,11 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui' show Locale;
 
 import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_planner_service.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -65,7 +67,7 @@ void main() {
     return (plan, client);
   }
 
-  bool isFreeDay(DailyPlan day) => day.highlights.first == TripPlannerService.freeTimeHighlight;
+  bool isFreeDay(DailyPlan day) => day.highlights.first == lookupAppLocalizations(const Locale('en')).planFreeTime;
 
   void report(String label, TripPlan plan, _RecordingClient client) {
     final body = jsonDecode(client.last!.body) as Map<String, dynamic>;

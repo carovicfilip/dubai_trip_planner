@@ -1,9 +1,9 @@
-import 'package:dubai_trip_planner/core/repositories/category_repository.dart';
 import 'package:dubai_trip_planner/core/repositories/place_repository.dart';
 import 'package:dubai_trip_planner/core/widgets/place_photo_card.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/recommended_section.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:dubai_trip_planner/features/place_details/ui/place_details_screen.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -32,7 +32,7 @@ void main() {
     final favorites = FavoritesCubit(await SharedPreferences.getInstance());
     await tester.pumpWidget(BlocProvider.value(
       value: favorites,
-      child: const MaterialApp(home: Scaffold(body: RecommendedSection())),
+      child: const MaterialApp(localizationsDelegates: appLocalizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, home: Scaffold(body: RecommendedSection())),
     ));
     return favorites;
   }
@@ -44,7 +44,7 @@ void main() {
     expect(find.byIcon(Icons.arrow_outward_rounded), findsNothing);
     expect(find.text(first.name), findsOneWidget);
     expect(find.text(first.reviewSummary!), findsOneWidget);
-    expect(find.text(CategoryRepository.getCategoryName(first.categoryId)!.toUpperCase()), findsWidgets);
+    expect(find.text(lookupAppLocalizations(const Locale('en')).categoryName(first.categoryId).toUpperCase()), findsWidgets);
   });
 
   testWidgets('the heart adds the place to favorites without opening it', (tester) async {

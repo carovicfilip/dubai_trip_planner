@@ -2,6 +2,7 @@ import 'package:dubai_trip_planner/core/models/place.dart';
 import 'package:dubai_trip_planner/core/repositories/place_repository.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:dubai_trip_planner/features/place_details/ui/place_details_screen.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -23,7 +24,7 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({'app_rating_asked': true}));
 
   /// Shows [place] on a screen [Navigator] can leave; returns the favorites.
-  Future<FavoritesCubit> pumpDetails(WidgetTester tester, Place place) async {
+  Future<FavoritesCubit> pumpDetails(WidgetTester tester, Place place, {Locale? locale}) async {
     // Large surface on purpose: the test font draws every glyph 1em wide, far
     // wider than Poppins, so phone-size layout is checked on a real device.
     tester.view.physicalSize = const Size(800, 1600) * 3;
@@ -32,7 +33,7 @@ void main() {
     final favorites = FavoritesCubit(await SharedPreferences.getInstance());
     await tester.pumpWidget(BlocProvider.value(
       value: favorites,
-      child: MaterialApp(
+      child: MaterialApp(locale: locale, localizationsDelegates: appLocalizationsDelegates, supportedLocales: AppLocalizations.supportedLocales,
         home: Builder(
           builder: (context) => Scaffold(
             body: TextButton(
@@ -50,6 +51,50 @@ void main() {
     await tester.pumpAndSettle();
     return favorites;
   }
+
+  group('in another language', () {
+    final real = PlaceRepository.getPlacesByCategory('must_see').first;
+
+    testWidgets('shows the translated texts, with the address as it is', (tester) async {
+      await pumpDetails(tester, real, locale: const Locale('de'));
+      final text = placeTextsByLanguage['de']![real.id]!;
+
+      expect(find.text(text.description), findsOneWidget);
+      expect(find.text(real.description), findsNothing);
+      expect(find.text(real.location!), findsOneWidget);
+      expect(find.text('Über diesen Ort'), findsOneWidget);
+      expect(find.text('Zu Favoriten hinzufügen'), findsOneWidget);
+      expect(find.text('HIGHLIGHTS'), findsOneWidget);
+    });
+
+    testWidgets('writes the rating and the reviews as that language does', (tester) async {
+      await pumpDetails(tester, fullPlace, locale: const Locale('de'));
+
+      expect(find.text('4,7'), findsOneWidget);
+      expect(find.text('166.000 Bewertungen'), findsOneWidget);
+    });
+
+    testWidgets('every group of opening hours gets its own line, also with the Arabic comma', (tester) async {
+      const place = Place(
+        id: 'new-place',
+        categoryId: 'must_see',
+        name: 'New',
+        description: 'Text',
+        imageUrl: 'assets/places_images/must_see_1.jpg',
+        openingHours: 'الاثنين–الخميس: 10:00–21:00، الجمعة: 10:00–22:00',
+      );
+      await pumpDetails(tester, place, locale: const Locale('ar'));
+
+      expect(find.text('الاثنين–الخميس: 10:00–21:00\nالجمعة: 10:00–22:00'), findsOneWidget);
+    });
+
+    testWidgets('an address in Latin letters is kept whole inside Arabic text', (tester) async {
+      await pumpDetails(tester, real, locale: const Locale('ar'));
+
+      expect(find.text('\u2068${real.location}\u2069'), findsOneWidget);
+      expect(Directionality.of(tester.element(find.byType(PlaceDetailsScreen))), TextDirection.rtl);
+    });
+  });
 
   testWidgets('shows everything the app knows about the place', (tester) async {
     await pumpDetails(tester, fullPlace);
@@ -158,7 +203,7 @@ void main() {
     for (final place in PlaceRepository.getAllPlaces()) {
       await tester.pumpWidget(BlocProvider.value(
         value: favorites,
-        child: MaterialApp(home: PlaceDetailsScreen(key: ValueKey(place.id), place: place)),
+        child: MaterialApp(localizationsDelegates: appLocalizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, home: PlaceDetailsScreen(key: ValueKey(place.id), place: place)),
       ));
       await tester.pump();
       expect(tester.takeException(), isNull, reason: place.name);

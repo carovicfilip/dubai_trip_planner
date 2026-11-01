@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dubai_trip_planner/features/weather/services/weather_forecast_service.dart';
 import 'package:dubai_trip_planner/features/weather/ui/weather_forecast_section.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -23,7 +24,7 @@ void main() {
     return jsonEncode(data);
   }
 
-  const section = MaterialApp(home: Scaffold(body: WeatherForecastSection()));
+  const section = MaterialApp(localizationsDelegates: appLocalizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, home: Scaffold(body: WeatherForecastSection()));
   late int requests;
 
   setUp(() {

@@ -42,7 +42,7 @@ class GradientHero extends StatelessWidget {
           // The glow coming in from the side.
           decoration: const BoxDecoration(
             gradient: RadialGradient(
-              center: Alignment(-1.1, 0.5),
+              center: AlignmentDirectional(-1.1, 0.5),
               radius: 1.25,
               stops: [0, 0.5, 1],
               colors: [Color(0xDDFF6D29), Color(0x77B65327), Color(0x00B65327)],
@@ -56,13 +56,18 @@ class GradientHero extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        lightTitle,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: titleSize,
-                          fontWeight: FontWeight.w300,
-                          height: 1.2,
+                      // Stays on one line next to [trailing], in any language.
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Text(
+                          lightTitle,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: titleSize,
+                            fontWeight: FontWeight.w300,
+                            height: 1.2,
+                          ),
                         ),
                       ),
                     ),

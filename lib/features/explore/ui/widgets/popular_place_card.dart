@@ -3,6 +3,7 @@ import 'package:dubai_trip_planner/core/constants/app_palette.dart';
 import 'package:dubai_trip_planner/core/models/place.dart';
 import 'package:dubai_trip_planner/core/widgets/bottom_blur.dart';
 import 'package:dubai_trip_planner/core/widgets/place_image.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// A card like a small onboarding page: a photo that melts into the place's
@@ -27,6 +28,7 @@ class PopularPlaceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final photo = PlaceImage(place.imageUrl);
+    final l10n = context.l10n;
 
     return Container(
       clipBehavior: Clip.antiAlias,
@@ -77,17 +79,17 @@ class PopularPlaceCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
-                          place.name,
+                          l10n.placeText(place).name,
                           textAlign: TextAlign.center,
                           style: const TextStyle(color: Colors.white, fontSize: 18, height: 1.2),
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'DUBAI',
+                          l10n.dubaiLabel,
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.85),
                             fontSize: 9,
-                            letterSpacing: 4.5,
+                            letterSpacing: context.labelSpacing(4.5),
                           ),
                         ),
                       ],

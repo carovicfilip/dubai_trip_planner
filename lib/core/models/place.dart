@@ -39,6 +39,15 @@ class Place {
     return double.tryParse(match?.group(1) ?? '') ?? 0;
   }
 
+  /// The number of reviews [reviewSummary] mentions, e.g. 166000 for
+  /// "4.7 (166k reviews)", or null when it mentions none.
+  int? get reviewCount {
+    final match = RegExp(r'\((\d+\.?\d*)(k?) reviews?\)').firstMatch(reviewSummary ?? '');
+    if (match == null) return null;
+    final count = double.parse(match.group(1)!);
+    return (match.group(2) == 'k' ? count * 1000 : count).round();
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

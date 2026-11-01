@@ -65,6 +65,12 @@ app signing key, and a lost upload key can be reset in the Play Console.
   `package:material_ui/material_ui.dart`, not `package:flutter/material.dart`.
   Mixing the two gives type errors, because `ThemeData`, `TextTheme` and the
   widgets are different classes in each.
+- Texts live in `lib/l10n/arb/` (one ARB file per language); `flutter gen-l10n`
+  turns them into `lib/l10n/generated/`, which is committed. Use the delegates
+  from `lib/l10n/l10n.dart`, not `AppLocalizations.localizationsDelegates`:
+  those have the Material texts of `flutter_localizations`, which the widgets
+  of `material_ui` do not read. The texts of the places are in
+  `lib/l10n/places/`, by place id, and a test fails if one is missing.
 - Launcher icons are generated with `dart run flutter_launcher_icons` from
   `assets/launcher/app_icon2.png`; the configuration is in `pubspec.yaml`.
   `assets/launcher/` is not bundled into the app.

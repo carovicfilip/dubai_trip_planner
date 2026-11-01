@@ -8,10 +8,15 @@ class DailyPlan {
   final String? area;
   final List<String> highlights;
 
+  /// Which of the [highlights] are checked off, by position. It can be shorter
+  /// than them; what it does not reach is not checked off.
+  final List<bool> done;
+
   const DailyPlan({
     required this.title,
     this.area,
     required this.highlights,
+    this.done = const [],
   });
 
   factory DailyPlan.fromJson(Map<String, dynamic> json) {
@@ -22,6 +27,7 @@ class DailyPlan {
       highlights: rawHighlights
           .map((item) => item is String ? item : item.toString())
           .toList(growable: false),
+      done: (json['done'] as List<dynamic>? ?? const []).map((item) => item == true).toList(growable: false),
     );
   }
 
@@ -29,7 +35,44 @@ class DailyPlan {
         'title': title,
         if (area != null) 'area': area,
         'highlights': highlights,
+        if (done.contains(true)) 'done': _doneFlags,
       };
+
+  bool isDone(int index) => index < done.length && done[index];
+
+  int get doneCount => _doneFlags.where((isDone) => isDone).length;
+
+  /// Whether there are items, and all of them are checked off.
+  bool get isFinished => highlights.isNotEmpty && doneCount == highlights.length;
+
+  List<bool> get _doneFlags => [for (var i = 0; i < highlights.length; i++) isDone(i)];
+
+  DailyPlan _withItems(List<String> highlights, List<bool> done) {
+    return DailyPlan(title: title, area: area, highlights: highlights, done: done);
+  }
+
+  DailyPlan withItemToggled(int index) {
+    final flags = _doneFlags;
+    flags[index] = !flags[index];
+    return _withItems(highlights, flags);
+  }
+
+  DailyPlan withoutItem(int index) {
+    return _withItems(List.of(highlights)..removeAt(index), _doneFlags..removeAt(index));
+  }
+
+  DailyPlan withItemInserted(int index, String text, {bool isDone = false}) {
+    return _withItems(List.of(highlights)..insert(index, text), _doneFlags..insert(index, isDone));
+  }
+
+  /// Moves an item so that it ends up at position [to].
+  DailyPlan withItemMoved(int from, int to) {
+    final items = List.of(highlights);
+    final flags = _doneFlags;
+    items.insert(to, items.removeAt(from));
+    flags.insert(to, flags.removeAt(from));
+    return _withItems(items, flags);
+  }
 }
 
 class TripPlan {
@@ -69,6 +112,20 @@ class TripPlan {
         'categories': categories,
         'days': days.map((day) => day.toJson()).toList(growable: false),
       };
+
+  /// Which trip this is: a plan for the same place, dates and length is a new
+  /// version of the same trip.
+  String get id => '$location|${startDate.toIso8601String()}|$lengthInDays';
+
+  TripPlan withDay(int index, DailyPlan day) {
+    return TripPlan(
+      location: location,
+      startDate: startDate,
+      lengthInDays: lengthInDays,
+      categories: categories,
+      days: List.of(days)..[index] = day,
+    );
+  }
 
   String serialize() => jsonEncode(toJson());
 

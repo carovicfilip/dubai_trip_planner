@@ -6,6 +6,7 @@ import 'package:dubai_trip_planner/core/widgets/places_card.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/widgets/promo_banner.dart';
 import 'package:dubai_trip_planner/features/place_details/ui/place_details_screen.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,6 +20,7 @@ class ProfileScreen extends StatelessWidget {
     final favoritesState = context.watch<FavoritesCubit>().state;
     final favoritePlaces = favoritesState.favoritesList;
     final palette = context.palette;
+    final l10n = context.l10n;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Over the dark header, in both themes.
@@ -28,13 +30,13 @@ class ProfileScreen extends StatelessWidget {
           statusBarOverPage: AppTheme.statusBarFor(context),
           padding: const EdgeInsets.only(bottom: 10),
           children: [
-            const GradientHero(lightTitle: 'Your', boldTitle: 'Profile', child: PromoBanner()),
+            GradientHero(lightTitle: l10n.profileHeroLight, boldTitle: l10n.profileHeroBold, child: const PromoBanner()),
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text("Favorites", style: TextStyle(fontSize: 16)),
+                  Text(l10n.favoritesTitle, style: TextStyle(fontSize: 16)),
                   SizedBox(height: 10),
                   if (favoritePlaces.isEmpty)
                     Container(
@@ -45,7 +47,7 @@ class ProfileScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(color: palette.hairline),
                       ),
-                      child: Text("You haven't added any favorites yet.", style: TextStyle(color: palette.muted)),
+                      child: Text(l10n.favoritesEmpty, style: TextStyle(color: palette.muted)),
                     )
                   else
                     SizedBox(
@@ -56,7 +58,7 @@ class ProfileScreen extends StatelessWidget {
                         itemBuilder: (context, index) {
                           final place = favoritePlaces[index];
                           return Padding(
-                            padding: const EdgeInsets.only(right: 16),
+                            padding: const EdgeInsetsDirectional.only(end: 16),
                             child: GestureDetector(
                               onTap: () {
                                 Navigator.push(
@@ -77,13 +79,13 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 20),
                   SwitchListTile(
                     secondary: const Icon(Icons.dark_mode_outlined),
-                    title: const Text("Dark theme"),
+                    title: Text(l10n.darkTheme),
                     value: context.watch<ThemeCubit>().state == ThemeMode.dark,
                     onChanged: context.read<ThemeCubit>().setDark,
                   ),
                   ListTile(
                     leading: const Icon(Icons.privacy_tip),
-                    title: const Text("Privacy Policy"),
+                    title: Text(l10n.privacyPolicy),
                     onTap: () async {
                       final uri = Uri.parse('https://dubai-trip-planner.com/privacy-policy');
                       if (await canLaunchUrl(uri)) {
@@ -93,7 +95,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   ListTile(
                     leading: const Icon(Icons.description),
-                    title: const Text("Terms of Use"),
+                    title: Text(l10n.termsOfUse),
                     onTap: () async {
                       final uri = Uri.parse('https://dubai-trip-planner.com/terms-of-use');
                       if (await canLaunchUrl(uri)) {

@@ -13,7 +13,10 @@ import 'package:dubai_trip_planner/app/router/main_scaffold.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/popular_place_card.dart';
 import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_plan_storage.dart';
+import 'package:dubai_trip_planner/core/widgets/custom_back_button.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/itinerary_screen.dart';
+import 'package:dubai_trip_planner/features/my_trip/ui/widgets/arrival_calendar.dart';
+import 'package:dubai_trip_planner/features/my_trip/ui/widgets/stay_length_picker.dart';
 import 'package:dubai_trip_planner/main.dart' as app;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -113,15 +116,19 @@ void main() {
       await shot('07b_place_details_scrolled');
       await tapAndWait(find.byIcon(Icons.arrow_back_ios_new));
 
-      // My Trip: fill the form and call the real OpenAI endpoint.
+      // My Trip: fill the three steps and call the real OpenAI endpoint.
       await tapAndWait(find.byType(SvgPicture).last);
-      await tapAndWait(find.text('Select date'));
-      await shot('08_date_picker');
-      await tapAndWait(find.text('OK'));
-      await tester.enterText(find.byType(TextField).at(0), '3');
-      await tester.enterText(find.byType(TextField).at(1), 'Dubai Marina');
+      await shot('08_trip_step_1');
+      // Next month, where every day can be picked whatever the date today.
+      await tapAndWait(find.byIcon(Icons.chevron_right));
+      await tapAndWait(find.descendant(of: find.byType(ArrivalCalendar), matching: find.text('15')));
+      await tapAndWait(find.descendant(of: find.byType(StayLengthPicker), matching: find.text('3')));
+      await tapAndWait(find.text('Next'));
+      await tester.enterText(find.byType(TextField), 'Dubai Marina');
       FocusManager.instance.primaryFocus?.unfocus();
       await pumpFor(const Duration(milliseconds: 500));
+      await shot('08b_trip_step_2');
+      await tapAndWait(find.text('Next'));
       for (final category in ['Beaches', 'Restaurants', 'Rooftops']) {
         await tester.ensureVisible(find.text(category));
         await pumpFor(const Duration(milliseconds: 300));
@@ -129,7 +136,7 @@ void main() {
         await tester.pump();
       }
       await pumpFor(const Duration(milliseconds: 400));
-      await shot('09_my_trip_form');
+      await shot('09_trip_step_3');
 
       final stopwatch = Stopwatch()..start();
       await tester.tap(find.text('Show Results'));
@@ -145,7 +152,7 @@ void main() {
         await pumpFor(const Duration(milliseconds: 800));
         notes.add('AI: itinerary generated in ${stopwatch.elapsed.inMilliseconds} ms');
         await shot('11_ai_itinerary');
-        await tapAndWait(find.byType(BackButton));
+        await tapAndWait(find.byType(CustomBackButton));
       } else if (finished) {
         final snack = tester.widget<Text>(find.descendant(of: find.byType(SnackBar), matching: find.byType(Text))).data;
         notes.add('AI: error after ${stopwatch.elapsed.inMilliseconds} ms -> $snack');
@@ -157,7 +164,7 @@ void main() {
       await pumpFor(const Duration(seconds: 4));
 
       // Seed a plan with long month names to check the itinerary layout.
-      await TripPlanStorage.savePlan(TripPlan(
+      await TripPlanStorage.savePlans([TripPlan(
         location: 'Jumeirah Beach Residence',
         startDate: DateTime(2026, 11, 28),
         lengthInDays: 4,
@@ -179,14 +186,18 @@ void main() {
           DailyPlan(title: 'Day 3: Old Dubai', highlights: ['Morning: Al Fahidi', 'Evening: Gold Souk']),
           DailyPlan(title: 'Day 4: Palm Jumeirah', highlights: ['Morning: Aquaventure', 'Evening: Atlantis']),
         ],
-      ));
+      )]);
       await tapAndWait(find.byIcon(Icons.person));
       await shot('12_profile');
       await tapAndWait(find.byType(SvgPicture).last);
+      // A failed AI call stays on the last step; the saved plan is on the first.
+      while (find.byType(CustomBackButton).evaluate().isNotEmpty) {
+        await tapAndWait(find.byType(CustomBackButton));
+      }
       await shot('13_my_trip_saved_plan');
       await tapAndWait(find.text('Your Tailored Itinerary'));
       await shot('14_itinerary_seeded');
-      await tapAndWait(find.byType(BackButton));
+      await tapAndWait(find.byType(CustomBackButton));
 
       await tapAndWait(find.byIcon(Icons.explore_outlined), wait: const Duration(milliseconds: 1500));
       await shot('15_categories');

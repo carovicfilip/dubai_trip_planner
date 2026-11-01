@@ -4,12 +4,14 @@ import 'package:dubai_trip_planner/core/widgets/gradient_hero.dart';
 import 'package:dubai_trip_planner/features/app_rating/services/app_rating_service.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/category_section.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/hack_and_tips.dart';
+import 'package:dubai_trip_planner/features/explore/ui/widgets/language_switcher.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/most_popular_section.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/recommended_section.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/widgets/promo_banner.dart';
 import 'package:dubai_trip_planner/features/onboarding/services/onboarding_service.dart';
 import 'package:dubai_trip_planner/features/onboarding/ui/onboarding_screen.dart';
 import 'package:dubai_trip_planner/features/weather/ui/weather_forecast_section.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
@@ -22,6 +24,7 @@ class ExploreScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final palette = context.palette;
     final safeArea = MediaQuery.paddingOf(context);
+    final l10n = context.l10n;
     Widget section(Widget child) => Padding(padding: const EdgeInsets.symmetric(horizontal: 10), child: child);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -54,9 +57,15 @@ class ExploreScreen extends StatelessWidget {
                 padding: EdgeInsets.only(bottom: safeArea.bottom + 16),
                 children: [
                   GradientHero(
-                    lightTitle: 'Welcome to',
-                    boldTitle: 'Dubai!',
-                    trailing: kDebugMode ? const _RestartOnboardingButton() : null,
+                    lightTitle: l10n.exploreHeroLight,
+                    boldTitle: l10n.exploreHeroBold,
+                    trailing: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (kDebugMode) _RestartOnboardingButton(),
+                        LanguageSwitcher(),
+                      ],
+                    ),
                     child: const PromoBanner(),
                   ),
                   const SizedBox(height: 24),
@@ -87,7 +96,8 @@ class _RestartOnboardingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton.icon(
+    return IconButton(
+      tooltip: 'Restart onboarding',
       onPressed: () async {
         await OnboardingService.resetOnboarding();
         // Starts over as a new user, so the question can be seen again too.
@@ -101,14 +111,10 @@ class _RestartOnboardingButton extends StatelessWidget {
           );
         }
       },
-      style: TextButton.styleFrom(
-        backgroundColor: Colors.white.withValues(alpha: 0.14),
-        foregroundColor: Colors.white,
-        visualDensity: VisualDensity.compact,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-      ),
-      icon: const Icon(Icons.refresh, size: 16),
-      label: const Text('Restart onboarding', style: TextStyle(fontSize: 11)),
+      color: Colors.white,
+      iconSize: 18,
+      visualDensity: VisualDensity.compact,
+      icon: const Icon(Icons.refresh),
     );
   }
 }

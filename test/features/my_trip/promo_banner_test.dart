@@ -2,6 +2,7 @@ import 'package:dubai_trip_planner/features/my_trip/cubit/my_trip_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_planner_service.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/widgets/promo_banner.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -18,7 +19,7 @@ void main() {
       create: (_) => MyTripCubit(TripPlannerService()),
       child: MediaQuery(
         data: MediaQueryData(size: const Size(800, 1600), disableAnimations: disableAnimations),
-        child: const MaterialApp(home: Scaffold(body: PromoBanner())),
+        child: const MaterialApp(localizationsDelegates: appLocalizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, home: Scaffold(body: PromoBanner())),
       ),
     ));
   }

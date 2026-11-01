@@ -4,6 +4,7 @@ import 'package:dubai_trip_planner/app/router/main_scaffold.dart';
 import 'package:dubai_trip_planner/app/theme/app_theme.dart';
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
 import 'package:dubai_trip_planner/core/widgets/photo_message.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -35,15 +36,16 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const AnnotatedRegion<SystemUiOverlayStyle>(
+    final l10n = context.l10n;
+    return AnnotatedRegion<SystemUiOverlayStyle>(
       value: AppTheme.statusBarOnDark,
       child: Scaffold(
         backgroundColor: AppColors.darkNavy,
         body: PhotoMessage(
           image: 'assets/images/splash.webp',
-          title: 'Welcome Back',
-          label: 'DUBAI',
-          text: "Your next adventure is waiting. Let's pick up where you left off.",
+          title: l10n.splashTitle,
+          label: l10n.dubaiLabel,
+          text: l10n.splashText,
           bottomSpace: 72,
         ),
       ),

@@ -4,6 +4,7 @@ import 'dart:ui' show ImageFilter;
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
 import 'package:dubai_trip_planner/core/widgets/liquid_glass_painter.dart';
 import 'package:dubai_trip_planner/features/app_rating/services/app_rating_service.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// Asks how the user likes the app, once ever, shortly after this first appears.
@@ -76,6 +77,7 @@ class _AppRatingDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Dialog(
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
@@ -109,33 +111,37 @@ class _AppRatingDialog extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'How do you like\nthe app so far?',
+                    Text(
+                      l10n.ratingQuestion,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.white, fontSize: 26, height: 1.25),
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'DUBAI',
-                      style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 13, letterSpacing: 7),
+                      l10n.dubaiLabel,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontSize: 13,
+                        letterSpacing: context.labelSpacing(7),
+                      ),
                     ),
                     const SizedBox(height: 26),
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         _FaceButton(
                           icon: Icons.sentiment_dissatisfied_outlined,
-                          label: "I don't like it",
+                          label: l10n.ratingBad,
                           feeling: _Feeling.unhappy,
                         ),
                         _FaceButton(
                           icon: Icons.sentiment_neutral_outlined,
-                          label: "It's okay",
+                          label: l10n.ratingOkay,
                           feeling: _Feeling.neutral,
                         ),
                         _FaceButton(
                           icon: Icons.sentiment_very_satisfied_outlined,
-                          label: 'I love it',
+                          label: l10n.ratingGood,
                           feeling: _Feeling.happy,
                         ),
                       ],

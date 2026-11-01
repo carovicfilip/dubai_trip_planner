@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   # Material Design widgets, decoupled from the Flutter framework.
   material_ui: ^1.9.0
 
@@ -73,6 +75,8 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  # Generates lib/l10n/generated/ from lib/l10n/arb/ (see l10n.yaml).
+  generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
@@ -86,6 +90,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/flags/
     - assets/places_images/
     - .env
 

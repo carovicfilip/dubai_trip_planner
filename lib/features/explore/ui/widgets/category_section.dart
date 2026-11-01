@@ -3,6 +3,7 @@ import 'package:dubai_trip_planner/core/repositories/category_repository.dart';
 import 'package:dubai_trip_planner/core/widgets/category_icon.dart';
 import 'package:dubai_trip_planner/core/widgets/glass_card.dart';
 import 'package:dubai_trip_planner/features/categories/ui/categories_screen.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:material_ui/material_ui.dart';
 
 class CategorySection extends StatelessWidget {
@@ -11,11 +12,12 @@ class CategorySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final categories = CategoryRepository.allCategories;
-    
+    final l10n = context.l10n;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Categories", style: Theme.of(context).textTheme.titleMedium),
+        Text(l10n.categoriesTitle, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 14),
         GlassCard(
           width: double.infinity,
@@ -50,7 +52,7 @@ class CategorySection extends StatelessWidget {
                           child: CategoryIcon(category.iconPath),
                         ),
                         const SizedBox(height: 10),
-                        Text(category.name, style: const TextStyle(fontSize: 12)),
+                        Text(l10n.categoryName(category.id), style: const TextStyle(fontSize: 12)),
                       ],
                     ),
                   ),

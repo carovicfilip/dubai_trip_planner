@@ -6,6 +6,7 @@ import 'package:dubai_trip_planner/core/repositories/place_repository.dart';
 import 'package:dubai_trip_planner/core/widgets/place_image.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/popular_place_card.dart';
 import 'package:dubai_trip_planner/features/place_details/ui/place_details_screen.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// The most popular places as a carousel: a large card in the middle between
@@ -66,6 +67,9 @@ class _MostPopularSectionState extends State<MostPopularSection> {
     _pages.animateToPage(target, duration: const Duration(milliseconds: 600), curve: Curves.easeInOutCubic);
   }
 
+  // In Arabic the page view runs from right to left, and the cards with it.
+  bool get _isRtl => Directionality.of(context) == TextDirection.rtl;
+
   double get _page => _pages.hasClients ? _pages.page ?? _pages.initialPage.toDouble() : _pages.initialPage.toDouble();
 
   Place get _centerPlace => _places[_page.round() % _places.length];
@@ -85,7 +89,7 @@ class _MostPopularSectionState extends State<MostPopularSection> {
     if (x.abs() <= _centerSize.width / 2) {
       if (y <= _centerSize.height / 2) _openCenterCard();
     } else if (y <= _sideSize.height / 2) {
-      _moveBy(x.isNegative ? -1 : 1);
+      _moveBy(x.isNegative != _isRtl ? -1 : 1);
     }
   }
 
@@ -94,7 +98,7 @@ class _MostPopularSectionState extends State<MostPopularSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Most Popular Places", style: Theme.of(context).textTheme.titleMedium),
+        Text(context.l10n.mostPopularTitle, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         SizedBox(
           height: _height,
@@ -131,7 +135,7 @@ class _MostPopularSectionState extends State<MostPopularSection> {
 
     return Semantics(
       button: true,
-      label: _centerPlace.name,
+      label: context.l10n.placeText(_centerPlace).name,
       onTap: _openCenterCard,
       child: ExcludeSemantics(
         child: Stack(
@@ -160,7 +164,7 @@ class _MostPopularSectionState extends State<MostPopularSection> {
 
     return Transform.translate(
       key: ValueKey(place.id),
-      offset: Offset(position.isNegative ? -x : x, 0),
+      offset: Offset(position.isNegative != _isRtl ? -x : x, 0),
       child: Opacity(
         opacity: (2 - distance).clamp(0.0, 1.0),
         child: Stack(

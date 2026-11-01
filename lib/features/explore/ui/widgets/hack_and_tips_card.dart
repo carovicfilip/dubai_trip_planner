@@ -19,7 +19,7 @@ class HackAndTipsCard extends StatelessWidget {
     final palette = context.palette;
     return GlassCard(
       width: 250,
-      margin: const EdgeInsets.only(right: 18),
+      margin: const EdgeInsetsDirectional.only(end: 18),
       padding: const EdgeInsets.all(14),
       radius: 28,
       child: Column(
@@ -41,6 +41,8 @@ class HackAndTipsCard extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                         color: palette.ink, fontWeight: FontWeight.w500, fontSize: 14)),
               ),

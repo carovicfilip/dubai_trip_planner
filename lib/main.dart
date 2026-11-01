@@ -1,6 +1,9 @@
+import 'package:dubai_trip_planner/app/language/app_language.dart';
+import 'package:dubai_trip_planner/app/language/language_cubit.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/cubit/my_trip_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_planner_service.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,21 +36,27 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => FavoritesCubit(prefs)),
         BlocProvider(create: (_) => MyTripCubit(TripPlannerService())),
         BlocProvider(create: (_) => ThemeCubit(prefs)),
+        BlocProvider(create: (_) => LanguageCubit(prefs)),
       ],
-      child: BlocBuilder<ThemeCubit, ThemeMode>(
-        builder: (context, themeMode) => MaterialApp(
-          title: 'Dubai Trip Planner',
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: themeMode,
-          debugShowCheckedModeBanner: false,
-          // The default for screens without an app bar. Screens over a photo
-          // set their own, and this brings the status bar back when they are left.
-          builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
-            value: AppTheme.statusBarFor(context),
-            child: child!,
+      child: BlocBuilder<LanguageCubit, AppLanguage>(
+        builder: (context, language) => BlocBuilder<ThemeCubit, ThemeMode>(
+          builder: (context, themeMode) => MaterialApp(
+            onGenerateTitle: (context) => context.l10n.appTitle,
+            locale: language.locale,
+            localizationsDelegates: appLocalizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            theme: AppTheme.lightFor(language),
+            darkTheme: AppTheme.darkFor(language),
+            themeMode: themeMode,
+            debugShowCheckedModeBanner: false,
+            // The default for screens without an app bar. Screens over a photo
+            // set their own, and this brings the status bar back when they are left.
+            builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+              value: AppTheme.statusBarFor(context),
+              child: child!,
+            ),
+            home: onboardingCompleted ? const SplashScreen() : const OnboardingScreen(),
           ),
-          home: onboardingCompleted ? const SplashScreen() : const OnboardingScreen(),
         ),
       ),
     );

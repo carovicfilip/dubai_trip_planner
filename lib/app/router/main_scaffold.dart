@@ -5,6 +5,7 @@ import 'package:dubai_trip_planner/features/categories/ui/categories_screen.dart
 import 'package:dubai_trip_planner/features/explore/ui/explore_screen.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
 import 'package:dubai_trip_planner/features/profile/ui/profile_screen.dart';
+import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -55,9 +56,16 @@ class _MainScaffoldState extends State<MainScaffold> {
                 ),
                 const SizedBox(height: 2),
                 ExcludeSemantics(
-                  child: Text(
-                    label,
-                    style: TextStyle(color: isSelected ? palette.onAccent : palette.muted, fontSize: 11),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    // Some languages have long words for these.
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        label,
+                        style: TextStyle(color: isSelected ? palette.onAccent : palette.muted, fontSize: 11),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -70,6 +78,7 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       // Only Explore runs on under the floating bar. The other tabs stay above
       // it: My Trip pins a button to the bottom of its screen.
@@ -98,7 +107,7 @@ class _MainScaffoldState extends State<MainScaffold> {
                 ),
                 child: Row(
                   children: [
-                    _buildNavItem(icon: const Icon(Icons.home_filled), index: 0, label: 'Explore'),
+                    _buildNavItem(icon: const Icon(Icons.home_filled), index: 0, label: l10n.navExplore),
                     _buildNavItem(
                       icon: SvgPicture.asset(
                         'assets/icons/my_trip.svg',
@@ -109,10 +118,10 @@ class _MainScaffoldState extends State<MainScaffold> {
                         ),
                       ),
                       index: 1,
-                      label: 'My Trip',
+                      label: l10n.navMyTrip,
                     ),
-                    _buildNavItem(icon: const Icon(Icons.explore_outlined), index: 2, label: 'Categories'),
-                    _buildNavItem(icon: const Icon(Icons.person), index: 3, label: 'Profile'),
+                    _buildNavItem(icon: const Icon(Icons.explore_outlined), index: 2, label: l10n.navCategories),
+                    _buildNavItem(icon: const Icon(Icons.person), index: 3, label: l10n.navProfile),
                   ],
                 ),
               ),
