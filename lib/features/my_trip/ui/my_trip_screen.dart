@@ -296,7 +296,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
                         step: 2,
                         title: 'Select your accommodation location',
                         description:
-                            "Tell us where you'll be staying in Dubai. This helps us optimize your itinerary based on proximity to attractions, restaurants, and activities.",
+                            "Tell us where you'll be staying in Dubai, ideally the hotel's name. This helps us optimize your itinerary based on proximity to attractions, restaurants, and activities.",
                         children: [
                           const SizedBox(height: 20),
                           TextField(

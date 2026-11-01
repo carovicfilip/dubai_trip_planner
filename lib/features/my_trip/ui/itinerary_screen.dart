@@ -147,6 +147,8 @@ class _DailyPlanCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final dateLabel = formatter.format(_addDays(startDate, dayIndex));
+    final area = plan.area;
+    final secondaryStyle = theme.textTheme.bodyMedium?.copyWith(color: Colors.black54);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -197,18 +199,28 @@ class _DailyPlanCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      dateLabel,
-                      style: theme.textTheme.bodyMedium?.copyWith(color: Colors.black54),
-                    ),
+                    Text(dateLabel, style: secondaryStyle),
+                    if (area != null) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.location_on_outlined, size: 18, color: Colors.black54),
+                          const SizedBox(width: 4),
+                          Expanded(child: Text(area, style: secondaryStyle)),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          ...plan.highlights.map(
-            (item) => Padding(
+          ...plan.highlights.map((item) {
+            // Lines after the first ("Getting there: …") are a side note.
+            final firstLineEnd = item.indexOf('\n');
+            return Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,15 +228,21 @@ class _DailyPlanCard extends StatelessWidget {
                   const Icon(Icons.check_circle_outline, size: 18, color: AppColors.primaryNavigation),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text(
-                      item,
+                    child: Text.rich(
+                      TextSpan(
+                        text: firstLineEnd == -1 ? item : item.substring(0, firstLineEnd),
+                        children: [
+                          if (firstLineEnd != -1)
+                            TextSpan(text: item.substring(firstLineEnd), style: const TextStyle(color: Colors.black54)),
+                        ],
+                      ),
                       style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
                     ),
                   ),
                 ],
               ),
-            ),
-          ),
+            );
+          }),
         ],
       ),
     );

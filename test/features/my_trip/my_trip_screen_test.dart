@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:dubai_trip_planner/features/my_trip/cubit/my_trip_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
@@ -140,10 +139,10 @@ void main() {
     await tapShowResults(tester);
     expect(find.byType(CircularProgressIndicator), findsOneWidget, reason: 'spinner while waiting for the AI');
     expect(requests, hasLength(1));
-    final prompt = (jsonDecode(requests.single.body)['messages'] as List<dynamic>)[1]['content'] as String;
-    expect(prompt, contains('Traveler base location: Dubai Marina'));
-    expect(prompt, contains('Interests/Categories: Beaches'));
-    expect(prompt, contains('Create exactly 3 days'));
+    final details = tripDetailsSent(requests.single);
+    expect(details['accommodation'], 'Dubai Marina');
+    expect(details['interests'], ['Beaches']);
+    expect(details['dates'], hasLength(3));
 
     response.complete(jsonResponse(chatCompletionBody(itineraryJson(3)), 200));
     await tester.pumpAndSettle();
@@ -151,6 +150,7 @@ void main() {
     expect(find.byType(ItineraryScreen), findsOneWidget);
     expect(find.text('3-day stay in Dubai Marina'), findsOneWidget);
     expect(find.text('Day 1: Theme 1'), findsOneWidget);
+    expect(find.text('Area 1'), findsOneWidget);
 
     final saved = await TripPlanStorage.loadPlan();
     expect(saved?.location, 'Dubai Marina');
@@ -287,7 +287,7 @@ void main() {
 
       expect(durationField(tester).controller!.text, '15');
       expect(requests, hasLength(1));
-      expect(requests.single.body, contains('Create exactly 15 days'));
+      expect(tripDetailsSent(requests.single)['dates'], hasLength(15));
 
       response.complete(jsonResponse(chatCompletionBody(itineraryJson(15)), 200));
       await tester.pumpAndSettle();

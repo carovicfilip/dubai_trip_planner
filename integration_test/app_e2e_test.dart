@@ -143,7 +143,8 @@ void main() {
       await shot('10_my_trip_loading');
       final finished = await waitFor(
         find.byWidgetPredicate((w) => w is ItineraryScreen || w is SnackBar),
-        timeout: const Duration(seconds: 120),
+        // The app itself gives up after 3 minutes.
+        timeout: const Duration(seconds: 190),
       );
       stopwatch.stop();
       if (find.byType(ItineraryScreen).evaluate().isNotEmpty) {
@@ -157,7 +158,7 @@ void main() {
         await pumpFor(const Duration(milliseconds: 400));
         await shot('11_ai_error_snackbar');
       } else {
-        notes.add('AI: no result after 120 s');
+        notes.add('AI: no result after 190 s');
       }
       await pumpFor(const Duration(seconds: 4));
 
@@ -168,11 +169,14 @@ void main() {
         lengthInDays: 4,
         categories: const ['Beaches', 'Restaurants', 'Rooftops', 'Nightlife'],
         days: const [
-          DailyPlan(title: 'Day 1: JBR & Dubai Marina', highlights: [
-            'Morning: Swim at JBR Beach and breakfast at Lighthouse café',
-            'Afternoon: Dubai Marina Walk and a dhow cruise',
-            'Evening: Dinner at Pier 7 with marina views',
+          DailyPlan(title: 'Day 1: Beach and Marina Life', area: 'Jumeirah Beach Residence & Dubai Marina', highlights: [
+            'Morning: JBR Beach (Jumeirah Beach Residence) – Swim, then breakfast at a beachfront café.\n'
+                'Getting there: 5 min walk from your accommodation',
+            'Afternoon: Dubai Marina Walk (Dubai Marina) – Stroll the promenade and take a dhow cruise.\n'
+                'Getting there: 10 min by tram',
+            'Evening: Pier 7 (Dubai Marina) – Dinner with marina views.\nGetting there: 5 min walk',
           ]),
+          // Saved before days had an area.
           DailyPlan(title: 'Day 2: Downtown Dubai', highlights: [
             'Morning: At the Top, Burj Khalifa (levels 124–125)',
             'Afternoon: The Dubai Mall and the Dubai Aquarium',

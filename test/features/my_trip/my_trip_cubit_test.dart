@@ -89,7 +89,9 @@ void main() {
     expect(trip.state.savedPlan, same(plan));
     expect(plan.location, 'Dubai Marina');
     expect((await TripPlanStorage.loadPlan())?.days, hasLength(3));
-    expect(requests.single.body, contains('Create exactly 3 days'));
+    final details = tripDetailsSent(requests.single);
+    expect(details['accommodation'], 'Dubai Marina', reason: 'sent without the spaces around it');
+    expect(details['dates'], hasLength(3));
   });
 
   test('asking again while a plan is generated sends no second request', () async {

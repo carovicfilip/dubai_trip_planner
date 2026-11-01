@@ -10,7 +10,11 @@ void main() {
     lengthInDays: 2,
     categories: const ['Beaches', 'Rooftops'],
     days: const [
-      DailyPlan(title: 'Day 1: JBR — The Walk', highlights: ['Morning: Swim', 'Evening: Ain Dubai']),
+      DailyPlan(
+        title: 'Day 1: JBR — The Walk',
+        area: 'JBR & Dubai Marina',
+        highlights: ['Morning: Swim\nGetting there: 5 min walk', 'Evening: Ain Dubai'],
+      ),
       DailyPlan(title: 'Day 2: Marina', highlights: ['Afternoon: Dhow cruise']),
     ],
   );
@@ -21,11 +25,23 @@ void main() {
     expect(actual.lengthInDays, expected.lengthInDays);
     expect(actual.categories, expected.categories);
     expect(actual.days.map((d) => d.title), expected.days.map((d) => d.title));
+    expect(actual.days.map((d) => d.area), expected.days.map((d) => d.area));
     expect(actual.days.map((d) => d.highlights), expected.days.map((d) => d.highlights));
   }
 
   test('serialize/deserialize round-trips every field', () {
     expectSamePlan(TripPlan.deserialize(plan.serialize()), plan);
+  });
+
+  test('loads a plan saved before days had an area', () {
+    const saved = '{"location":"Business Bay","startDate":"2026-12-20T00:00:00.000","lengthInDays":1,'
+        '"categories":["Spas"],"days":[{"title":"Day 1: Spa day","highlights":["Morning: Spa"]}]}';
+
+    final day = TripPlan.deserialize(saved).days.single;
+
+    expect(day.title, 'Day 1: Spa day');
+    expect(day.area, isNull);
+    expect(day.highlights, ['Morning: Spa']);
   });
 
   group('TripPlanStorage', () {

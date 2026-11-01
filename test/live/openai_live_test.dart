@@ -4,7 +4,8 @@
 //   LIVE_AI_TEST=1 flutter test test/live/openai_live_test.dart
 //
 // The key is read from .env (OPENAI_API_KEY=...). Without a real key only the
-// connectivity check runs.
+// connectivity check runs. Read the printed plans too: whether each day stays
+// in one area near the accommodation can only be judged by a person.
 
 import 'dart:convert';
 import 'dart:io';
@@ -47,38 +48,50 @@ String? _keyFromDotEnv() {
   return null;
 }
 
-const _fillerFirstLine = 'Morning: Free time to revisit favorite spots or relax at the hotel spa.';
-
 void main() {
   final enabled = Platform.environment['LIVE_AI_TEST'] == '1';
   final key = _keyFromDotEnv();
   final hasRealKey = key != null && key.startsWith('sk-') && !key.contains('placeholder');
 
-  Future<(TripPlan, _RecordingClient)> generate(int days, List<String> categories) async {
+  Future<(TripPlan, _RecordingClient)> generate(int days, String location, List<String> categories) async {
     dotenv.loadFromString(envString: 'OPENAI_API_KEY=$key');
     final client = _RecordingClient();
     final plan = await TripPlannerService(httpClient: client).generatePlan(
       startDate: DateTime.now().add(const Duration(days: 30)),
       lengthInDays: days,
-      location: 'Dubai Marina',
+      location: location,
       categories: categories,
     );
     return (plan, client);
   }
 
+  bool isFreeDay(DailyPlan day) => day.highlights.first == TripPlannerService.freeTimeHighlight;
+
   void report(String label, TripPlan plan, _RecordingClient client) {
     final body = jsonDecode(client.last!.body) as Map<String, dynamic>;
     final usage = body['usage'] as Map<String, dynamic>;
-    final filler = plan.days.where((d) => d.highlights.first == _fillerFirstLine).length;
+    final reasoning = (usage['completion_tokens_details'] as Map<String, dynamic>?)?['reasoning_tokens'];
     // ignore: avoid_print
     print('[$label] ${client.elapsed!.inMilliseconds} ms | model ${body['model']} | '
         'finish_reason ${body['choices'][0]['finish_reason']} | '
-        'tokens in/out ${usage['prompt_tokens']}/${usage['completion_tokens']} | '
-        'content-type ${client.last!.headers['content-type']} | '
-        'days ${plan.days.length} (filler: $filler)');
+        'tokens in/out ${usage['prompt_tokens']}/${usage['completion_tokens']} (reasoning $reasoning) | '
+        'days ${plan.days.length} (free days: ${plan.days.where(isFreeDay).length})');
+    // ignore: avoid_print
+    print('  Accommodation: ${plan.location}');
     for (final day in plan.days) {
       // ignore: avoid_print
-      print('  ${day.title}\n    - ${day.highlights.join('\n    - ')}');
+      print('  ${day.title}  [${day.area}]\n    - ${day.highlights.map((h) => h.replaceAll('\n', '\n      ')).join('\n    - ')}');
+    }
+  }
+
+  void expectPlannedByModel(TripPlan plan) {
+    for (final day in plan.days) {
+      expect(isFreeDay(day), isFalse, reason: '${day.title} is app filler, not AI output');
+      expect(day.area, isNotNull, reason: '${day.title} has no area');
+      expect(day.highlights.length, greaterThanOrEqualTo(3), reason: day.title);
+      for (final highlight in day.highlights) {
+        expect(highlight, contains('\nGetting there: '), reason: '${day.title}: "$highlight"');
+      }
     }
   }
 
@@ -100,26 +113,27 @@ void main() {
   group(
     'with the real key from .env',
     () {
-      test('3-day plan: every day is planned by the model, with 3+ activities', () async {
-        final (plan, client) = await generate(3, const ['Beaches', 'Restaurants', 'Rooftops']);
+      test('3-day plan: every day planned by the model, in an area, with directions', () async {
+        final (plan, client) = await generate(3, 'Dubai Marina', const ['Beaches', 'Restaurants', 'Rooftops']);
         report('3 days', plan, client);
 
         expect(client.last!.statusCode, 200);
         expect(plan.days, hasLength(3));
-        for (final day in plan.days) {
-          expect(day.highlights.first, isNot(_fillerFirstLine), reason: '${day.title} is app filler, not AI output');
-          expect(day.highlights.length, greaterThanOrEqualTo(3), reason: day.title);
-        }
+        expectPlannedByModel(plan);
         expect(client.last!.body, isNot(contains('â€')), reason: 'UTF-8 mis-decoded as Latin-1');
-      }, timeout: const Timeout(Duration(minutes: 2)));
+      }, timeout: const Timeout(Duration(minutes: 4)));
 
-      test('10-day plan: does the model return all 10 days?', () async {
-        final (plan, client) = await generate(10, const ['Attractions', 'Shopping', 'Desserts', 'Nightlife']);
-        report('10 days', plan, client);
+      test('${TripPlannerService.maxTripDays}-day plan, the longest allowed: all days, within the timeout', () async {
+        final (plan, client) = await generate(
+          TripPlannerService.maxTripDays,
+          'Rove Downtown',
+          const ['Attractions', 'Shopping', 'Desserts', 'Nightlife', 'Theme parks'],
+        );
+        report('${TripPlannerService.maxTripDays} days', plan, client);
 
-        final filler = plan.days.where((d) => d.highlights.first == _fillerFirstLine).length;
-        expect(filler, 0, reason: '$filler of 10 days were padded by the app');
-      }, timeout: const Timeout(Duration(minutes: 3)));
+        expect(plan.days, hasLength(TripPlannerService.maxTripDays));
+        expectPlannedByModel(plan);
+      }, timeout: const Timeout(Duration(minutes: 4)));
     },
     skip: !enabled
         ? 'set LIVE_AI_TEST=1 to call the real API'

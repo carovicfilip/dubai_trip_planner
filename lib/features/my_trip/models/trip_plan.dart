@@ -2,10 +2,15 @@ import 'dart:convert';
 
 class DailyPlan {
   final String title;
+
+  /// The part of Dubai the day is spent in, e.g. "Downtown Dubai & Business
+  /// Bay". Null for plans saved before the planner was asked for it.
+  final String? area;
   final List<String> highlights;
 
   const DailyPlan({
     required this.title,
+    this.area,
     required this.highlights,
   });
 
@@ -13,6 +18,7 @@ class DailyPlan {
     final rawHighlights = json['highlights'] as List<dynamic>? ?? const [];
     return DailyPlan(
       title: json['title'] as String? ?? 'Day',
+      area: json['area'] as String?,
       highlights: rawHighlights
           .map((item) => item is String ? item : item.toString())
           .toList(growable: false),
@@ -21,6 +27,7 @@ class DailyPlan {
 
   Map<String, dynamic> toJson() => {
         'title': title,
+        if (area != null) 'area': area,
         'highlights': highlights,
       };
 }

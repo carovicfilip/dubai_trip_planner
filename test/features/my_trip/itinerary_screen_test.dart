@@ -35,6 +35,30 @@ void main() {
     }
   });
 
+  testWidgets("shows each day's area and how to get to every stop", (tester) async {
+    const highlight = 'Morning: Burj Khalifa (Downtown Dubai) – Views from level 124.\n'
+        'Getting there: 25 min by taxi from your accommodation';
+    await pumpItinerary(
+      tester,
+      TripPlan(
+        location: 'Dubai Marina',
+        startDate: DateTime(2026, 11, 10),
+        lengthInDays: 2,
+        categories: const ['Attractions'],
+        days: const [
+          DailyPlan(title: 'Day 1: Icons', area: 'Downtown Dubai & Business Bay', highlights: [highlight]),
+          // Saved before days had an area.
+          DailyPlan(title: 'Day 2: Old Dubai', highlights: ['Morning: Al Fahidi']),
+        ],
+      ),
+    );
+
+    expect(find.text('Downtown Dubai & Business Bay'), findsOneWidget);
+    expect(find.byIcon(Icons.location_on_outlined), findsOneWidget, reason: 'only the day with an area shows one');
+    expect(find.text(highlight), findsOneWidget);
+    expect(find.text('Morning: Al Fahidi'), findsOneWidget);
+  });
+
   // Regression test for DST time zones such as Europe/Belgrade: adding
   // Duration(days: n) to local midnight landed on 23:00 of the previous day
   // after the clocks went back (25 Oct 2026), so a date repeated.
