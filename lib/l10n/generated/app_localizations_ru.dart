@@ -110,7 +110,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tipFridayText =>
-      'По пятницам многие магазины Золотого рынка открываются лишь после обеда.';
+      'Многие магазины Золотого рынка открываются лишь после обеда.';
 
   @override
   String get tipTaxFreeTitle => 'Просите чек Tax Free';
