@@ -1,6 +1,7 @@
 import 'dart:math' show cos, pi, sin;
 
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
+import 'package:dubai_trip_planner/core/widgets/liquid_glass_painter.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:material_ui/material_ui.dart';
@@ -81,7 +82,7 @@ class _PromoBannerState extends State<PromoBanner> with SingleTickerProviderStat
                 Positioned.fill(
                   child: RepaintBoundary(child: CustomPaint(painter: _FlowingLightPainter(_controller))),
                 ),
-                const Positioned.fill(child: CustomPaint(painter: _GlassPainter())),
+                const Positioned.fill(child: CustomPaint(painter: LiquidGlassPainter(radius: 24))),
                 Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(
@@ -268,70 +269,4 @@ class _FlowingLightPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_FlowingLightPainter oldDelegate) => progress != oldDelegate.progress;
-}
-
-/// What makes it look like glass: a surface lit along the top and in shade along
-/// the bottom, an edge that gathers the light, and a bright rim that is strongest
-/// at two opposite corners. Almost no white on the surface itself: that would
-/// wash the warm light out into beige.
-class _GlassPainter extends CustomPainter {
-  const _GlassPainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-
-    canvas.drawRect(
-      rect,
-      Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: const [0, 0.22, 0.7, 1],
-          colors: [
-            AppColors.heroAmber.withValues(alpha: 0.34),
-            AppColors.heroAmber.withValues(alpha: 0.05),
-            AppColors.heroAmber.withValues(alpha: 0.02),
-            AppColors.heroDeep.withValues(alpha: 0.22),
-          ],
-        ).createShader(rect),
-    );
-
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(24)),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 7
-        ..color = Colors.white.withValues(alpha: 0.2)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
-    );
-
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(rect.deflate(0.75), const Radius.circular(23.25)),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5
-        ..shader = LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          stops: const [0, 0.4, 0.65, 1],
-          colors: [
-            Colors.white.withValues(alpha: 0.95),
-            Colors.white.withValues(alpha: 0.18),
-            Colors.white.withValues(alpha: 0.12),
-            Colors.white.withValues(alpha: 0.7),
-          ],
-        ).createShader(rect),
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(rect.deflate(2.25), const Radius.circular(21.75)),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.8
-        ..color = Colors.white.withValues(alpha: 0.14),
-    );
-  }
-
-  @override
-  bool shouldRepaint(_GlassPainter oldDelegate) => false;
 }

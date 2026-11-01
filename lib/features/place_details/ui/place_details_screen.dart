@@ -8,6 +8,7 @@ import 'package:dubai_trip_planner/core/repositories/category_repository.dart';
 import 'package:dubai_trip_planner/core/widgets/custom_back_button.dart';
 import 'package:dubai_trip_planner/core/widgets/glass_button.dart';
 import 'package:dubai_trip_planner/core/widgets/place_image.dart';
+import 'package:dubai_trip_planner/features/app_rating/ui/app_rating_prompt.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,6 +36,7 @@ class PlaceDetailsScreen extends StatelessWidget {
         body: Stack(
           fit: StackFit.expand,
           children: [
+            const AppRatingPrompt(),
             _PhotoBackground(image: place.imageUrl),
             // Stays in place, so the panel slides over it when scrolling
             // rather than pushing it under the status bar.

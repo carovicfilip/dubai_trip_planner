@@ -1,6 +1,7 @@
 import 'package:dubai_trip_planner/app/theme/app_theme.dart';
 import 'package:dubai_trip_planner/core/constants/app_palette.dart';
 import 'package:dubai_trip_planner/core/widgets/gradient_hero.dart';
+import 'package:dubai_trip_planner/features/app_rating/services/app_rating_service.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/category_section.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/hack_and_tips.dart';
 import 'package:dubai_trip_planner/features/explore/ui/widgets/most_popular_section.dart';
@@ -89,6 +90,8 @@ class _RestartOnboardingButton extends StatelessWidget {
     return TextButton.icon(
       onPressed: () async {
         await OnboardingService.resetOnboarding();
+        // Starts over as a new user, so the question can be seen again too.
+        await AppRatingService.resetAsked();
         if (context.mounted) {
           Navigator.pushReplacement(
             context,

@@ -19,7 +19,8 @@ void main() {
     reviewSummary: '4.7 (166k reviews)',
   );
 
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  // The question about the app has its own tests.
+  setUp(() => SharedPreferences.setMockInitialValues({'app_rating_asked': true}));
 
   /// Shows [place] on a screen [Navigator] can leave; returns the favorites.
   Future<FavoritesCubit> pumpDetails(WidgetTester tester, Place place) async {

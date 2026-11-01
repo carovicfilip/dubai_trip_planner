@@ -102,7 +102,11 @@ void main() {
       await pumpFor(const Duration(milliseconds: 400));
       // The swipe layer of the deck lies over the cards, so tap the spot.
       await tester.tapAt(tester.getCenter(find.byType(PopularPlaceCard).last));
-      await pumpFor(const Duration(milliseconds: 900));
+      // The first place opened asks about the app. Not the happy face: the
+      // store's own dialog that follows it cannot be closed from here.
+      await pumpFor(const Duration(milliseconds: 1500));
+      await shot('07a_rating_question');
+      await tapAndWait(find.byIcon(Icons.sentiment_neutral_outlined));
       await shot('07_place_details');
       await tester.drag(find.text('About'), const Offset(0, -320));
       await pumpFor(const Duration(milliseconds: 600));
