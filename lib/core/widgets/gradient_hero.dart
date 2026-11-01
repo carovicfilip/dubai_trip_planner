@@ -5,8 +5,8 @@ import 'package:dubai_trip_planner/core/constants/app_palette.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
-/// The dark blue header with a soft gray glow at the top of the Explore and
-/// Profile tabs, the same in the light and the dark theme. It starts behind the status
+/// The dark header with an orange glow at the top of the Explore and Profile
+/// tabs, the same in the light and the dark theme. It starts behind the status
 /// bar; put it first in a [HeroListView].
 class GradientHero extends StatelessWidget {
   const GradientHero({
@@ -30,74 +30,60 @@ class GradientHero extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(bottom: Radius.circular(36)),
-      child: HeroGlow(
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(16, MediaQuery.paddingOf(context).top + 14, 16, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      lightTitle,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: titleSize,
-                        fontWeight: FontWeight.w300,
-                        height: 1.2,
-                      ),
-                    ),
-                  ),
-                  ?trailing,
-                ],
-              ),
-              Text(
-                boldTitle,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: titleSize,
-                  fontWeight: FontWeight.w600,
-                  height: 1.2,
-                ),
-              ),
-              const SizedBox(height: 18),
-              child,
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The dark blue background with a soft gray glow coming in from the side, the
-/// look of the header on the Explore and Profile tabs.
-class HeroGlow extends StatelessWidget {
-  const HeroGlow({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [AppColors.darkNavy, Color(0xFF1A2532), AppColors.primaryBlue],
-        ),
-      ),
       child: DecoratedBox(
         decoration: const BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment(-1.1, 0.5),
-            radius: 1.25,
-            stops: [0, 0.5, 1],
-            colors: [Color(0xAAA3AEBA), Color(0x44A3AEBA), Color(0x00A3AEBA)],
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [AppColors.heroDeep, Color(0xFF3A1D10), AppColors.heroBrown],
           ),
         ),
-        child: child,
+        child: DecoratedBox(
+          // The glow coming in from the side.
+          decoration: const BoxDecoration(
+            gradient: RadialGradient(
+              center: Alignment(-1.1, 0.5),
+              radius: 1.25,
+              stops: [0, 0.5, 1],
+              colors: [Color(0xDDFF6D29), Color(0x77B65327), Color(0x00B65327)],
+            ),
+          ),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16, MediaQuery.paddingOf(context).top + 14, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        lightTitle,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: titleSize,
+                          fontWeight: FontWeight.w300,
+                          height: 1.2,
+                        ),
+                      ),
+                    ),
+                    ?trailing,
+                  ],
+                ),
+                Text(
+                  boldTitle,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: titleSize,
+                    fontWeight: FontWeight.w600,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                child,
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

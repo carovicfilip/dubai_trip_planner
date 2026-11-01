@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:ui' show ImageFilter;
 
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
-import 'package:dubai_trip_planner/core/widgets/gradient_hero.dart';
 import 'package:dubai_trip_planner/core/widgets/liquid_glass_painter.dart';
 import 'package:dubai_trip_planner/features/app_rating/services/app_rating_service.dart';
 import 'package:material_ui/material_ui.dart';
@@ -85,46 +84,64 @@ class _AppRatingDialog extends StatelessWidget {
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(_radius))),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(_radius),
-        child: HeroGlow(
-          child: CustomPaint(
-            painter: const LiquidGlassPainter(radius: _radius),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 30, 20, 28),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'How do you like\nthe app so far?',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white, fontSize: 26, height: 1.25),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'DUBAI',
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 13, letterSpacing: 7),
-                  ),
-                  const SizedBox(height: 26),
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _FaceButton(
-                        icon: Icons.sentiment_dissatisfied_outlined,
-                        label: "I don't like it",
-                        feeling: _Feeling.unhappy,
-                      ),
-                      _FaceButton(
-                        icon: Icons.sentiment_neutral_outlined,
-                        label: "It's okay",
-                        feeling: _Feeling.neutral,
-                      ),
-                      _FaceButton(
-                        icon: Icons.sentiment_very_satisfied_outlined,
-                        label: 'I love it',
-                        feeling: _Feeling.happy,
-                      ),
-                    ],
-                  ),
-                ],
+        child: DecoratedBox(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [AppColors.darkNavy, AppColors.primaryBlue],
+            ),
+          ),
+          child: DecoratedBox(
+            // A soft gray light coming in from the side.
+            decoration: const BoxDecoration(
+              gradient: RadialGradient(
+                center: Alignment(-1.1, 0.5),
+                radius: 1.25,
+                stops: [0, 0.5, 1],
+                colors: [Color(0x88A3AEBA), Color(0x33A3AEBA), Color(0x00A3AEBA)],
+              ),
+            ),
+            child: CustomPaint(
+              painter: const LiquidGlassPainter(radius: _radius, light: Colors.white, shade: AppColors.darkNavy),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 30, 20, 28),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'How do you like\nthe app so far?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white, fontSize: 26, height: 1.25),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'DUBAI',
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 13, letterSpacing: 7),
+                    ),
+                    const SizedBox(height: 26),
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _FaceButton(
+                          icon: Icons.sentiment_dissatisfied_outlined,
+                          label: "I don't like it",
+                          feeling: _Feeling.unhappy,
+                        ),
+                        _FaceButton(
+                          icon: Icons.sentiment_neutral_outlined,
+                          label: "It's okay",
+                          feeling: _Feeling.neutral,
+                        ),
+                        _FaceButton(
+                          icon: Icons.sentiment_very_satisfied_outlined,
+                          label: 'I love it',
+                          feeling: _Feeling.happy,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

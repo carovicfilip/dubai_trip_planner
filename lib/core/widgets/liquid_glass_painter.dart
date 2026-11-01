@@ -4,12 +4,16 @@ import 'package:material_ui/material_ui.dart';
 /// What makes it look like glass: a surface lit along the top and in shade along
 /// the bottom, an edge that gathers the light, and a bright rim that is strongest
 /// at two opposite corners. Almost no white on the surface itself: that would
-/// cloud the glass and the white text on it.
+/// wash the warm light out into beige.
 class LiquidGlassPainter extends CustomPainter {
-  const LiquidGlassPainter({required this.radius});
+  const LiquidGlassPainter({required this.radius, this.light = AppColors.heroAmber, this.shade = AppColors.heroDeep});
 
   /// The radius of the corners of what it is painted on.
   final double radius;
+
+  /// The tint of the light along the top and of the shade along the bottom.
+  final Color light;
+  final Color shade;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -23,10 +27,10 @@ class LiquidGlassPainter extends CustomPainter {
           end: Alignment.bottomCenter,
           stops: const [0, 0.22, 0.7, 1],
           colors: [
-            Colors.white.withValues(alpha: 0.26),
-            Colors.white.withValues(alpha: 0.04),
-            Colors.white.withValues(alpha: 0.02),
-            AppColors.darkNavy.withValues(alpha: 0.22),
+            light.withValues(alpha: 0.34),
+            light.withValues(alpha: 0.05),
+            light.withValues(alpha: 0.02),
+            shade.withValues(alpha: 0.22),
           ],
         ).createShader(rect),
     );
@@ -67,5 +71,6 @@ class LiquidGlassPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(LiquidGlassPainter oldDelegate) => radius != oldDelegate.radius;
+  bool shouldRepaint(LiquidGlassPainter oldDelegate) =>
+      radius != oldDelegate.radius || light != oldDelegate.light || shade != oldDelegate.shade;
 }
