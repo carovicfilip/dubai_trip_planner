@@ -2,9 +2,10 @@ import 'package:material_ui/material_ui.dart';
 
 class AppColors {
   static const primaryUpdate =Color(0xFFFBFBFB);
-  static const primaryNavigation = Color(0xFFE8D2B8);
   static const primaryBlue =  Color(0xFF2C3F57);
   static const darkNavy = Color(0xFF101A26);
+
+  static const sand = Color(0xFFE8D2B8);
 
 
   static const disabled = Color(0xFFB1B1B1);

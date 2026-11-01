@@ -1,4 +1,4 @@
-import 'package:dubai_trip_planner/core/constants/app_color.dart';
+import 'package:dubai_trip_planner/core/constants/app_palette.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -12,27 +12,15 @@ class PromoBanner extends StatefulWidget {
 
 class _PromoBannerState extends State<PromoBanner> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<Color?> _color1;
-  late Animation<Color?> _color2;
 
   @override
   void initState() {
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 3),
       vsync: this,
     )..repeat(reverse: true);
-
-    _color1 = ColorTween(
-      begin: const Color(0xFFB2FEFA),
-      end: const Color(0xFF00C9FF),
-    ).animate(_controller);
-
-    _color2 = ColorTween(
-      begin: const Color(0xFF02CAF3),
-      end: const Color(0xFF540183),
-    ).animate(_controller);
   }
 
   @override
@@ -50,6 +38,7 @@ class _PromoBannerState extends State<PromoBanner> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return GestureDetector(
       onTap: _navigateToMyTrip,
       child: AnimatedBuilder(
@@ -59,20 +48,15 @@ class _PromoBannerState extends State<PromoBanner> with SingleTickerProviderStat
         builder: (context, child) {
           return Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: palette.hairline),
               gradient: LinearGradient(
+                stops: const [0.35, 1],
                 colors: [
-                  _color1.value ?? Colors.cyan,
-                  _color2.value ?? Colors.purple,
+                  Color.lerp(palette.card, palette.surface, _controller.value)!,
+                  Color.lerp(palette.tile, palette.hairline, _controller.value)!,
                 ],
               ),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 6,
-                  offset: Offset(0, 2),
-                ),
-              ],
             ),
             padding: const EdgeInsets.all(16),
             child: child,
@@ -80,7 +64,7 @@ class _PromoBannerState extends State<PromoBanner> with SingleTickerProviderStat
         },
         child: Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -88,15 +72,8 @@ class _PromoBannerState extends State<PromoBanner> with SingleTickerProviderStat
                     "Discover Dubai",
                     style: TextStyle(
                       fontSize: 19,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      shadows: [
-                        Shadow(
-                          blurRadius: 4,
-                          color: Colors.black45,
-                          offset: Offset(1, 1),
-                        ),
-                      ],
+                      color: palette.ink,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   SizedBox(height: 4),
@@ -104,14 +81,7 @@ class _PromoBannerState extends State<PromoBanner> with SingleTickerProviderStat
                     "Create your perfect itinerary with AI-powered trip planning",
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          blurRadius: 4,
-                          color: Colors.black45,
-                          offset: Offset(1, 1),
-                        ),
-                      ],
+                      color: palette.muted,
                     ),
                   ),
                 ],
@@ -121,18 +91,16 @@ class _PromoBannerState extends State<PromoBanner> with SingleTickerProviderStat
             ElevatedButton(
               onPressed: _navigateToMyTrip,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: AppColors.darkNavy,
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                backgroundColor: palette.accent,
+                foregroundColor: palette.onAccent,
+                elevation: 0,
+                shape: const StadiumBorder(),
               ),
               child: const Text(
                 "Plan a Trip",
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),

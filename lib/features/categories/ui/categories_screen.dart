@@ -1,10 +1,12 @@
-import 'package:dubai_trip_planner/core/constants/app_color.dart';
+import 'package:dubai_trip_planner/core/constants/app_palette.dart';
 import 'package:dubai_trip_planner/core/models/category.dart';
 import 'package:dubai_trip_planner/core/models/place.dart';
 import 'package:dubai_trip_planner/core/repositories/category_repository.dart';
 import 'package:dubai_trip_planner/core/repositories/place_repository.dart';
+import 'package:dubai_trip_planner/core/widgets/category_icon.dart';
 import 'package:dubai_trip_planner/core/widgets/custom_back_button.dart';
-import 'package:dubai_trip_planner/core/widgets/places_card.dart';
+import 'package:dubai_trip_planner/core/widgets/frosted_app_bar.dart';
+import 'package:dubai_trip_planner/core/widgets/place_photo_card.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:dubai_trip_planner/features/place_details/ui/place_details_screen.dart';
 import 'package:material_ui/material_ui.dart';
@@ -54,23 +56,20 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Scaffold(
-      appBar: AppBar(
+      extendBodyBehindAppBar: true,
+      appBar: FrostedAppBar(
+        title: 'Explore Categories',
         // 👇 Ako postoji selectedCategory, prikaži custom back btn
         leading: widget.selectedCategory != null
             ? const CustomBackButton()
             : null, // 👈 ako je root ekran, nema back dugmeta
-        title: const Text(
-          'Explore Categories',
-          style: TextStyle(fontSize: 18, color: Colors.white),
-        ),
-        backgroundColor: AppColors.darkNavy,
-        shadowColor: Colors.black26,
       ),
       body: ScrollablePositionedList.builder(
         itemScrollController: _itemScrollController,
         itemPositionsListener: _itemPositionsListener,
-        padding: const EdgeInsets.all(10),
+        padding: EdgeInsets.fromLTRB(10, FrostedAppBar.heightOn(context) + 10, 10, 10),
         itemCount: categories.length,
         itemBuilder: (context, index) {
           final category = categories[index];
@@ -84,22 +83,19 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  color: palette.card,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: palette.hairline),
                 ),
                 child: Row(
                   children: [
-                    Image.asset(
-                      category.iconPath,
-                      height: 40,
-                      width: 40,
-                    ),
+                    CategoryIcon(category.iconPath, size: 40),
                     const SizedBox(width: 10),
                     Text(
                       category.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
-                        color: AppColors.darkNavy,
+                        color: palette.ink,
                       ),
                     ),
                   ],
@@ -107,31 +103,31 @@ class _CategoryScreenState extends State<CategoryScreen> {
               ),
               const SizedBox(height: 16),
               SizedBox(
-                height: 280,
+                // A little more than the cards, to leave room for their shadow.
+                height: PlacePhotoCard.compactHeight + 14,
                 child: places.isEmpty
                     ? const Center(child: Text('No places found for this category yet.'))
                     : ListView.builder(
                         scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.only(bottom: 14),
                         itemCount: places.length,
                         itemBuilder: (context, placeIndex) {
                           final place = places[placeIndex];
-                          return Padding(
-                            padding: EdgeInsets.only(right: placeIndex == places.length - 1 ? 0 : 20),
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => PlaceDetailsScreen(place: place),
-                                  ),
-                                );
-                              },
-                              child: PlacesCard(
-                                place: place,
-                                isFavorite: favoritesState.isFavorite(place.id),
-                                onFavoriteToggle: () =>
-                                    context.read<FavoritesCubit>().toggleFavorite(place),
-                              ),
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => PlaceDetailsScreen(place: place),
+                                ),
+                              );
+                            },
+                            child: PlacePhotoCard(
+                              compact: true,
+                              place: place,
+                              isFavorite: favoritesState.isFavorite(place.id),
+                              onFavoriteToggle: () =>
+                                  context.read<FavoritesCubit>().toggleFavorite(place),
                             ),
                           );
                         },

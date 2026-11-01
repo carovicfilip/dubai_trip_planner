@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'app/theme/app_theme.dart';
+import 'app/theme/theme_cubit.dart';
 import 'features/onboarding/services/onboarding_service.dart';
 import 'features/onboarding/ui/onboarding_screen.dart';
 import 'features/splash/ui/splash_screen.dart';
@@ -31,18 +32,23 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => FavoritesCubit(prefs)),
         BlocProvider(create: (_) => MyTripCubit(TripPlannerService())),
+        BlocProvider(create: (_) => ThemeCubit(prefs)),
       ],
-      child: MaterialApp(
-        title: 'Dubai Trip Planner',
-        theme: AppTheme.lightTheme,
-        debugShowCheckedModeBanner: false,
-        // The default for screens without an app bar. Screens over a photo set
-        // their own, and this brings the status bar back when they are left.
-        builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
-          value: AppTheme.statusBarOnLight,
-          child: child!,
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) => MaterialApp(
+          title: 'Dubai Trip Planner',
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeMode,
+          debugShowCheckedModeBanner: false,
+          // The default for screens without an app bar. Screens over a photo
+          // set their own, and this brings the status bar back when they are left.
+          builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+            value: AppTheme.statusBarFor(context),
+            child: child!,
+          ),
+          home: onboardingCompleted ? const SplashScreen() : const OnboardingScreen(),
         ),
-        home: onboardingCompleted ? const SplashScreen() : const OnboardingScreen(),
       ),
     );
   }

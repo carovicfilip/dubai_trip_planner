@@ -1,4 +1,7 @@
+import 'package:dubai_trip_planner/core/constants/app_palette.dart';
 import 'package:dubai_trip_planner/core/repositories/category_repository.dart';
+import 'package:dubai_trip_planner/core/widgets/category_icon.dart';
+import 'package:dubai_trip_planner/core/widgets/glass_card.dart';
 import 'package:dubai_trip_planner/features/categories/ui/categories_screen.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -14,40 +17,46 @@ class CategorySection extends StatelessWidget {
       children: [
         Text("Categories", style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 14),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: categories.map((category) {
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => CategoryScreen(selectedCategory: category),
-                    ),
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Column(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: Colors.white,
-                        radius: 38,
-                        child: Image.asset(
-                          category.iconPath,
-                          width: 60,
-                          height: 60,
-                          fit: BoxFit.contain,
-                        ),
+        GlassCard(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          radius: 32,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              children: categories.map((category) {
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CategoryScreen(selectedCategory: category),
                       ),
-                      const SizedBox(height: 10),
-                      Text(category.name, style: const TextStyle(fontSize: 13)),
-                    ],
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 68,
+                          height: 68,
+                          padding: const EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: context.palette.tile,
+                          ),
+                          child: CategoryIcon(category.iconPath),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(category.name, style: const TextStyle(fontSize: 12)),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
           ),
         ),
       ],

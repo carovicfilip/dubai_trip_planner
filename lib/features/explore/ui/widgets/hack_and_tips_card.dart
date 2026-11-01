@@ -1,3 +1,5 @@
+import 'package:dubai_trip_planner/core/constants/app_palette.dart';
+import 'package:dubai_trip_planner/core/widgets/glass_card.dart';
 import 'package:material_ui/material_ui.dart';
 
 class HackAndTipsCard extends StatelessWidget {
@@ -14,32 +16,39 @@ class HackAndTipsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final palette = context.palette;
+    return GlassCard(
       width: 250,
       margin: const EdgeInsets.only(right: 18),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      padding: const EdgeInsets.all(14),
+      radius: 28,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text(emoji, style: const TextStyle(fontSize: 26)),
+              Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: palette.tile,
+                  shape: BoxShape.circle,
+                ),
+                child: Text(emoji, style: const TextStyle(fontSize: 21)),
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(title,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 14)),
+                    style: TextStyle(
+                        color: palette.ink, fontWeight: FontWeight.w500, fontSize: 14)),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 8),
           Text(description,
-              style: const TextStyle(fontSize: 13),
+              style: TextStyle(fontSize: 13, color: palette.muted),
               overflow: TextOverflow.ellipsis,
               maxLines: 3),
         ],

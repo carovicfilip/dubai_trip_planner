@@ -1,6 +1,5 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
+import 'package:dubai_trip_planner/core/widgets/bottom_blur.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// A photo over the whole screen that melts into a short message at the bottom.
@@ -43,22 +42,7 @@ class PhotoMessage extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        photo,
-        // A blurred copy of the photo fades in towards the bottom, so the
-        // blur has no visible edge.
-        ShaderMask(
-          blendMode: BlendMode.dstIn,
-          shaderCallback: (bounds) => const LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: [0.42, 0.66],
-            colors: [Colors.transparent, Colors.white],
-          ).createShader(bounds),
-          child: ImageFiltered(
-            imageFilter: ImageFilter.blur(sigmaX: 18, sigmaY: 18, tileMode: TileMode.clamp),
-            child: photo,
-          ),
-        ),
+        BottomBlur(photo: photo, sigma: 18, begin: 0.42, end: 0.66),
         // Keeps the status bar and the text legible on any photo.
         DecoratedBox(
           decoration: BoxDecoration(

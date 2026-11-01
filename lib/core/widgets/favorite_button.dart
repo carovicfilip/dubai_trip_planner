@@ -5,6 +5,8 @@ class FavoriteButton extends StatelessWidget {
   final bool isFavorite;
   final double radius;
   final double iconSize;
+  final Color backgroundColor;
+  final Color iconColor;
 
   const FavoriteButton({
     super.key,
@@ -12,18 +14,20 @@ class FavoriteButton extends StatelessWidget {
     this.isFavorite = false,
     this.radius = 20,
     this.iconSize = 22,
+    this.backgroundColor = Colors.black45,
+    this.iconColor = Colors.white,
   });
 
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: radius,
-      backgroundColor: Colors.black45,
+      backgroundColor: backgroundColor,
       child: IconButton(
         padding: EdgeInsets.zero,
         icon: Icon(
           isFavorite ? Icons.favorite : Icons.favorite_border,
-          color: Colors.white,
+          color: iconColor,
           size: iconSize,
         ),
         onPressed: onPressed,

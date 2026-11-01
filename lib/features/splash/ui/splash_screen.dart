@@ -36,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return const AnnotatedRegion<SystemUiOverlayStyle>(
-      value: AppTheme.statusBarOnPhoto,
+      value: AppTheme.statusBarOnDark,
       child: Scaffold(
         backgroundColor: AppColors.darkNavy,
         body: PhotoMessage(

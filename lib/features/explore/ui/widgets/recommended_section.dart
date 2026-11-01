@@ -1,6 +1,6 @@
 import 'package:dubai_trip_planner/core/models/place.dart';
 import 'package:dubai_trip_planner/core/repositories/place_repository.dart';
-import 'package:dubai_trip_planner/core/widgets/places_card.dart';
+import 'package:dubai_trip_planner/core/widgets/place_photo_card.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:dubai_trip_planner/features/place_details/ui/place_details_screen.dart';
 import 'package:material_ui/material_ui.dart';
@@ -20,9 +20,11 @@ class RecommendedSection extends StatelessWidget {
         Text("Recommended", style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 12),
         SizedBox(
-          height: 280,
+          // A little more than the cards, to leave room for their shadow.
+          height: PlacePhotoCard.fullHeight + 14,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.only(bottom: 14),
             itemCount: featuredPlaces.length,
             itemBuilder: (context, index) {
               final place = featuredPlaces[index];
@@ -37,7 +39,7 @@ class RecommendedSection extends StatelessWidget {
                     ),
                   );
                 },
-                child: PlacesCard(
+                child: PlacePhotoCard(
                   place: place,
                   isFavorite: favoritesState.isFavorite(place.id),
                   onFavoriteToggle: () =>

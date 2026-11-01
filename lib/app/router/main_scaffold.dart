@@ -1,4 +1,6 @@
-import 'package:dubai_trip_planner/core/constants/app_color.dart';
+import 'dart:ui' show ImageFilter;
+
+import 'package:dubai_trip_planner/core/constants/app_palette.dart';
 import 'package:dubai_trip_planner/features/categories/ui/categories_screen.dart';
 import 'package:dubai_trip_planner/features/explore/ui/explore_screen.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
@@ -11,10 +13,10 @@ class MainScaffold extends StatefulWidget {
 
   /// The way in from the full-screen photos of onboarding and the splash.
   static Route<void> fadeInRoute() => PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 400),
-        pageBuilder: (_, _, _) => const MainScaffold(),
-        transitionsBuilder: (_, animation, _, child) => FadeTransition(opacity: animation, child: child),
-      );
+    transitionDuration: const Duration(milliseconds: 400),
+    pageBuilder: (_, _, _) => const MainScaffold(),
+    transitionsBuilder: (_, animation, _, child) => FadeTransition(opacity: animation, child: child),
+  );
 
   @override
   State<MainScaffold> createState() => _MainScaffoldState();
@@ -26,36 +28,40 @@ class _MainScaffoldState extends State<MainScaffold> {
   // Only the selected tab is built, so switching tabs starts each screen
   // over. State that has to survive that lives in cubits above the app
   // (FavoritesCubit, MyTripCubit) or in caches (the weather forecast).
-  static const _screens = [
-    ExploreScreen(),
-    MyTripScreen(),
-    CategoryScreen(),
-    ProfileScreen(),
-  ];
+  static const _screens = [ExploreScreen(), MyTripScreen(), CategoryScreen(), ProfileScreen()];
 
   Widget _buildNavItem({required Widget icon, required int index, required String label}) {
     final bool isSelected = _currentIndex == index;
+    final palette = context.palette;
     // The icons say nothing to a screen reader; the label names the tab.
-    return Semantics(
-      label: label,
-      button: true,
-      selected: isSelected,
-      child: GestureDetector(
-        onTap: () => setState(() => _currentIndex = index),
-        child: Container(
-          padding: const EdgeInsets.all(10), // veći padding = veći krug
-          decoration: isSelected
-              ? BoxDecoration(
-            color: AppColors.darkNavy,
-            shape: BoxShape.circle,
-          )
-              : null,
-          child: IconTheme(
-            data: IconThemeData(
-              color: isSelected ? Colors.white : Colors.black38,
-              size: 30,
+    return Expanded(
+      child: Semantics(
+        label: label,
+        button: true,
+        selected: isSelected,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => setState(() => _currentIndex = index),
+          child: Container(
+            decoration: isSelected
+                ? BoxDecoration(color: palette.accent, borderRadius: BorderRadius.circular(29))
+                : null,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconTheme(
+                  data: IconThemeData(color: isSelected ? palette.onAccent : palette.ink, size: 24),
+                  child: icon,
+                ),
+                const SizedBox(height: 2),
+                ExcludeSemantics(
+                  child: Text(
+                    label,
+                    style: TextStyle(color: isSelected ? palette.onAccent : palette.muted, fontSize: 11),
+                  ),
+                ),
+              ],
             ),
-            child: icon,
           ),
         ),
       ),
@@ -65,35 +71,53 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Only Explore runs on under the floating bar. The other tabs stay above
+      // it: My Trip pins a button to the bottom of its screen.
+      extendBody: _currentIndex == 0,
       body: _screens[_currentIndex],
-      bottomNavigationBar: Container(
-        height: 80, // povećana visina bara
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, -3))
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildNavItem(icon: const Icon(Icons.home_filled), index: 0, label: 'Explore'),
-            _buildNavItem(
-              icon: SvgPicture.asset(
-                'assets/icons/my_trip.svg',
-                height: 38,
-                colorFilter: ColorFilter.mode(
-                  _currentIndex == 1 ? Colors.white : Colors.black38,
-                  BlendMode.srcIn,
+      bottomNavigationBar: SafeArea(
+        top: false,
+        minimum: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(34),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withValues(alpha: 0.16), blurRadius: 18, offset: const Offset(0, 6)),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(34),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+              child: Container(
+                height: 68,
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: context.palette.card.withValues(alpha: 0.82),
+                  borderRadius: BorderRadius.circular(34),
+                ),
+                child: Row(
+                  children: [
+                    _buildNavItem(icon: const Icon(Icons.home_filled), index: 0, label: 'Explore'),
+                    _buildNavItem(
+                      icon: SvgPicture.asset(
+                        'assets/icons/my_trip.svg',
+                        height: 26,
+                        colorFilter: ColorFilter.mode(
+                          _currentIndex == 1 ? context.palette.onAccent : context.palette.ink,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      index: 1,
+                      label: 'My Trip',
+                    ),
+                    _buildNavItem(icon: const Icon(Icons.explore_outlined), index: 2, label: 'Categories'),
+                    _buildNavItem(icon: const Icon(Icons.person), index: 3, label: 'Profile'),
+                  ],
                 ),
               ),
-              index: 1,
-              label: 'My Trip',
             ),
-            _buildNavItem(icon: const Icon(Icons.explore_outlined), index: 2, label: 'Categories'),
-            _buildNavItem(icon: const Icon(Icons.person), index: 3, label: 'Profile'),
-          ],
+          ),
         ),
       ),
     );

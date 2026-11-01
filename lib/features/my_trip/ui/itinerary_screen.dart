@@ -1,4 +1,5 @@
-import 'package:dubai_trip_planner/core/constants/app_color.dart';
+import 'package:dubai_trip_planner/core/constants/app_palette.dart';
+import 'package:dubai_trip_planner/core/widgets/frosted_app_bar.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 
@@ -17,18 +18,14 @@ class ItineraryScreen extends StatelessWidget {
     final formatter = DateFormat.yMMMMd();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Plan Your Trip',
-          style: TextStyle(fontSize: 18, color: Colors.black),
-        ),
-        backgroundColor:  Colors.white,
-        shadowColor: Colors.black26,
-      ),
+      extendBodyBehindAppBar: true,
+      appBar: const FrostedAppBar(title: 'Plan Your Trip'),
       body: SafeArea(
+        top: false,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: ListView(
+            padding: EdgeInsets.only(top: FrostedAppBar.heightOn(context) + 16, bottom: 16),
             children: [
               _TripOverview(
                 location: plan.location,
@@ -78,7 +75,7 @@ class _TripOverview extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.darkNavy,
+        color: context.palette.heroCard,
         borderRadius: BorderRadius.circular(24),
         boxShadow: const [
           BoxShadow(
@@ -148,13 +145,14 @@ class _DailyPlanCard extends StatelessWidget {
     final theme = Theme.of(context);
     final dateLabel = formatter.format(_addDays(startDate, dayIndex));
     final area = plan.area;
-    final secondaryStyle = theme.textTheme.bodyMedium?.copyWith(color: Colors.black54);
+    final palette = context.palette;
+    final secondaryStyle = theme.textTheme.bodyMedium?.copyWith(color: palette.muted);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: palette.card,
         borderRadius: BorderRadius.circular(20),
         boxShadow: const [
           BoxShadow(
@@ -205,7 +203,7 @@ class _DailyPlanCard extends StatelessWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.location_on_outlined, size: 18, color: Colors.black54),
+                          Icon(Icons.location_on_outlined, size: 18, color: palette.muted),
                           const SizedBox(width: 4),
                           Expanded(child: Text(area, style: secondaryStyle)),
                         ],
@@ -225,7 +223,7 @@ class _DailyPlanCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.check_circle_outline, size: 18, color: AppColors.primaryNavigation),
+                  Icon(Icons.check_circle_outline, size: 18, color: palette.accent),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text.rich(
@@ -233,7 +231,7 @@ class _DailyPlanCard extends StatelessWidget {
                         text: firstLineEnd == -1 ? item : item.substring(0, firstLineEnd),
                         children: [
                           if (firstLineEnd != -1)
-                            TextSpan(text: item.substring(firstLineEnd), style: const TextStyle(color: Colors.black54)),
+                            TextSpan(text: item.substring(firstLineEnd), style: TextStyle(color: palette.muted)),
                         ],
                       ),
                       style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),

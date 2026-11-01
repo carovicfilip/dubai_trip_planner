@@ -95,7 +95,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: AppTheme.statusBarOnPhoto,
+      value: AppTheme.statusBarOnDark,
       child: Scaffold(
         backgroundColor: AppColors.darkNavy,
         body: Stack(

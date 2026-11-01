@@ -29,7 +29,7 @@ class PlaceDetailsScreen extends StatelessWidget {
     final titleAreaHeight = max(screenHeight * 0.46, 300.0);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: AppTheme.statusBarOnPhoto,
+      value: AppTheme.statusBarOnDark,
       child: Scaffold(
         backgroundColor: AppColors.darkNavy,
         body: Stack(
@@ -369,7 +369,7 @@ class _Rating extends StatelessWidget {
         const SizedBox(height: 6),
         Row(
           children: [
-            const Icon(Icons.star_rounded, size: 22, color: AppColors.primaryNavigation),
+            const Icon(Icons.star_rounded, size: 22, color: AppColors.sand),
             const SizedBox(width: 4),
             Text('$rating', style: const TextStyle(color: Colors.white, fontSize: 20)),
           ],

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dubai_trip_planner/app/router/main_scaffold.dart';
+import 'package:dubai_trip_planner/app/theme/theme_cubit.dart';
 import 'package:dubai_trip_planner/features/categories/ui/categories_screen.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/cubit/my_trip_cubit.dart';
@@ -61,6 +62,7 @@ void main() {
                 providers: [
                   BlocProvider(create: (_) => FavoritesCubit(prefs)),
                   BlocProvider(create: (_) => MyTripCubit(TripPlannerService())),
+                  BlocProvider(create: (_) => ThemeCubit(prefs)),
                 ],
                 child: const MaterialApp(home: OnboardingScreen()),
               ));
@@ -109,13 +111,25 @@ void main() {
       });
     });
 
-    // Regression test: the white icons of the screens over a photo stayed on
-    // the light screens after them, where they could hardly be seen.
-    testWidgets('status bar icons are white over a photo and dark on the light main app', (tester) async {
+    testWidgets('status bar icons are white on onboarding and dark on the light home screen', (tester) async {
       final prefs = await SharedPreferences.getInstance();
       await withApp(tester, app: MyApp(prefs: prefs, onboardingCompleted: false), () async {
         expect(statusBarIcons(tester), Brightness.light);
         await finishOnboarding(tester);
+        expect(statusBarIcons(tester), Brightness.dark);
+      });
+    });
+
+    // Regression test: the white icons of the dark screens stayed on the light
+    // screens after them, where they could hardly be seen.
+    testWidgets('a light screen without an app bar gets dark status bar icons', (tester) async {
+      final prefs = await SharedPreferences.getInstance();
+      await withApp(tester, app: MyApp(prefs: prefs, onboardingCompleted: false), () async {
+        Navigator.of(tester.element(find.byType(OnboardingScreen))).push(
+          MaterialPageRoute(builder: (_) => const Scaffold()),
+        );
+        await tester.pumpAndSettle();
+
         expect(statusBarIcons(tester), Brightness.dark);
       });
     });

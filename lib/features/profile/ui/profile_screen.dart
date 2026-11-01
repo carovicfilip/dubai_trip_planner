@@ -1,4 +1,6 @@
-import 'package:dubai_trip_planner/core/constants/app_color.dart';
+import 'package:dubai_trip_planner/app/theme/theme_cubit.dart';
+import 'package:dubai_trip_planner/core/constants/app_palette.dart';
+import 'package:dubai_trip_planner/core/widgets/frosted_app_bar.dart';
 import 'package:dubai_trip_planner/core/widgets/places_card.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/widgets/promo_banner.dart';
@@ -14,23 +16,18 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final favoritesState = context.watch<FavoritesCubit>().state;
     final favoritePlaces = favoritesState.favoritesList;
+    final palette = context.palette;
 
     return Scaffold(
-
-      appBar: AppBar(
-        title: const Text(
-          'Profile',
-          style: TextStyle(fontSize: 18, color: Colors.white),
-        ),
-        backgroundColor: AppColors.darkNavy,
-        shadowColor: Colors.black26,
-      ),
+      extendBodyBehindAppBar: true,
+      appBar: const FrostedAppBar(title: 'Profile'),
       body: SafeArea(
-        top: true,
+        top: false,
         bottom: true,
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: ListView(
+            padding: EdgeInsets.only(top: FrostedAppBar.heightOn(context) + 10, bottom: 10),
             children: [
               PromoBanner(),
               SizedBox(height: 20),
@@ -44,19 +41,13 @@ class ProfileScreen extends StatelessWidget {
                   height: 160,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 6,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
+                    color: palette.card,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: palette.hairline),
                   ),
-                  child: const Text(
+                  child: Text(
                     "You haven't added any favorites yet.",
-                    style: TextStyle(color: Colors.black54),
+                    style: TextStyle(color: palette.muted),
                   ),
                 )
               else
@@ -92,6 +83,12 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
               const SizedBox(height: 20),
+              SwitchListTile(
+                secondary: const Icon(Icons.dark_mode_outlined),
+                title: const Text("Dark theme"),
+                value: context.watch<ThemeCubit>().state == ThemeMode.dark,
+                onChanged: context.read<ThemeCubit>().setDark,
+              ),
               ListTile(
                 leading: const Icon(Icons.privacy_tip),
                 title: const Text("Privacy Policy"),

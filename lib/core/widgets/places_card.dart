@@ -1,3 +1,4 @@
+import 'package:dubai_trip_planner/core/constants/app_palette.dart';
 import 'package:dubai_trip_planner/core/models/place.dart';
 import 'package:dubai_trip_planner/core/widgets/favorite_button.dart';
 import 'package:dubai_trip_planner/core/widgets/place_image.dart';
@@ -17,6 +18,7 @@ class PlacesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Container(
       width: 250,
       margin: const EdgeInsets.only(right: 20),
@@ -28,17 +30,11 @@ class PlacesCard extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
+                  top: Radius.circular(24),
                 ),
                 child: Container(
                   height: 200,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 1,
-                    ),
-                    color: Colors.grey[300],
-                  ),
+                  decoration: BoxDecoration(color: palette.tile),
                   child: PlaceImage(place.imageUrl, height: 200),
                 ),
               ),
@@ -58,16 +54,16 @@ class PlacesCard extends StatelessWidget {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(20),
+            decoration: BoxDecoration(
+              color: palette.card,
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(24),
               ),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 4,
-                  offset: Offset(0, 2),
+                  color: Color(0x12101A26),
+                  blurRadius: 10,
+                  offset: Offset(0, 5),
                 ),
               ],
             ),
@@ -76,9 +72,9 @@ class PlacesCard extends StatelessWidget {
               children: [
                 Text(
                   place.name,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
+                  style: TextStyle(
+                    color: palette.ink,
+                    fontWeight: FontWeight.w500,
                     fontSize: 16,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -90,8 +86,8 @@ class PlacesCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         place.reviewSummary ?? 'No reviews yet',
-                        style: const TextStyle(
-                          color: Colors.grey,
+                        style: TextStyle(
+                          color: palette.muted,
                           fontSize: 13,
                         ),
                         maxLines: 2,

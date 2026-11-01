@@ -1,4 +1,5 @@
-import 'package:dubai_trip_planner/core/constants/app_color.dart';
+import 'package:dubai_trip_planner/core/constants/app_palette.dart';
+import 'package:dubai_trip_planner/core/widgets/frosted_app_bar.dart';
 import 'package:dubai_trip_planner/features/my_trip/cubit/my_trip_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_planner_service.dart';
@@ -34,8 +35,6 @@ const _interests = [
   'Fun things to do',
   'Spas',
 ];
-
-const _stepColor = Color(0xFFFF8A80);
 
 class MyTripScreen extends StatefulWidget {
   const MyTripScreen({super.key});
@@ -142,7 +141,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
     final planFirstPart = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: context.palette.card,
         title: const Text('Up to $maxDays days per plan'),
         content: Text(
           'To keep every day detailed, one plan covers at most $maxDays days.\n\n'
@@ -173,7 +172,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: context.palette.card,
         title: const Text('Delete Trip?'),
         content: const Text('Are you sure you want to delete this trip? This action cannot be undone.'),
         shape: RoundedRectangleBorder(
@@ -187,7 +186,8 @@ class _MyTripScreenState extends State<MyTripScreen> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
             ),
             child: const Text('Delete'),
           ),
@@ -212,6 +212,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
         _showText(_accommodationCtrl, state.location);
       },
       builder: (context, state) {
+        final palette = context.palette;
         final cubit = context.read<MyTripCubit>();
         final savedPlan = state.savedPlan;
         final startDate = state.startDate;
@@ -219,21 +220,16 @@ class _MyTripScreenState extends State<MyTripScreen> {
 
         return Scaffold(
           resizeToAvoidBottomInset: true,
-          appBar: AppBar(
-            title: const Text(
-              'Plan Your Trip',
-              style: TextStyle(fontSize: 18, color: Colors.white),
-            ),
-            backgroundColor: AppColors.primaryNavigation,
-            shadowColor: Colors.black26,
-          ),
+          extendBodyBehindAppBar: true,
+          appBar: const FrostedAppBar(title: 'Plan Your Trip'),
           body: AbsorbPointer(
             absorbing: state.isGenerating,
             child: Container(
-              color: Colors.white,
+              color: palette.surface,
               child: SafeArea(
+                top: false,
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 140),
+                  padding: EdgeInsets.fromLTRB(16, FrostedAppBar.heightOn(context) + 16, 16, 140),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -255,7 +251,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
+                                color: palette.tile,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Row(
@@ -268,9 +264,9 @@ class _MyTripScreenState extends State<MyTripScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          const Text(
+                          Text(
                             "Trip Duration",
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.primaryBlue),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: palette.ink),
                           ),
                           const SizedBox(height: 8),
                           TextField(
@@ -280,7 +276,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
                             decoration: InputDecoration(
                               hintText: "How many days you stay (up to ${TripPlannerService.maxTripDays})",
                               filled: true,
-                              fillColor: Colors.grey.shade100,
+                              fillColor: palette.tile,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(20),
                                 borderSide: BorderSide.none,
@@ -308,7 +304,7 @@ class _MyTripScreenState extends State<MyTripScreen> {
                             decoration: InputDecoration(
                               hintText: "e.g. Dubai Marina, Downtown, JBR…",
                               filled: true,
-                              fillColor: Colors.grey.shade100,
+                              fillColor: palette.tile,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(20),
                                 borderSide: BorderSide.none,
@@ -334,8 +330,12 @@ class _MyTripScreenState extends State<MyTripScreen> {
                                 ChoiceChip(
                                   label: Text(interest),
                                   selected: state.categories.contains(interest),
-                                  selectedColor: AppColors.primaryNavigation,
-                                  backgroundColor: Colors.white,
+                                  selectedColor: palette.accent,
+                                  checkmarkColor: palette.onAccent,
+                                  labelStyle: TextStyle(
+                                    color: state.categories.contains(interest) ? palette.onAccent : palette.ink,
+                                  ),
+                                  backgroundColor: palette.card,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
                                   ),
@@ -361,9 +361,9 @@ class _MyTripScreenState extends State<MyTripScreen> {
               height: 50,
               child: TextButton(
                 style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all<Color>(AppColors.primaryNavigation),
-                  foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
-                  overlayColor: WidgetStateProperty.all(Colors.white.withValues(alpha: 0.08)),
+                  backgroundColor: WidgetStateProperty.all<Color>(palette.accent),
+                  foregroundColor: WidgetStateProperty.all<Color>(palette.onAccent),
+                  overlayColor: WidgetStateProperty.all(palette.onAccent.withValues(alpha: 0.08)),
                   shape: WidgetStateProperty.all(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
@@ -372,17 +372,17 @@ class _MyTripScreenState extends State<MyTripScreen> {
                 ),
                 onPressed: state.isGenerating ? null : _handleShowResults,
                 child: state.isGenerating
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 22,
                         height: 22,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.6,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(palette.onAccent),
                         ),
                       )
-                    : const Text(
+                    : Text(
                         "Show Results",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: palette.onAccent),
                       ),
               ),
             ),
@@ -435,7 +435,7 @@ class _SavedPlanCard extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           margin: const EdgeInsets.only(bottom: 20),
           decoration: BoxDecoration(
-            color: AppColors.darkNavy,
+            color: context.palette.heroCard,
             borderRadius: BorderRadius.circular(24),
             boxShadow: const [
               BoxShadow(
@@ -495,12 +495,13 @@ class _StepCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: AppColors.primaryNavigation, width: 1),
-        borderRadius: BorderRadius.circular(20),
+        color: palette.card,
+        border: Border.all(color: palette.hairline, width: 1),
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -511,36 +512,35 @@ class _StepCard extends StatelessWidget {
                 width: 24,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: Colors.white,
                   shape: BoxShape.circle,
-                  border: Border.all(color: _stepColor, width: 2),
+                  border: Border.all(color: palette.muted, width: 2),
                 ),
                 child: Center(
                   child: Text(
                     '$step',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: _stepColor,
+                      color: palette.muted,
                     ),
                   ),
                 ),
               ),
-              const Text(
+              Text(
                 " Step",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: _stepColor),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: palette.muted),
               ),
             ],
           ),
           const SizedBox(height: 20),
           Text(
             title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.primaryBlue),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: palette.ink),
           ),
           const SizedBox(height: 10),
           Text(
             description,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: AppColors.primaryBlue),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: palette.ink),
           ),
           ...children,
         ],

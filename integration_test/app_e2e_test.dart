@@ -100,7 +100,9 @@ void main() {
 
       await tester.scrollUntilVisible(find.text('Most Popular Places'), -300, scrollable: explore);
       await pumpFor(const Duration(milliseconds: 400));
-      await tapAndWait(find.byType(PopularPlaceCard).first);
+      // The swipe layer of the deck lies over the cards, so tap the spot.
+      await tester.tapAt(tester.getCenter(find.byType(PopularPlaceCard).last));
+      await pumpFor(const Duration(milliseconds: 900));
       await shot('07_place_details');
       await tester.drag(find.text('About'), const Offset(0, -320));
       await pumpFor(const Duration(milliseconds: 600));
