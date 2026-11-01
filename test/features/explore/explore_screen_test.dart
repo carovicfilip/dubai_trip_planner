@@ -104,20 +104,33 @@ void main() {
     });
   });
 
-  testWidgets('a band for the status bar appears only once the header has scrolled away', (tester) async {
+  testWidgets('once the header has scrolled away the status bar gets a frosted band and dark icons, and back', (tester) async {
     await withMainApp(tester, () async {
       // Short enough for the list to scroll.
       tester.view.physicalSize = const Size(800 * 3, 1000 * 3);
+      tester.view.padding = const FakeViewPadding(top: 50 * 3);
       await pumpFor(tester, const Duration(milliseconds: 300));
-      double bandOpacity() => tester
-          .widget<Opacity>(find.ancestor(of: find.byKey(HeroListView.statusBarBandKey), matching: find.byType(Opacity)))
-          .opacity;
-      expect(bandOpacity(), 0);
+      final band = find.byKey(HeroListView.statusBarBandKey);
+      Brightness? statusBarIcons() {
+        final view = tester.binding.renderViews.first;
+        return view.debugLayer!.find<SystemUiOverlayStyle>(Offset(view.paintBounds.center.dx, 1))?.statusBarIconBrightness;
+      }
 
-      await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
+      expect(band, findsNothing);
+      expect(statusBarIcons(), Brightness.light);
+
+      // Far enough for the header not to be built any more.
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -800));
       await pumpFor(tester, const Duration(milliseconds: 500));
+      expect(find.byType(GradientHero), findsNothing);
+      expect(band, findsOneWidget);
+      expect(statusBarIcons(), Brightness.dark);
 
-      expect(bandOpacity(), 1);
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, 1000));
+      await pumpFor(tester, const Duration(milliseconds: 500));
+      expect(find.byType(GradientHero), findsOneWidget);
+      expect(band, findsNothing);
+      expect(statusBarIcons(), Brightness.light);
     });
   });
 

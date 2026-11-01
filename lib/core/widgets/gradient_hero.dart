@@ -1,9 +1,13 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
+import 'package:dubai_trip_planner/core/constants/app_palette.dart';
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// The dark header with an orange glow at the top of the Explore and Profile
-/// tabs, the same in the light and the dark theme. It starts behind the status bar; put it
-/// first in a [HeroListView].
+/// tabs, the same in the light and the dark theme. It starts behind the status
+/// bar; put it first in a [HeroListView].
 class GradientHero extends StatelessWidget {
   const GradientHero({
     super.key,
@@ -85,14 +89,16 @@ class GradientHero extends StatelessWidget {
   }
 }
 
-/// A list that starts with a [GradientHero]. Its screen needs white status bar
-/// icons, in both themes. Once the header has scrolled away they would be lost
-/// on what passes under them, so a band in the header's color appears there.
+/// A list that starts with a [GradientHero]. Over the header the status bar is
+/// up to the screen, and needs white icons in both themes. Once the header has
+/// scrolled away, a band of frosted glass comes in behind the status bar, as on
+/// the screens with a frosted app bar, and [statusBarOverPage] takes over.
 class HeroListView extends StatefulWidget {
-  const HeroListView({super.key, this.padding, required this.children});
+  const HeroListView({super.key, required this.statusBarOverPage, this.padding, required this.children});
 
   static const statusBarBandKey = ValueKey('hero-status-bar-band');
 
+  final SystemUiOverlayStyle statusBarOverPage;
   final EdgeInsetsGeometry? padding;
   final List<Widget> children;
 
@@ -102,6 +108,10 @@ class HeroListView extends StatefulWidget {
 
 class _HeroListViewState extends State<HeroListView> {
   final _scrollController = ScrollController();
+  final _headerKey = GlobalKey();
+
+  // Remembered because a header far out of view is no longer built.
+  double? _headerHeight;
 
   @override
   void dispose() {
@@ -109,34 +119,59 @@ class _HeroListViewState extends State<HeroListView> {
     super.dispose();
   }
 
+  /// How far the band has come in, from 0 to 1, while the bottom of the header
+  /// passes under the status bar.
+  double _bandShown(double statusBarHeight) {
+    final header = _headerKey.currentContext?.findRenderObject() as RenderBox?;
+    if (header != null && header.hasSize) _headerHeight = header.size.height;
+    final headerHeight = _headerHeight;
+    if (headerHeight == null || !_scrollController.hasClients) return 0;
+
+    final headerBottom = headerHeight - _scrollController.offset;
+    return ((statusBarHeight - headerBottom) / 40).clamp(0.0, 1.0);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final statusBarHeight = MediaQuery.paddingOf(context).top;
+    final bandColor = context.palette.card;
+
     return Stack(
       fit: StackFit.expand,
       children: [
-        ListView(controller: _scrollController, padding: widget.padding, children: widget.children),
-        Align(
-          alignment: Alignment.topCenter,
+        ListView(
+          controller: _scrollController,
+          padding: widget.padding,
+          children: [
+            KeyedSubtree(key: _headerKey, child: widget.children.first),
+            ...widget.children.skip(1),
+          ],
+        ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: statusBarHeight,
           child: IgnorePointer(
             child: AnimatedBuilder(
               animation: _scrollController,
-              builder: (context, band) {
-                final offset = _scrollController.hasClients ? _scrollController.offset : 0.0;
-                // Just before the dark card of the header reaches the status bar.
-                return Opacity(opacity: ((offset - 60) / 40).clamp(0.0, 1.0), child: band);
-              },
-              child: Container(
-                key: HeroListView.statusBarBandKey,
-                height: MediaQuery.paddingOf(context).top + 8,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [0.75, 1],
-                    colors: [AppColors.heroDeep, Color(0x001E100B)],
+              builder: (context, _) {
+                final shown = _bandShown(statusBarHeight);
+                if (shown == 0) return const SizedBox.shrink();
+
+                // The blur and the color fade in, not the whole band: under an
+                // Opacity the blur would have nothing behind it to work on.
+                final band = ClipRect(
+                  key: HeroListView.statusBarBandKey,
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 20 * shown, sigmaY: 20 * shown),
+                    child: ColoredBox(color: bandColor.withValues(alpha: 0.72 * shown)),
                   ),
-                ),
-              ),
+                );
+                return shown < 0.5
+                    ? band
+                    : AnnotatedRegion<SystemUiOverlayStyle>(value: widget.statusBarOverPage, child: band);
+              },
             ),
           ),
         ),

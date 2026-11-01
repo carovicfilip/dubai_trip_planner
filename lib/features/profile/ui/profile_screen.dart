@@ -25,6 +25,7 @@ class ProfileScreen extends StatelessWidget {
       value: AppTheme.statusBarOnDark,
       child: Scaffold(
         body: HeroListView(
+          statusBarOverPage: AppTheme.statusBarFor(context),
           padding: const EdgeInsets.only(bottom: 10),
           children: [
             const GradientHero(lightTitle: 'Your', boldTitle: 'Profile', child: PromoBanner()),

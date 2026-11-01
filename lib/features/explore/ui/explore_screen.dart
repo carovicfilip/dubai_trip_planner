@@ -47,6 +47,7 @@ class ExploreScreen extends StatelessWidget {
                 ),
               ),
               HeroListView(
+                statusBarOverPage: AppTheme.statusBarFor(context),
                 // The list runs on under the status bar and the floating
                 // navigation bar.
                 padding: EdgeInsets.only(bottom: safeArea.bottom + 16),
