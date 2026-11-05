@@ -181,8 +181,9 @@ class _MyTripScreenState extends State<MyTripScreen> {
     if (confirmed == true) await cubit.deletePlan(plan);
   }
 
-  /// Restoring the saved plan, deleting it and picking an area change the text
-  /// without the user typing it. What the user typed stays as it is.
+  /// Coming back to the form, picking an area and the empty form after a new
+  /// plan change the text without the user typing it. What the user typed
+  /// stays as it is.
   void _showLocation(String location) {
     if (_accommodationCtrl.text == location) return;
     final text = context.l10n.areaLabel(location);

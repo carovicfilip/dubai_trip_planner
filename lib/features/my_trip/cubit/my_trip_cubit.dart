@@ -17,26 +17,11 @@ class MyTripCubit extends Cubit<MyTripState> {
   final TripPlannerService _planner;
   Future<TripPlan>? _generating;
 
-  /// Shows the saved plans. An empty form is filled in from the newest, so the
-  /// user can adjust the last trip instead of starting over.
+  /// Shows the saved plans. The form is left as it is: it is for a new trip,
+  /// and a saved one opens from its card.
   Future<void> loadSavedPlans() async {
     final plans = await TripPlanStorage.loadPlans();
-    if (isClosed) return;
-    final plan = plans.firstOrNull;
-    if (plan == null || !state.isFormEmpty) {
-      emit(state.copyWith(savedPlans: plans));
-      return;
-    }
-    final now = DateTime.now();
-    final hasStarted = plan.startDate.isBefore(DateTime(now.year, now.month, now.day));
-    emit(state.copyWith(
-      savedPlans: plans,
-      // What the form could not offer has to be chosen anew.
-      startDate: hasStarted ? null : plan.startDate,
-      stayLengthDays: plan.lengthInDays <= TripPlannerService.maxTripDays ? plan.lengthInDays : null,
-      location: plan.location,
-      categories: plan.categories.toSet(),
-    ));
+    if (!isClosed) emit(state.copyWith(savedPlans: plans));
   }
 
   void selectStartDate(DateTime date) => emit(state.copyWith(startDate: date));
@@ -85,8 +70,9 @@ class MyTripCubit extends Cubit<MyTripState> {
       final others = await TripPlanStorage.loadPlans();
       final plans = [plan, ...others.where((saved) => saved.id != plan.id)];
       await TripPlanStorage.savePlans(plans);
-      // Back from the plan, the user finds it at the start of the form.
-      if (!isClosed) emit(state.copyWith(step: 0, savedPlans: plans, isGenerating: false));
+      // Back from the plan, the user finds it above an empty form, ready for
+      // the next trip.
+      if (!isClosed) emit(MyTripState(savedPlans: plans));
       return plan;
     } catch (_) {
       if (!isClosed) emit(state.copyWith(isGenerating: false));
@@ -101,11 +87,10 @@ class MyTripCubit extends Cubit<MyTripState> {
     await TripPlanStorage.savePlans(plans);
   }
 
-  /// Deletes a saved plan. With the last one goes the form filled in from it.
+  /// Deletes a saved plan. The form, which is for a new trip, stays as it is.
   Future<void> deletePlan(TripPlan plan) async {
     final plans = state.savedPlans.where((saved) => saved.id != plan.id).toList(growable: false);
     await TripPlanStorage.savePlans(plans);
-    if (isClosed) return;
-    emit(plans.isEmpty ? MyTripState(isGenerating: state.isGenerating) : state.copyWith(savedPlans: plans));
+    if (!isClosed) emit(state.copyWith(savedPlans: plans));
   }
 }

@@ -451,6 +451,27 @@ void main() {
     expect(find.text('Your Tailored Itinerary'), findsOneWidget);
   });
 
+  testWidgets('back from a new plan, the form is empty for the next trip, with the plan above it', (tester) async {
+    await pumpMyTrip(tester, client: openAi((_) async => jsonResponse(chatCompletionBody(itineraryJson(3)), 200)));
+    await fillValidForm(tester);
+    await tapShowResults(tester);
+    await tester.pumpAndSettle();
+    expect(find.byType(ItineraryScreen), findsOneWidget);
+
+    await tester.tap(find.byType(CustomBackButton));
+    await tester.pumpAndSettle();
+
+    expect(find.text('When do you arrive?'), findsOneWidget);
+    expect(find.descendant(of: find.byType(SavedPlanCard), matching: find.text('Dubai Marina')), findsOneWidget);
+    expect(formState(tester).isFormEmpty, isTrue);
+    expect(find.text('How many days?'), findsOneWidget, reason: 'no stay is shown as chosen');
+    expect(isLocked(tester), isTrue);
+
+    await goToLocationStep(tester);
+    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, isEmpty);
+    expect(isLocked(tester), isTrue);
+  });
+
   testWidgets('15 days can be planned', (tester) async {
     final response = Completer<http.Response>();
     await pumpMyTrip(tester, client: openAi((_) => response.future));
@@ -488,7 +509,7 @@ void main() {
   });
 
   group('the saved plan', () {
-    testWidgets('is restored when the screen opens, with the form filled in from it', (tester) async {
+    testWidgets('is restored when the screen opens, with the form empty for a new trip', (tester) async {
       final plan = planStarting(DateTime.now().add(const Duration(days: 10)));
       SharedPreferences.setMockInitialValues({'recent_trip_plan': plan.serialize()});
 
@@ -500,21 +521,7 @@ void main() {
         find.descendant(of: find.byType(SavedPlanCard), matching: find.textContaining('· 4 days')),
         findsOneWidget,
       );
-      expect(formState(tester).stayLengthDays, 4);
-      expect(isLocked(tester), isFalse);
-
-      await tapNext(tester);
-      expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, 'Business Bay');
-    });
-
-    testWidgets('that has already started leaves the day to be picked again', (tester) async {
-      final plan = planStarting(DateTime.now().subtract(const Duration(days: 10)));
-      SharedPreferences.setMockInitialValues({'recent_trip_plan': plan.serialize()});
-
-      await pumpMyTrip(tester);
-
-      expect(find.text('Your Tailored Itinerary'), findsOneWidget);
-      expect(formState(tester).startDate, isNull);
+      expect(formState(tester).isFormEmpty, isTrue);
       expect(isLocked(tester), isTrue);
     });
 
@@ -541,10 +548,12 @@ void main() {
       expect(find.byType(ItineraryScreen), findsOneWidget);
     });
 
-    testWidgets('is deleted with its button, after asking', (tester) async {
+    testWidgets('is deleted with its button, after asking, leaving the form as it is', (tester) async {
       final plan = planStarting(DateTime.now().add(const Duration(days: 10)));
       SharedPreferences.setMockInitialValues({'recent_trip_plan': plan.serialize()});
       await pumpMyTrip(tester);
+      await pickDayNextMonth(tester);
+      await pickDays(tester, 3);
 
       await tester.tap(find.byTooltip('Delete'));
       await tester.pumpAndSettle();
@@ -561,8 +570,8 @@ void main() {
 
       expect(find.byType(SavedPlanCard), findsNothing);
       expect(await TripPlanStorage.loadPlans(), isEmpty);
-      expect(formState(tester).isFormEmpty, isTrue);
-      expect(isLocked(tester), isTrue);
+      expect(formState(tester).stayLengthDays, 3, reason: 'what was chosen for a new trip stays');
+      expect(isLocked(tester), isFalse);
     });
   });
 
@@ -627,13 +636,7 @@ void main() {
         'trip_plans': [for (final area in ['Jumeirah', 'Deira', 'Bur Dubai']) tripTo(area).serialize()],
       });
       await pumpMyTrip(tester, client: openAi((_) => response.future));
-      await tester.tap(find.byIcon(Icons.chevron_right));
-      await tester.pumpAndSettle();
-      await tester.tap(dayInCalendar('15'));
-      await tester.pumpAndSettle();
-      await tapNext(tester);
-      await enterLocation(tester, 'Dubai Marina');
-      await tapNext(tester);
+      await fillValidForm(tester, days: 2);
       await tapShowResults(tester);
 
       response.complete(jsonResponse(chatCompletionBody(itineraryJson(2)), 200));

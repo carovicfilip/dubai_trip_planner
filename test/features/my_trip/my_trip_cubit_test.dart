@@ -122,7 +122,7 @@ void main() {
       expect(trip.state.stayLengthDays, 3);
     });
 
-    test('a finished plan brings the form back to the first step, a failed one does not', () async {
+    test('a finished plan leaves an empty form on the first step for the next trip, a failed one keeps it', () async {
       var fails = true;
       final trip = cubit(
         answer: () async => fails ? jsonResponse(openAiErrorBody('server_error', 'Oops'), 500) : await itinerary(),
@@ -136,10 +136,13 @@ void main() {
 
       await expectLater(trip.generatePlan(), throwsA(isA<OpenAiHttpException>()));
       expect(trip.state.step, MyTripState.lastStep);
+      expect(trip.state.formError, isNull, reason: 'all the answers are still there to try again');
 
       fails = false;
-      await trip.generatePlan();
+      final plan = await trip.generatePlan();
       expect(trip.state.step, 0);
+      expect(trip.state.isFormEmpty, isTrue);
+      expect(trip.state.savedPlans.single, same(plan), reason: 'the plan itself is kept');
     });
   });
 
@@ -193,17 +196,14 @@ void main() {
   });
 
   group('loadSavedPlans', () {
-    test('fills an empty form with the saved plan', () async {
+    test('shows the saved plans and leaves the form empty for a new trip', () async {
       await savePlan(savedPlan);
       final trip = cubit();
 
       await trip.loadSavedPlans();
 
-      expect(trip.state.savedPlans.firstOrNull?.location, 'Business Bay');
-      expect(trip.state.startDate, nextMonth);
-      expect(trip.state.stayLengthDays, 2);
-      expect(trip.state.location, 'Business Bay');
-      expect(trip.state.categories, {'Spas'});
+      expect(trip.state.savedPlans.single.location, 'Business Bay');
+      expect(trip.state.isFormEmpty, isTrue);
     });
 
     test('keeps what the user has already typed', () async {
@@ -215,24 +215,6 @@ void main() {
       expect(trip.state.savedPlans.firstOrNull?.location, 'Business Bay');
       expect(trip.state.location, 'JBR');
       expect(trip.state.stayLengthDays, isNull);
-    });
-
-    test('leaves out a date that has passed, which the calendar could not show', () async {
-      await savePlan(TripPlan(
-        location: 'Business Bay',
-        startDate: DateTime(now.year, now.month, now.day - 1),
-        lengthInDays: 2,
-        categories: const ['Spas'],
-        days: savedPlan.days,
-      ));
-      final trip = cubit();
-
-      await trip.loadSavedPlans();
-
-      expect(trip.state.savedPlans.firstOrNull, isNotNull);
-      expect(trip.state.startDate, isNull);
-      expect(trip.state.isStepComplete, isFalse);
-      expect(trip.state.location, 'Business Bay');
     });
   });
 
@@ -304,36 +286,29 @@ void main() {
     test('deleting one keeps the others and the form', () async {
       final first = tripTo('JBR');
       await TripPlanStorage.savePlans([first, tripTo('Deira')]);
-      final trip = cubit();
+      final trip = cubit()..selectStayLength(5);
       await trip.loadSavedPlans();
 
       await trip.deletePlan(first);
 
       expect(trip.state.savedPlans.map((plan) => plan.location), ['Deira']);
       expect((await TripPlanStorage.loadPlans()).map((plan) => plan.location), ['Deira']);
-      expect(trip.state.location, 'JBR', reason: 'the form was filled in from the newest and stays');
-    });
-
-    test('the form is filled in from the newest', () async {
-      await TripPlanStorage.savePlans([tripTo('JBR'), tripTo('Deira')]);
-      final trip = cubit();
-
-      await trip.loadSavedPlans();
-
-      expect(trip.state.location, 'JBR');
-      expect(trip.state.savedPlans, hasLength(2));
+      expect(trip.state.stayLengthDays, 5, reason: 'what was chosen for the next trip stays');
     });
   });
 
-  test('deletePlan removes the last saved plan and clears the form', () async {
+  test('deletePlan removes the last saved plan and leaves the form alone', () async {
     await savePlan(savedPlan);
-    final trip = cubit();
+    final trip = cubit()
+      ..selectStartDate(nextMonth)
+      ..selectStayLength(5);
     await trip.loadSavedPlans();
 
     await trip.deletePlan(savedPlan);
 
-    expect(trip.state.savedPlans.firstOrNull, isNull);
-    expect(trip.state.isFormEmpty, isTrue);
+    expect(trip.state.savedPlans, isEmpty);
     expect(await loadPlan(), isNull);
+    expect(trip.state.startDate, nextMonth, reason: 'the form is for a new trip, not the deleted one');
+    expect(trip.state.stayLengthDays, 5);
   });
 }
