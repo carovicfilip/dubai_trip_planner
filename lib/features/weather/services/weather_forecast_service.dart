@@ -1,21 +1,21 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dubai_trip_planner/core/backend/backend_api.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WeatherForecastService {
-  WeatherForecastService({DateTime Function()? clock}) : _now = clock ?? DateTime.now;
+  WeatherForecastService({DateTime Function()? clock, AppCheckTokenSource? appCheckToken})
+      : _now = clock ?? DateTime.now,
+        _appCheckToken = appCheckToken ?? firebaseAppCheckToken;
 
-  final String apiKey = '726875b4edccad51e99ecfff52400699';
-  final double lat = 25.276987;
-  final double lon = 55.296249;
-
-  /// Every user sees the same forecast (fixed coordinates) and it only comes
-  /// in 3-hour steps, so one request per hour per device is enough. All users
-  /// share one API key and its rate limit, so opening the Explore tab again or
-  /// restarting the app must not request the forecast again.
+  /// Every user sees the same forecast (Dubai) and it only comes in 3-hour
+  /// steps, so one request per hour per device is enough. The backend serves
+  /// all users from its own cache, but its free plan has a daily request limit,
+  /// so opening the Explore tab again or restarting the app must not request
+  /// the forecast again.
   static const cacheDuration = Duration(hours: 1);
   static const requestTimeout = Duration(seconds: 15);
   static const _storageKey = 'weather_forecast_cache';
@@ -26,6 +26,7 @@ class WeatherForecastService {
   static Future<List<DailyForecast>>? _inFlight;
 
   final DateTime Function() _now;
+  final AppCheckTokenSource _appCheckToken;
 
   @visibleForTesting
   static void clearMemoryCache() {
@@ -63,7 +64,7 @@ class WeatherForecastService {
     } catch (error) {
       debugPrint('Weather forecast request failed: $error');
       // An older forecast is better than none, e.g. while the phone is offline
-      // or the shared API key is over its rate limit.
+      // or the backend is unreachable.
       final fallback = saved == null ? const <DailyForecast>[] : _upcomingDays(saved);
       if (fallback.isEmpty) rethrow;
       _memory ??= saved;
@@ -104,10 +105,10 @@ class WeatherForecastService {
   }
 
   Future<List<DailyForecast>> _fetchFromApi() async {
-    final url =
-        Uri.parse('https://api.openweathermap.org/data/2.5/forecast?lat=$lat&lon=$lon&appid=$apiKey&units=metric');
-
-    final response = await http.get(url).timeout(requestTimeout);
+    // The backend asks OpenWeather and answers in its shape, with only the
+    // fields read below.
+    final response =
+        await http.get(BackendApi.weatherUri, headers: await BackendApi.headers(_appCheckToken)).timeout(requestTimeout);
 
     if (response.statusCode != 200) {
       throw Exception('Failed to fetch weather: ${response.body}');

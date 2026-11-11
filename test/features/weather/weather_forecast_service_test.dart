@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dubai_trip_planner/core/backend/backend_api.dart';
 import 'package:dubai_trip_planner/features/weather/services/weather_forecast_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -9,7 +10,8 @@ import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  // Real response recorded from api.openweathermap.org on 2026-10-30.
+  // Real response recorded from api.openweathermap.org on 2026-10-30. The
+  // backend answers in the same shape, with fewer fields.
   final fixture = File('test/fixtures/openweather_forecast_dubai.json').readAsStringSync();
 
   // Start of the fixture's first 3-hour slot. The cache tests use it as "now",
@@ -25,19 +27,43 @@ void main() {
   Future<List<DailyForecast>> fetchWith(http.Client client, {DateTime Function()? clock}) =>
       http.runWithClient(() => WeatherForecastService(clock: clock).fetch10DayForecast(), () => client);
 
-  test('requests the Dubai forecast in metric units', () async {
-    late Uri url;
-    await fetchWith(MockClient((request) async {
-      url = request.url;
-      return http.Response(fixture, 200, headers: {'content-type': 'application/json; charset=utf-8'});
-    }));
+  test('requests the forecast from the backend with the App Check token, and no key', () async {
+    late http.Request sent;
+    await http.runWithClient(
+      () => WeatherForecastService(appCheckToken: () async => 'app-check-token').fetch10DayForecast(),
+      () => MockClient((request) async {
+        sent = request;
+        return http.Response(fixture, 200, headers: {'content-type': 'application/json; charset=utf-8'});
+      }),
+    );
 
-    expect(url.host, 'api.openweathermap.org');
-    expect(url.path, '/data/2.5/forecast');
-    expect(url.queryParameters['lat'], '25.276987');
-    expect(url.queryParameters['lon'], '55.296249');
-    expect(url.queryParameters['units'], 'metric');
-    expect(url.queryParameters['appid'], isNotEmpty);
+    expect(sent.method, 'GET');
+    expect(sent.url, BackendApi.weatherUri);
+    expect(sent.url.path, '/weather');
+    expect(sent.url.queryParameters, isEmpty);
+    expect(sent.headers['X-Firebase-AppCheck'], 'app-check-token');
+  });
+
+  test('reads the slim forecast the backend sends', () async {
+    final slim = jsonEncode({
+      'list': [
+        for (final slot in slots.cast<Map<String, dynamic>>())
+          {
+            'dt': slot['dt'],
+            'main': {'temp': slot['main']['temp']},
+            'weather': [
+              {'icon': slot['weather'][0]['icon']},
+            ],
+            'pop': slot['pop'],
+          },
+      ],
+    });
+    final fromSlim = await fetchWith(MockClient((_) async => http.Response(slim, 200)));
+    WeatherForecastService.clearMemoryCache();
+    SharedPreferences.setMockInitialValues({});
+    final fromFull = await fetchWith(MockClient((_) async => http.Response(fixture, 200)));
+
+    expect(fromSlim.map((d) => d.toJson()), fromFull.map((d) => d.toJson()));
   });
 
   test('groups 3-hour slots into days with sane temperatures and rain %', () async {
@@ -61,8 +87,8 @@ void main() {
     expect(days.length, lessThanOrEqualTo(6));
   });
 
-  test('throws when the API answers with an error (e.g. revoked key)', () async {
-    final client = MockClient((_) async => http.Response('{"cod":401,"message":"Invalid API key"}', 401));
+  test('throws when the backend answers with an error (e.g. App Check refused)', () async {
+    final client = MockClient((_) async => http.Response('{"error":"app_check_failed"}', 401));
     await expectLater(fetchWith(client), throwsA(isA<Exception>()));
   });
 
@@ -76,7 +102,7 @@ void main() {
     expect(error, isA<TimeoutException>());
   });
 
-  group('cache (all users share one API key and its rate limit)', () {
+  group('cache (the backend\'s free plan has a daily request limit)', () {
     late DateTime now;
     late int requests;
     late http.Response Function() respond;
@@ -137,11 +163,11 @@ void main() {
       expect(requests, 1);
     });
 
-    test('when the API fails, the last forecast is shown without the days that are over', () async {
+    test('when the backend fails, the last forecast is shown without the days that are over', () async {
       final first = await fetch();
       final firstDay = first.first.date;
       now = DateTime(firstDay.year, firstDay.month, firstDay.day + 1, 12);
-      respond = () => http.Response('{"cod":429,"message":"Too many requests"}', 429);
+      respond = () => http.Response('{"error":"upstream_error"}', 502);
 
       final fallback = await fetch();
 

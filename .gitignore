@@ -47,5 +47,8 @@ app.*.map.json
 # Environment files
 .env
 
+# App Check debug token for simulators and emulators (see README.md)
+app_check_debug.json
+
 # E2E screenshots and report
 /e2e_out/

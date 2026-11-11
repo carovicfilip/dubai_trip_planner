@@ -2,7 +2,8 @@
 
 A Flutter app for planning a trip to Dubai: curated places by category,
 favorites, a weather forecast (OpenWeather) and AI-generated day-by-day
-itineraries (OpenAI).
+itineraries (OpenAI). Both go through the app's backend, a Cloudflare Worker
+in `backend/` that holds the API keys; the app itself has none.
 
 ## Requirements
 
@@ -13,24 +14,29 @@ itineraries (OpenAI).
 
 ## Setup
 
-1. Copy `.env.example` to `.env` and set `OPENAI_API_KEY`. `.env` is not
-   committed, but it is bundled into the app as an asset, so the build fails
-   without it and anything in it can be extracted from the installed app.
-2. `flutter pub get`
-3. `flutter run`
+1. `flutter pub get`
+2. On a simulator or emulator, App Check needs a debug token, because only a
+   real device can pass Play Integrity or App Attest. Create one in the
+   Firebase console (project `dubaitripplanner-ae015` → App Check → Apps →
+   ⋮ → Manage debug tokens), put it into `app_check_debug.json` (not in git)
+   as `{"APP_CHECK_DEBUG_TOKEN": "..."}` and run
+   `flutter run --dart-define-from-file=app_check_debug.json`.
+   Without the token the app works, but the backend refuses the trip planner
+   and the forecast. Release builds never use the debug token.
 
 ## Tests
 
-- `flutter test` runs the unit and widget tests. The live OpenAI tests are
-  skipped unless you opt in.
-- `LIVE_AI_TEST=1 flutter test test/live/openai_live_test.dart` calls the real
-  OpenAI API. It needs a real key and costs a fraction of a cent.
+- `flutter test` runs the unit and widget tests.
+- `cd backend && npm test` runs the tests of the backend. Its live OpenAI test
+  is skipped unless you opt in; see `backend/README.md`.
 - The end-to-end journey runs on a simulator or device. It makes one real
-  OpenAI call and writes screenshots and `report.json` to `e2e_out/`:
+  trip plan through the backend and writes screenshots and `report.json` to
+  `e2e_out/`:
 
   ```sh
   E2E_OUT=e2e_out flutter drive --driver=test_driver/integration_test.dart \
-    --target=integration_test/app_e2e_test.dart -d <device id>
+    --target=integration_test/app_e2e_test.dart \
+    --dart-define-from-file=app_check_debug.json -d <device id>
   ```
 
 ## Release builds (Android)
@@ -41,6 +47,24 @@ file is in git, so keep a backup of both, e.g. in a password manager. Without
 them `flutter build appbundle` fails on purpose instead of signing with the
 debug key, which Google Play rejects. Google Play re-signs the app with its own
 app signing key, and a lost upload key can be reset in the Play Console.
+
+## Backend and Firebase
+
+- `backend/` is a Cloudflare Worker (free plan) with two routes, `POST
+  /trip-plan` and `GET /weather`. It owns the OpenAI prompt, the schema, the
+  model and the limits, and keeps the keys as Worker secrets. See
+  `backend/README.md`. The app's address for it is `BackendApi.baseUri` in
+  `lib/core/backend/backend_api.dart`.
+- Firebase (project `dubaitripplanner-ae015`, Spark plan) is used only for
+  App Check: Play Integrity on Android and App Attest on iOS prove that a
+  request comes from this app on a real device, and the Worker refuses
+  requests without a valid token.
+- Firebase is set up from Dart (`lib/firebase_options.dart`), so there is no
+  `google-services.json`, no google-services Gradle plugin (its version from
+  `flutterfire configure` predates AGP 9) and no `GoogleService-Info.plist`.
+  `flutterfire configure` also fails on this project, because it needs the
+  `xcodeproj` Ruby gem, which went with CocoaPods. The values in
+  `firebase_options.dart` are not secret.
 
 ## Project structure
 

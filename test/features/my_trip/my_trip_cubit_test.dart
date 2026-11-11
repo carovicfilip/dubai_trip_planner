@@ -4,13 +4,12 @@ import 'package:dubai_trip_planner/features/my_trip/cubit/my_trip_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_plan_storage.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_planner_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../helpers/openai_fakes.dart';
+import '../../helpers/backend_fakes.dart';
 
 Future<void> savePlan(TripPlan plan) => TripPlanStorage.savePlans([plan]);
 
@@ -22,7 +21,6 @@ void main() {
   setUp(() {
     requests = [];
     SharedPreferences.setMockInitialValues({});
-    dotenv.loadFromString(envString: 'OPENAI_API_KEY=sk-test-123');
   });
 
   final now = DateTime.now();
@@ -43,7 +41,7 @@ void main() {
     return MyTripCubit(TripPlannerService(
       httpClient: MockClient((request) {
         requests.add(request);
-        return answer?.call() ?? Future.error(StateError('unexpected OpenAI call'));
+        return answer?.call() ?? Future.error(StateError('unexpected backend call'));
       }),
     ));
   }
@@ -56,7 +54,7 @@ void main() {
       ..toggleCategory('Beaches');
   }
 
-  Future<http.Response> itinerary() async => jsonResponse(chatCompletionBody(itineraryJson(3)), 200);
+  Future<http.Response> itinerary() async => jsonResponse(itineraryJson(3), 200);
 
   test('reports the first problem in the form, step by step', () {
     final trip = cubit();
@@ -125,7 +123,7 @@ void main() {
     test('a finished plan leaves an empty form on the first step for the next trip, a failed one keeps it', () async {
       var fails = true;
       final trip = cubit(
-        answer: () async => fails ? jsonResponse(openAiErrorBody('server_error', 'Oops'), 500) : await itinerary(),
+        answer: () async => fails ? jsonResponse(backendErrorBody('upstream_error'), 502) : await itinerary(),
       )
         ..selectStartDate(nextMonth)
         ..selectStayLength(3)
@@ -134,7 +132,7 @@ void main() {
         ..nextStep()
         ..toggleCategory('Spas');
 
-      await expectLater(trip.generatePlan(), throwsA(isA<OpenAiHttpException>()));
+      await expectLater(trip.generatePlan(), throwsA(isA<TripPlannerHttpException>()));
       expect(trip.state.step, MyTripState.lastStep);
       expect(trip.state.formError, isNull, reason: 'all the answers are still there to try again');
 
@@ -157,9 +155,9 @@ void main() {
     expect(trip.state.savedPlans.firstOrNull, same(plan));
     expect(plan.location, 'Dubai Marina');
     expect((await loadPlan())?.days, hasLength(3));
-    final details = tripDetailsSent(requests.single);
+    final details = tripFormSent(requests.single);
     expect(details['accommodation'], 'Dubai Marina', reason: 'sent without the spaces around it');
-    expect(details['dates'], hasLength(3));
+    expect(details['lengthInDays'], 3);
   });
 
   test('asking again while a plan is generated sends no second request', () async {
@@ -176,17 +174,17 @@ void main() {
 
   test('a failed request ends the loading state and keeps the saved plan', () async {
     await savePlan(savedPlan);
-    final trip = withValidForm(answer: () async => jsonResponse(openAiErrorBody('server_error', 'Oops'), 500));
+    final trip = withValidForm(answer: () async => jsonResponse(backendErrorBody('upstream_error'), 502));
     await trip.loadSavedPlans();
 
-    await expectLater(trip.generatePlan(), throwsA(isA<OpenAiHttpException>()));
+    await expectLater(trip.generatePlan(), throwsA(isA<TripPlannerHttpException>()));
 
     expect(trip.state.isGenerating, isFalse);
     expect(trip.state.savedPlans.firstOrNull?.location, 'Business Bay');
     expect((await loadPlan())?.location, 'Business Bay');
   });
 
-  test('refuses an incomplete form without calling OpenAI', () async {
+  test('refuses an incomplete form without calling the backend', () async {
     final trip = cubit();
 
     await expectLater(trip.generatePlan(), throwsStateError);

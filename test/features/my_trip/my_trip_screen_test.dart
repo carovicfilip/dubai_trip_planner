@@ -15,14 +15,13 @@ import 'package:dubai_trip_planner/features/my_trip/ui/widgets/trip_form_button.
 import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../helpers/openai_fakes.dart';
+import '../../helpers/backend_fakes.dart';
 
 void main() {
   late List<http.Request> requests;
@@ -30,10 +29,9 @@ void main() {
   setUp(() {
     requests = [];
     SharedPreferences.setMockInitialValues({});
-    dotenv.loadFromString(envString: 'OPENAI_API_KEY=sk-test-123');
   });
 
-  MockClient openAi(Future<http.Response> Function(http.Request request) handler) {
+  MockClient backend(Future<http.Response> Function(http.Request request) handler) {
     return MockClient((request) {
       requests.add(request);
       return handler(request);
@@ -41,7 +39,7 @@ void main() {
   }
 
   /// Shows [home] (My Trip by default) under a MyTripCubit whose trip planner
-  /// sends its OpenAI requests to [client].
+  /// sends its requests to the backend through [client].
   Future<void> pumpMyTrip(WidgetTester tester, {http.Client? client, Widget home = const MyTripScreen(), Locale? locale}) async {
     // Large surface on purpose: the test font draws every glyph 1em wide, far
     // wider than Poppins, so phone-size layout is checked on a real device.
@@ -50,7 +48,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final planner = TripPlannerService(
-      httpClient: client ?? openAi((_) async => throw StateError('unexpected OpenAI call')),
+      httpClient: client ?? backend((_) async => throw StateError('unexpected backend call')),
     );
     await tester.pumpWidget(BlocProvider(
       create: (_) => MyTripCubit(planner),
@@ -420,20 +418,20 @@ void main() {
     });
   });
 
-  testWidgets('happy path: sends the form to OpenAI, saves the plan and opens the itinerary', (tester) async {
+  testWidgets('happy path: sends the form to the backend, saves the plan and opens the itinerary', (tester) async {
     final response = Completer<http.Response>();
-    await pumpMyTrip(tester, client: openAi((_) => response.future));
+    await pumpMyTrip(tester, client: backend((_) => response.future));
     await fillValidForm(tester);
 
     await tapShowResults(tester);
     expect(find.byType(CircularProgressIndicator), findsOneWidget, reason: 'spinner while waiting for the AI');
     expect(requests, hasLength(1));
-    final details = tripDetailsSent(requests.single);
+    final details = tripFormSent(requests.single);
     expect(details['accommodation'], 'Dubai Marina');
     expect(details['interests'], ['Beaches']);
-    expect(details['dates'], hasLength(3));
+    expect(details['lengthInDays'], 3);
 
-    response.complete(jsonResponse(chatCompletionBody(itineraryJson(3)), 200));
+    response.complete(jsonResponse(itineraryJson(3), 200));
     await tester.pumpAndSettle();
 
     expect(find.byType(ItineraryScreen), findsOneWidget);
@@ -452,7 +450,7 @@ void main() {
   });
 
   testWidgets('back from a new plan, the form is empty for the next trip, with the plan above it', (tester) async {
-    await pumpMyTrip(tester, client: openAi((_) async => jsonResponse(chatCompletionBody(itineraryJson(3)), 200)));
+    await pumpMyTrip(tester, client: backend((_) async => jsonResponse(itineraryJson(3), 200)));
     await fillValidForm(tester);
     await tapShowResults(tester);
     await tester.pumpAndSettle();
@@ -474,13 +472,13 @@ void main() {
 
   testWidgets('15 days can be planned', (tester) async {
     final response = Completer<http.Response>();
-    await pumpMyTrip(tester, client: openAi((_) => response.future));
+    await pumpMyTrip(tester, client: backend((_) => response.future));
     await fillValidForm(tester, days: TripPlannerService.maxTripDays);
 
     await tapShowResults(tester);
 
-    expect(tripDetailsSent(requests.single)['dates'], hasLength(TripPlannerService.maxTripDays));
-    response.complete(jsonResponse(chatCompletionBody(itineraryJson(TripPlannerService.maxTripDays)), 200));
+    expect(tripFormSent(requests.single)['lengthInDays'], TripPlannerService.maxTripDays);
+    response.complete(jsonResponse(itineraryJson(TripPlannerService.maxTripDays), 200));
     await tester.pumpAndSettle();
     expect(find.byType(ItineraryScreen), findsOneWidget);
   });
@@ -488,11 +486,7 @@ void main() {
   testWidgets('AI failure: shows an error and lets the user try again', (tester) async {
     await pumpMyTrip(
       tester,
-      client: openAi((_) async => jsonResponse(
-            openAiErrorBody('invalid_api_key', 'Incorrect API key provided: sk-test***123.'),
-            401,
-            contentType: 'text/plain',
-          )),
+      client: backend((_) async => jsonResponse(backendErrorBody('app_check_failed'), 401)),
     );
     await fillValidForm(tester);
 
@@ -500,7 +494,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final snackText = tester.widget<Text>(find.descendant(of: find.byType(SnackBar), matching: find.byType(Text))).data!;
-    // A rejected key is nothing the user can fix, and OpenAI's raw JSON must not show.
+    // A request the backend refuses is nothing the user can fix, and its raw JSON must not show.
     expect(snackText, 'The trip planner is unavailable right now. Please try again later.');
     expect(snackText, isNot(contains('{')));
     expect(find.byType(ItineraryScreen), findsNothing);
@@ -635,11 +629,11 @@ void main() {
       SharedPreferences.setMockInitialValues({
         'trip_plans': [for (final area in ['Jumeirah', 'Deira', 'Bur Dubai']) tripTo(area).serialize()],
       });
-      await pumpMyTrip(tester, client: openAi((_) => response.future));
+      await pumpMyTrip(tester, client: backend((_) => response.future));
       await fillValidForm(tester, days: 2);
       await tapShowResults(tester);
 
-      response.complete(jsonResponse(chatCompletionBody(itineraryJson(2)), 200));
+      response.complete(jsonResponse(itineraryJson(2), 200));
       await tester.pumpAndSettle();
 
       final saved = await TripPlanStorage.loadPlans();
@@ -654,7 +648,7 @@ void main() {
       await pumpMyTrip(
         tester,
         locale: const Locale('de'),
-        client: openAi((_) async => jsonResponse(chatCompletionBody(itineraryJson(3)), 200)),
+        client: backend((_) async => jsonResponse(itineraryJson(3), 200)),
       );
       expect(find.text('Wann kommst du an?'), findsOneWidget);
 
@@ -676,8 +670,8 @@ void main() {
       await tester.tap(find.text('Ergebnis anzeigen'));
       await tester.pumpAndSettle();
 
-      final details = tripDetailsSent(requests.single);
-      expect(details['language'], 'German');
+      final details = tripFormSent(requests.single);
+      expect(details['language'], 'de');
       expect(details['interests'], ['Beaches']);
       expect(details['accommodation'], 'Downtown Dubai');
 
@@ -721,7 +715,7 @@ void main() {
       await pumpMyTrip(
         tester,
         locale: const Locale('fr'),
-        client: openAi((_) async => jsonResponse(openAiErrorBody('rate_limit_exceeded', 'Slow down'), 429)),
+        client: backend((_) async => jsonResponse(backendErrorBody('planner_busy'), 429)),
       );
       await pickDayNextMonth(tester);
       await pickDays(tester, 3);
@@ -822,7 +816,7 @@ void main() {
     late StateSetter switchTab;
     await pumpMyTrip(
       tester,
-      client: openAi((_) => response.future),
+      client: backend((_) => response.future),
       home: StatefulBuilder(builder: (context, setState) {
         switchTab = setState;
         return onMyTrip ? const MyTripScreen() : const Scaffold(body: Text('Explore'));
@@ -842,7 +836,7 @@ void main() {
     await tester.tap(find.byType(TextButton), warnIfMissed: false);
     await tester.pump();
 
-    response.complete(jsonResponse(chatCompletionBody(itineraryJson(3)), 200));
+    response.complete(jsonResponse(itineraryJson(3), 200));
     await tester.pumpAndSettle();
 
     expect(find.text('Your Tailored Itinerary'), findsOneWidget);
