@@ -52,7 +52,12 @@ flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   # Kept out of the bundled assets folders: only this tool reads it.
-  image_path: "assets/launcher/app_icon2.png"
+  image_path: "assets/launcher/app_icon_glass_pin.png"
+  # Android 8+ adaptive icon. The foreground is the full-size pin, building and
+  # "DUBAI" on transparency; the tool insets it by 16% per side, and the
+  # background is pre-scaled by the same 0.68 so the glass lines up with it.
+  adaptive_icon_background: "assets/launcher/app_icon_glass_pin_android_bg.png"
+  adaptive_icon_foreground: "assets/launcher/app_icon_glass_pin_android_fg.png"
 
 dev_dependencies:
   flutter_test:

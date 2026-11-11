@@ -1,1 +1,6 @@
 #include "Generated.xcconfig"
+
+// A/B test of the app icon (App Store product page optimization): ship the
+// alternate AppIconDark set in the binary. Kept here, not in project.pbxproj,
+// because flutter_launcher_icons rewrites every ASSETCATALOG_* value there.
+ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES
