@@ -1,6 +1,7 @@
 import 'package:dubai_trip_planner/app/router/main_scaffold.dart';
 import 'package:dubai_trip_planner/app/theme/app_theme.dart';
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
+import 'package:dubai_trip_planner/core/paywall/paywall.dart';
 import 'package:dubai_trip_planner/core/widgets/glass_button.dart';
 import 'package:dubai_trip_planner/core/widgets/photo_message.dart';
 import 'package:dubai_trip_planner/features/onboarding/services/onboarding_service.dart';
@@ -90,7 +91,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (_finishing) return;
     _finishing = true;
     await OnboardingService.completeOnboarding();
-    if (mounted) Navigator.pushReplacement(context, MainScaffold.fadeInRoute());
+    if (mounted) {
+      Navigator.pushReplacement(context, MainScaffold.fadeInRoute(paywall: PaywallPlacement.onboardingComplete));
+    }
   }
 
   @override

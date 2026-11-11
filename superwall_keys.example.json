@@ -1,0 +1,4 @@
+{
+  "SUPERWALL_IOS_API_KEY": "paste the iOS public API key from Superwall Settings > Keys",
+  "SUPERWALL_ANDROID_API_KEY": "paste the Android public API key from Superwall Settings > Keys"
+}

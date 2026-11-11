@@ -12,6 +12,17 @@ subprojects {
     def newSubprojectBuildDir = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
+// superwallkit_flutter 2.8.0 compiles against android-34, but the AndroidX
+// libraries it brings need 35 or later, so its checkAarMetadata task fails.
+// Compile it against the same SDK as the app (Flutter's default, 36). This
+// changes nothing on devices: minSdk and targetSdk stay as they are.
+subprojects { subproject ->
+    subproject.afterEvaluate {
+        if (subproject.name == "superwallkit_flutter" && subproject.hasProperty("android")) {
+            subproject.android.compileSdk = 36
+        }
+    }
+}
 subprojects {
     project.evaluationDependsOn(":app")
 }

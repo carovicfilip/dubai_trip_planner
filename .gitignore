@@ -52,3 +52,6 @@ app_check_debug.json
 
 # E2E screenshots and report
 /e2e_out/
+
+# Superwall public SDK keys (see superwall_keys.example.json)
+superwall_keys.json

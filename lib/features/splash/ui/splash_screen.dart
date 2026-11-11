@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dubai_trip_planner/app/router/main_scaffold.dart';
 import 'package:dubai_trip_planner/app/theme/app_theme.dart';
 import 'package:dubai_trip_planner/core/constants/app_color.dart';
+import 'package:dubai_trip_planner/core/paywall/paywall.dart';
 import 'package:dubai_trip_planner/core/widgets/photo_message.dart';
 import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:flutter/services.dart';
@@ -24,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     _redirectTimer = Timer(const Duration(seconds: 2), () {
-      Navigator.pushReplacement(context, MainScaffold.fadeInRoute());
+      Navigator.pushReplacement(context, MainScaffold.fadeInRoute(paywall: PaywallPlacement.appEntry));
     });
   }
 

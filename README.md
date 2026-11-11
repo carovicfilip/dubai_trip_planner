@@ -23,6 +23,16 @@ in `backend/` that holds the API keys; the app itself has none.
    `flutter run --dart-define-from-file=app_check_debug.json`.
    Without the token the app works, but the backend refuses the trip planner
    and the forecast. Release builds never use the debug token.
+3. Paywalls come from Superwall. Copy `superwall_keys.example.json` to
+   `superwall_keys.json` (not in git) and paste the public API keys from
+   Superwall → Settings → Keys, one per platform. Pass the file to every run
+   and build, next to the App Check file:
+   `flutter run --dart-define-from-file=app_check_debug.json --dart-define-from-file=superwall_keys.json`.
+   Without it the app runs without paywalls. Debug builds use Superwall's test
+   mode, which simulates purchases; `--dart-define=SUPERWALL_TEST_MODE=false`
+   switches to the stores' sandboxes. Release builds
+   (`flutter build appbundle` / `flutter build ipa`) need the same
+   `--dart-define-from-file=superwall_keys.json`.
 
 ## Tests
 

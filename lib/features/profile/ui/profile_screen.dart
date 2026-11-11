@@ -1,6 +1,7 @@
 import 'package:dubai_trip_planner/app/theme/app_theme.dart';
 import 'package:dubai_trip_planner/app/theme/theme_cubit.dart';
 import 'package:dubai_trip_planner/core/constants/app_palette.dart';
+import 'package:dubai_trip_planner/core/paywall/paywall.dart';
 import 'package:dubai_trip_planner/core/widgets/gradient_hero.dart';
 import 'package:dubai_trip_planner/core/widgets/places_card.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
@@ -89,6 +90,7 @@ class ProfileScreen extends StatelessWidget {
                     onTap: () async {
                       final uri = Uri.parse('https://dubai-trip-planner.com/privacy-policy');
                       if (await canLaunchUrl(uri)) {
+                        Paywall.sendingUserOut();
                         await launchUrl(uri, mode: LaunchMode.externalApplication);
                       }
                     },
@@ -99,6 +101,7 @@ class ProfileScreen extends StatelessWidget {
                     onTap: () async {
                       final uri = Uri.parse('https://dubai-trip-planner.com/terms-of-use');
                       if (await canLaunchUrl(uri)) {
+                        Paywall.sendingUserOut();
                         await launchUrl(uri, mode: LaunchMode.externalApplication);
                       }
                     },

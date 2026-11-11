@@ -1,3 +1,4 @@
+import 'package:dubai_trip_planner/core/paywall/paywall.dart';
 import 'package:flutter/services.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,7 +27,11 @@ class AppRatingService {
   static Future<void> requestStoreReview() async {
     final inAppReview = InAppReview.instance;
     try {
-      if (await inAppReview.isAvailable()) await inAppReview.requestReview();
+      if (await inAppReview.isAvailable()) {
+        // On Android the dialog can send the app to the background.
+        Paywall.sendingUserOut();
+        await inAppReview.requestReview();
+      }
     } on PlatformException {
       // The user only misses a dialog they did not ask for.
     }

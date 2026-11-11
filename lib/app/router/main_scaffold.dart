@@ -1,6 +1,7 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:dubai_trip_planner/core/constants/app_palette.dart';
+import 'package:dubai_trip_planner/core/paywall/paywall.dart';
 import 'package:dubai_trip_planner/features/categories/ui/categories_screen.dart';
 import 'package:dubai_trip_planner/features/explore/ui/explore_screen.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/my_trip_screen.dart';
@@ -10,12 +11,15 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class MainScaffold extends StatefulWidget {
-  const MainScaffold({super.key});
+  const MainScaffold({super.key, this.paywallOnOpen});
+
+  /// The paywall to ask for once the main app is on screen.
+  final PaywallPlacement? paywallOnOpen;
 
   /// The way in from the full-screen photos of onboarding and the splash.
-  static Route<void> fadeInRoute() => PageRouteBuilder(
+  static Route<void> fadeInRoute({PaywallPlacement? paywall}) => PageRouteBuilder(
     transitionDuration: const Duration(milliseconds: 400),
-    pageBuilder: (_, _, _) => const MainScaffold(),
+    pageBuilder: (_, _, _) => MainScaffold(paywallOnOpen: paywall),
     transitionsBuilder: (_, animation, _, child) => FadeTransition(opacity: animation, child: child),
   );
 
@@ -25,6 +29,37 @@ class MainScaffold extends StatefulWidget {
 
 class _MainScaffoldState extends State<MainScaffold> {
   int _currentIndex = 0;
+
+  late final AppLifecycleListener _lifecycle;
+  bool _wentToBackground = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Coming back from the background counts as coming into the app again.
+    // Only a real trip to the background counts: a system sheet over the app
+    // (a purchase, a notification) only makes it inactive.
+    _lifecycle = AppLifecycleListener(
+      onStateChange: (state) {
+        if (state == AppLifecycleState.paused) {
+          _wentToBackground = true;
+        } else if (state == AppLifecycleState.resumed && _wentToBackground) {
+          _wentToBackground = false;
+          Paywall.onReturnToApp();
+        }
+      },
+    );
+    final paywall = widget.paywallOnOpen;
+    if (paywall != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => Paywall.show(paywall));
+    }
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
 
   // Only the selected tab is built, so switching tabs starts each screen
   // over. State that has to survive that lives in cubits above the app

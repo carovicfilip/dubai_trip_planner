@@ -1,5 +1,6 @@
 import 'package:dubai_trip_planner/app/language/app_language.dart';
 import 'package:dubai_trip_planner/app/language/language_cubit.dart';
+import 'package:dubai_trip_planner/core/paywall/paywall.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/cubit/my_trip_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_planner_service.dart';
@@ -21,6 +22,7 @@ import 'features/splash/ui/splash_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _startAppCheck();
+  Paywall.configure();
   final prefs = await SharedPreferences.getInstance();
   final onboardingCompleted = await OnboardingService.isOnboardingCompleted();
   runApp(MyApp(prefs: prefs, onboardingCompleted: onboardingCompleted));
