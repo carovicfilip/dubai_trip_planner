@@ -98,11 +98,29 @@ abstract final class Paywall {
       // Superwall opens some paywalls by itself (the offer after a closed
       // paywall), so the app follows every paywall through the delegate.
       Superwall.shared.setDelegate(_PaywallTracker());
-      Superwall.shared.subscriptionStatus.listen((status) => subscribed.value = status.isActive);
       _configured = true;
+      _followSubscription();
     } catch (error) {
       debugPrint('Superwall did not start: $error');
     }
+  }
+
+  /// Keeps [subscribed] up to date.
+  ///
+  /// On iOS the status stream only exists once the native side has handled
+  /// configure, and listening any sooner fails with a MissingPluginException.
+  /// The platform answers calls in the order they were made, so once the
+  /// status below has come back, configure has been handled.
+  static Future<void> _followSubscription() async {
+    try {
+      subscribed.value = (await Superwall.shared.getSubscriptionStatus()).isActive;
+    } catch (error) {
+      debugPrint('Superwall subscription status unavailable: $error');
+    }
+    Superwall.shared.subscriptionStatus.listen((status) {
+      if (kDebugMode) debugPrint('Superwall subscription active: ${status.isActive}');
+      subscribed.value = status.isActive;
+    });
   }
 
   /// Asks Superwall for the paywall of [placement]. The dashboard decides
@@ -193,10 +211,19 @@ abstract final class Paywall {
 /// method of the delegate has to be implemented, so the rest are empty.
 class _PaywallTracker extends SuperwallDelegate {
   @override
-  void willPresentPaywall(PaywallInfo paywallInfo) => Paywall._opened();
+  void willPresentPaywall(PaywallInfo paywallInfo) {
+    if (kDebugMode) {
+      debugPrint('Paywall shown: ${paywallInfo.name} (${paywallInfo.presentedByPlacementWithName}, '
+          'intro offer: ${paywallInfo.isFreeTrialAvailable})');
+    }
+    Paywall._opened();
+  }
 
   @override
-  void didDismissPaywall(PaywallInfo paywallInfo) => Paywall._closed();
+  void didDismissPaywall(PaywallInfo paywallInfo) {
+    if (kDebugMode) debugPrint('Paywall closed: ${paywallInfo.name}');
+    Paywall._closed();
+  }
 
   @override
   void handleLog(String level, String scope, String? message, Map<dynamic, dynamic>? info, String? error) {
