@@ -88,7 +88,7 @@ class ProfileScreen extends StatelessWidget {
                     leading: const Icon(Icons.privacy_tip),
                     title: Text(l10n.privacyPolicy),
                     onTap: () async {
-                      final uri = Uri.parse('https://dubai-trip-planner.com/privacy-policy');
+                      final uri = Uri.parse('https://dubaitripplanner.app/privacy-policy');
                       if (await canLaunchUrl(uri)) {
                         Paywall.sendingUserOut();
                         await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -99,7 +99,7 @@ class ProfileScreen extends StatelessWidget {
                     leading: const Icon(Icons.description),
                     title: Text(l10n.termsOfUse),
                     onTap: () async {
-                      final uri = Uri.parse('https://dubai-trip-planner.com/terms-of-use');
+                      final uri = Uri.parse('https://dubaitripplanner.app/terms-of-use');
                       if (await canLaunchUrl(uri)) {
                         Paywall.sendingUserOut();
                         await launchUrl(uri, mode: LaunchMode.externalApplication);
