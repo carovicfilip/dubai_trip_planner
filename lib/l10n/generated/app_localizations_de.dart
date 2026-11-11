@@ -604,5 +604,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get itineraryUndo => 'Rückgängig';
 
   @override
+  String get planLockedTitle => 'Dein Plan ist fertig';
+
+  @override
+  String get planLockedText =>
+      'Hol dir Pro, um jeden Tag deiner Dubai-Reise zu sehen.';
+
+  @override
+  String get planLockedButton => 'Meinen Plan freischalten';
+
+  @override
   String get itineraryMoveItem => 'Verschieben';
 }

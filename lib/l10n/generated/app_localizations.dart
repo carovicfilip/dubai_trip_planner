@@ -1154,6 +1154,24 @@ abstract class AppLocalizations {
   /// **'Undo'**
   String get itineraryUndo;
 
+  /// No description provided for @planLockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan is ready'**
+  String get planLockedTitle;
+
+  /// No description provided for @planLockedText.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe to Pro to see every day of your Dubai trip.'**
+  String get planLockedText;
+
+  /// No description provided for @planLockedButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock my plan'**
+  String get planLockedButton;
+
   /// No description provided for @itineraryMoveItem.
   ///
   /// In en, this message translates to:

@@ -605,5 +605,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get itineraryUndo => 'Annuler';
 
   @override
+  String get planLockedTitle => 'Votre plan est prêt';
+
+  @override
+  String get planLockedText =>
+      'Passez à Pro pour voir chaque jour de votre voyage à Dubaï.';
+
+  @override
+  String get planLockedButton => 'Débloquer mon plan';
+
+  @override
   String get itineraryMoveItem => 'Déplacer';
 }

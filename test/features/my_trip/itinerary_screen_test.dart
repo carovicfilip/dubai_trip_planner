@@ -1,4 +1,5 @@
 import 'package:dubai_trip_planner/core/constants/app_palette.dart';
+import 'package:dubai_trip_planner/core/paywall/paywall.dart';
 import 'package:dubai_trip_planner/core/widgets/custom_back_button.dart';
 import 'package:dubai_trip_planner/features/my_trip/cubit/my_trip_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
@@ -609,6 +610,59 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(ItineraryScreen), findsNothing);
+  });
+
+  group('a locked plan', () {
+    // Back to a build without paywalls, which the other tests are about.
+    tearDown(() => Paywall.debugSetUp(configured: false));
+
+    testWidgets('shows blurred, under a card that leads to the paywall', (tester) async {
+      Paywall.debugSetUp(configured: true);
+      await pumpItinerary(tester, planStarting(DateTime(2026, 11, 10), 3).locked());
+
+      expect(find.text('Your plan is ready'), findsOneWidget);
+      expect(find.text('Unlock my plan'), findsOneWidget);
+      expect(find.byTooltip('Show as a grid'), findsNothing, reason: 'nothing to switch while it is locked');
+      final blur = find.ancestor(of: find.byType(DayDeck), matching: find.byType(ImageFiltered));
+      expect(blur, findsOneWidget);
+      expect(
+        find.ancestor(of: find.byType(DayDeck), matching: find.byWidgetPredicate((w) => w is IgnorePointer && w.ignoring)),
+        findsWidgets,
+        reason: 'the blurred plan takes no taps',
+      );
+    });
+
+    testWidgets('opens at once when the user subscribes', (tester) async {
+      Paywall.debugSetUp(configured: true);
+      final cubit = await pumpItinerary(tester, planStarting(DateTime(2026, 11, 10), 3).locked());
+
+      Paywall.subscribed.value = true;
+      await tester.pumpAndSettle();
+
+      expect(find.text('Your plan is ready'), findsNothing);
+      expect(find.ancestor(of: find.byType(DayDeck), matching: find.byType(ImageFiltered)), findsNothing);
+      expect(find.byTooltip('Show as a grid'), findsOneWidget);
+      await tester.runAsync(() => pumpEventQueue());
+      expect(cubit.state.savedPlans.single.isLocked, isFalse, reason: 'and it stays unlocked');
+      await tester.runAsync(cubit.close);
+    });
+
+    testWidgets('is open in a build without paywalls', (tester) async {
+      await pumpItinerary(tester, planStarting(DateTime(2026, 11, 10), 3).locked());
+
+      expect(find.text('Your plan is ready'), findsNothing);
+      expect(find.ancestor(of: find.byType(DayDeck), matching: find.byType(ImageFiltered)), findsNothing);
+    });
+
+    testWidgets('fits a small phone', (tester) async {
+      Paywall.debugSetUp(configured: true);
+      await pumpItinerary(tester, planStarting(DateTime(2026, 11, 10), 3).locked());
+      tester.view.physicalSize = const Size(320 * 3, 568 * 3);
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Unlock my plan').hitTestable(), findsOneWidget);
+    });
   });
 
   testWidgets('fits a small phone, as a deck and as a grid', (tester) async {

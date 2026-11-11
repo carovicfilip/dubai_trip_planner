@@ -1,5 +1,6 @@
 import 'package:dubai_trip_planner/app/theme/app_theme.dart';
 import 'package:dubai_trip_planner/core/constants/app_palette.dart';
+import 'package:dubai_trip_planner/core/paywall/paywall.dart';
 import 'package:dubai_trip_planner/core/widgets/glass_card.dart';
 import 'package:dubai_trip_planner/features/my_trip/cubit/my_trip_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
@@ -124,10 +125,19 @@ class _MyTripScreenState extends State<MyTripScreen> {
   Future<void> _handleShowResults() async {
     final cubit = context.read<MyTripCubit>();
     final l10n = context.l10n;
+    // The one free plan is used: a new one needs a subscription first. After a
+    // purchase the plan is made right away, without a second tap.
+    if (await cubit.needsSubscriptionForNewPlan()) {
+      await Paywall.show(PaywallPlacement.newPlan, onPurchased: () {
+        if (mounted) _handleShowResults();
+      });
+      return;
+    }
+    if (!mounted) return;
     try {
       final plan = await cubit.generatePlan(languageCode: l10n.localeName);
       if (!mounted) return;
-      _openItinerary(plan);
+      _openItinerary(plan, showPaywallNow: plan.isLocked);
     } catch (error) {
       // The error can hold OpenAI's raw JSON: log it, show the user a short message.
       debugPrint('Trip plan generation failed: $error');
@@ -140,12 +150,12 @@ class _MyTripScreenState extends State<MyTripScreen> {
     }
   }
 
-  void _openItinerary(TripPlan plan) {
+  void _openItinerary(TripPlan plan, {bool showPaywallNow = false}) {
     FocusScope.of(context).unfocus();
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ItineraryScreen(plan: plan),
+        builder: (_) => ItineraryScreen(plan: plan, showPaywallNow: showPaywallNow),
       ),
     );
   }

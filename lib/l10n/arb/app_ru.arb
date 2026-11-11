@@ -175,5 +175,8 @@
   "itineraryAdd": "Добавить",
   "itineraryItemRemoved": "Удалено из этого дня",
   "itineraryUndo": "Отменить",
+  "planLockedTitle": "Ваш план готов",
+  "planLockedText": "Оформите Pro, чтобы увидеть все дни вашей поездки в Дубай.",
+  "planLockedButton": "Открыть мой план",
   "itineraryMoveItem": "Переместить"
 }

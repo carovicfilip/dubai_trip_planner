@@ -606,5 +606,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get itineraryUndo => 'تراجع';
 
   @override
+  String get planLockedTitle => 'خطتك جاهزة';
+
+  @override
+  String get planLockedText => 'اشترك في Pro لترى كل أيام رحلتك إلى دبي.';
+
+  @override
+  String get planLockedButton => 'افتح خطتي';
+
+  @override
   String get itineraryMoveItem => 'نقل';
 }

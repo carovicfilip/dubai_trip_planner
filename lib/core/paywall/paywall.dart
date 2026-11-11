@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:superwallkit_flutter/superwallkit_flutter.dart';
 
 /// Where the app can open a paywall. Each one is a placement in the Superwall
@@ -14,7 +15,18 @@ enum PaywallPlacement {
   /// and on coming back from the background. The paywall starts on its plans
   /// step. Not `app_open`: Superwall refuses placements named like its own
   /// events (app_open, app_launch, session_start, ...).
-  appEntry('app_entry', 'app');
+  appEntry('app_entry', 'app'),
+
+  /// A trip plan that is locked until the user subscribes: the results
+  /// paywall. Starts on the plans step.
+  planUnlock('plan_unlock', 'app'),
+
+  /// A new trip plan once the free one has been used.
+  newPlan('new_plan', 'app'),
+
+  /// The one-time offer. It follows only the results paywall, when that one
+  /// is closed without buying, and at most once per install.
+  resultsOffer('results_offer', 'app');
 
   const PaywallPlacement(this.placementName, this.source);
 
@@ -54,6 +66,22 @@ abstract final class Paywall {
   static DateTime? _closedAt;
   static DateTime? _sentOutAt;
 
+  /// Whether the user has an active subscription, kept up to date by
+  /// Superwall.
+  static final subscribed = ValueNotifier<bool>(false);
+
+  /// Whether trip plans are locked for this user: paywalls are on and there is
+  /// no subscription. Builds without a Superwall key never lock anything.
+  static bool get locksPlans => _configured && !subscribed.value;
+
+  static const _resultsOfferShownKey = 'results_offer_shown';
+
+  @visibleForTesting
+  static void debugSetUp({required bool configured, bool subscribed = false}) {
+    _configured = configured;
+    Paywall.subscribed.value = subscribed;
+  }
+
   /// Starts Superwall. Without a key for this platform (tests, or a build made
   /// without superwall_keys.json) the app simply runs without paywalls.
   static void configure() {
@@ -67,6 +95,10 @@ abstract final class Paywall {
       final options = SuperwallOptions()
         ..testModeBehavior = _testMode ? TestModeBehavior.always : TestModeBehavior.automatic;
       Superwall.configure(apiKey, options: options);
+      // Superwall opens some paywalls by itself (the offer after a closed
+      // paywall), so the app follows every paywall through the delegate.
+      Superwall.shared.setDelegate(_PaywallTracker());
+      Superwall.shared.subscriptionStatus.listen((status) => subscribed.value = status.isActive);
       _configured = true;
     } catch (error) {
       debugPrint('Superwall did not start: $error');
@@ -75,17 +107,32 @@ abstract final class Paywall {
 
   /// Asks Superwall for the paywall of [placement]. The dashboard decides
   /// whether one shows: a subscriber, for example, gets none.
-  static Future<void> show(PaywallPlacement placement) async {
+  ///
+  /// [onDeclined] runs when the paywall is closed without buying, and
+  /// [onPurchased] when it ends in a purchase or a restore.
+  static Future<void> show(
+    PaywallPlacement placement, {
+    VoidCallback? onDeclined,
+    VoidCallback? onPurchased,
+    VoidCallback? onPresented,
+  }) async {
     if (!_configured || _requesting || _showing) return;
     _requesting = true;
     final handler = PaywallPresentationHandler()
-      ..onPresent((_) => _showing = true)
-      ..onDismiss((_, _) => _closed())
+      ..onPresent((_) => onPresented?.call())
+      ..onDismiss((_, result) {
+        switch (result) {
+          case DeclinedPaywallResult():
+            onDeclined?.call();
+          case PurchasedPaywallResult() || RestoredPaywallResult():
+            // Superwall's status comes a moment later; what runs next (making
+            // the plan) must already see the subscription.
+            subscribed.value = true;
+            onPurchased?.call();
+        }
+      })
       ..onSkip((reason) => debugPrint('Paywall ${placement.placementName} skipped: $reason'))
-      ..onError((error) {
-        _showing = false;
-        debugPrint('Paywall ${placement.placementName} failed: $error');
-      });
+      ..onError((error) => debugPrint('Paywall ${placement.placementName} failed: $error'));
     try {
       await Superwall.shared.registerPlacement(
         placement.placementName,
@@ -98,6 +145,25 @@ abstract final class Paywall {
       _requesting = false;
     }
   }
+
+  /// The results paywall of a locked plan. Closing it without buying brings
+  /// the one-time offer, once per install.
+  static Future<void> showPlanUnlock({VoidCallback? onPurchased}) {
+    return show(PaywallPlacement.planUnlock, onPurchased: onPurchased, onDeclined: _showResultsOfferOnce);
+  }
+
+  static Future<void> _showResultsOfferOnce() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(_resultsOfferShownKey) ?? false) return;
+    // Superwall needs the closed paywall gone before it can show another.
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    await show(
+      PaywallPlacement.resultsOffer,
+      onPresented: () => prefs.setBool(_resultsOfferShownKey, true),
+    );
+  }
+
+  static void _opened() => _showing = true;
 
   static void _closed() {
     _showing = false;
@@ -120,4 +186,48 @@ abstract final class Paywall {
     }
     show(PaywallPlacement.appEntry);
   }
+}
+
+/// Follows every paywall Superwall shows, including the ones it opens by
+/// itself, and passes Superwall's warnings to the debug log. In 2.8.0 every
+/// method of the delegate has to be implemented, so the rest are empty.
+class _PaywallTracker extends SuperwallDelegate {
+  @override
+  void willPresentPaywall(PaywallInfo paywallInfo) => Paywall._opened();
+
+  @override
+  void didDismissPaywall(PaywallInfo paywallInfo) => Paywall._closed();
+
+  @override
+  void handleLog(String level, String scope, String? message, Map<dynamic, dynamic>? info, String? error) {
+    if (!kDebugMode) return;
+    final lower = level.toLowerCase();
+    if (lower.contains('warn') || lower.contains('error')) {
+      debugPrint('Superwall $level [$scope]: ${message ?? ''} ${error ?? ''}');
+    }
+  }
+
+  @override
+  void subscriptionStatusDidChange(SubscriptionStatus newValue) {}
+
+  @override
+  void handleSuperwallEvent(SuperwallEventInfo eventInfo) {}
+
+  @override
+  void handleCustomPaywallAction(String name) {}
+
+  @override
+  void willDismissPaywall(PaywallInfo paywallInfo) {}
+
+  @override
+  void didPresentPaywall(PaywallInfo paywallInfo) {}
+
+  @override
+  void paywallWillOpenURL(Uri url) {}
+
+  @override
+  void paywallWillOpenDeepLink(Uri url) {}
+
+  @override
+  void handleSuperwallDeepLink(Uri fullURL, List<String> pathComponents, Map<String, String> queryParameters) {}
 }

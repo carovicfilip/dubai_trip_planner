@@ -131,6 +131,29 @@ void main() {
     expect(day.highlights, ['Morning: Spa']);
   });
 
+  group('locking', () {
+    test('a plan saved before subscriptions existed is unlocked', () {
+      expect(TripPlan.deserialize(plan.serialize()).isLocked, isFalse);
+      expect(plan.toJson().containsKey('locked'), isFalse, reason: 'unlocked plans are saved as before');
+    });
+
+    test('a locked plan stays locked through saving and through changes to a day', () {
+      final locked = plan.locked();
+
+      expect(TripPlan.deserialize(locked.serialize()).isLocked, isTrue);
+      expect(locked.withDay(0, locked.days[0].withItemToggled(0)).isLocked, isTrue);
+      expect(plan.isLocked, isFalse, reason: 'the original plan stays as it was');
+    });
+
+    test('unlocking keeps the whole plan', () {
+      final unlocked = plan.locked().unlocked();
+
+      expect(unlocked.isLocked, isFalse);
+      expect(unlocked.id, plan.id);
+      expectSamePlan(unlocked, plan);
+    });
+  });
+
   group('TripPlanStorage', () {
     setUp(() => SharedPreferences.setMockInitialValues({}));
 

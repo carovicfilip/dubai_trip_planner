@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dubai_trip_planner/core/paywall/paywall.dart';
 import 'package:dubai_trip_planner/features/my_trip/cubit/my_trip_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_plan_storage.dart';
@@ -23,6 +24,9 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
+  // Back to a build without paywalls, which the other tests are about.
+  tearDown(() => Paywall.debugSetUp(configured: false));
+
   final now = DateTime.now();
   final nextMonth = DateTime(now.year, now.month + 1, now.day);
 
@@ -38,12 +42,15 @@ void main() {
   );
 
   MyTripCubit cubit({Future<http.Response> Function()? answer}) {
-    return MyTripCubit(TripPlannerService(
+    final trip = MyTripCubit(TripPlannerService(
       httpClient: MockClient((request) {
         requests.add(request);
         return answer?.call() ?? Future.error(StateError('unexpected backend call'));
       }),
     ));
+    // A cubit listens to the subscription until it is closed.
+    addTearDown(trip.close);
+    return trip;
   }
 
   MyTripCubit withValidForm({required Future<http.Response> Function() answer}) {
@@ -213,6 +220,80 @@ void main() {
       expect(trip.state.savedPlans.firstOrNull?.location, 'Business Bay');
       expect(trip.state.location, 'JBR');
       expect(trip.state.stayLengthDays, isNull);
+    });
+  });
+
+  group('subscriptions', () {
+    test('without paywalls in the build no plan is locked', () async {
+      final trip = withValidForm(answer: itinerary);
+
+      final plan = await trip.generatePlan();
+
+      expect(plan.isLocked, isFalse);
+      expect(await trip.needsSubscriptionForNewPlan(), isFalse);
+    });
+
+    test('without a subscription the plan is locked and the free plan is used up', () async {
+      Paywall.debugSetUp(configured: true);
+      final trip = withValidForm(answer: itinerary);
+      expect(await trip.needsSubscriptionForNewPlan(), isFalse, reason: 'the first plan is free');
+
+      final plan = await trip.generatePlan();
+
+      expect(plan.isLocked, isTrue);
+      expect(trip.state.savedPlans.single.isLocked, isTrue);
+      expect((await loadPlan())?.isLocked, isTrue);
+      expect(await trip.needsSubscriptionForNewPlan(), isTrue);
+    });
+
+    test('a subscriber gets the plan unlocked and needs nothing more', () async {
+      Paywall.debugSetUp(configured: true, subscribed: true);
+      final trip = withValidForm(answer: itinerary);
+
+      final plan = await trip.generatePlan();
+
+      expect(plan.isLocked, isFalse);
+      expect(await trip.needsSubscriptionForNewPlan(), isFalse);
+    });
+
+    test('subscribing unlocks every saved plan, and they stay unlocked after it ends', () async {
+      Paywall.debugSetUp(configured: true);
+      final trip = withValidForm(answer: itinerary);
+      await trip.generatePlan();
+
+      Paywall.subscribed.value = true;
+      await pumpEventQueue();
+
+      expect(trip.state.savedPlans.single.isLocked, isFalse);
+      expect((await loadPlan())?.isLocked, isFalse);
+
+      Paywall.subscribed.value = false;
+      await pumpEventQueue();
+
+      expect(trip.state.savedPlans.single.isLocked, isFalse);
+      expect((await loadPlan())?.isLocked, isFalse);
+      expect(await trip.needsSubscriptionForNewPlan(), isTrue, reason: 'a new plan needs the subscription again');
+    });
+
+    test('a subscriber who opens the app finds the locked plan unlocked', () async {
+      await savePlan(savedPlan.locked());
+      Paywall.debugSetUp(configured: true, subscribed: true);
+      final trip = cubit();
+
+      await trip.loadSavedPlans();
+
+      expect(trip.state.savedPlans.single.isLocked, isFalse);
+      expect((await loadPlan())?.isLocked, isFalse);
+    });
+
+    test('without a subscription a locked plan stays locked', () async {
+      await savePlan(savedPlan.locked());
+      Paywall.debugSetUp(configured: true);
+      final trip = cubit();
+
+      await trip.loadSavedPlans();
+
+      expect(trip.state.savedPlans.single.isLocked, isTrue);
     });
   });
 

@@ -1,8 +1,10 @@
+import 'package:dubai_trip_planner/core/paywall/paywall.dart';
 import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_plan_storage.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_planner_service.dart';
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'my_trip_state.dart';
 
@@ -12,16 +14,48 @@ part 'my_trip_state.dart';
 /// visit, and neither a plan that takes up to a minute to generate nor a
 /// half-filled form may get lost when the user looks at another tab meanwhile.
 class MyTripCubit extends Cubit<MyTripState> {
-  MyTripCubit(this._planner) : super(const MyTripState());
+  MyTripCubit(this._planner) : super(const MyTripState()) {
+    Paywall.subscribed.addListener(_onSubscriptionChanged);
+  }
 
   final TripPlannerService _planner;
   Future<TripPlan>? _generating;
+
+  static const _freePlanUsedKey = 'free_plan_used';
+
+  @override
+  Future<void> close() {
+    Paywall.subscribed.removeListener(_onSubscriptionChanged);
+    return super.close();
+  }
+
+  void _onSubscriptionChanged() {
+    if (Paywall.subscribed.value) unlockAllPlans();
+  }
 
   /// Shows the saved plans. The form is left as it is: it is for a new trip,
   /// and a saved one opens from its card.
   Future<void> loadSavedPlans() async {
     final plans = await TripPlanStorage.loadPlans();
     if (!isClosed) emit(state.copyWith(savedPlans: plans));
+    if (Paywall.subscribed.value) await unlockAllPlans();
+  }
+
+  /// Whether a new plan needs a subscription first: the user has no
+  /// subscription and has already had the one free plan.
+  Future<bool> needsSubscriptionForNewPlan() async {
+    if (!Paywall.locksPlans) return false;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_freePlanUsedKey) ?? false;
+  }
+
+  /// Unlocks every saved plan, for good: called once the user subscribes.
+  Future<void> unlockAllPlans() async {
+    final plans = await TripPlanStorage.loadPlans();
+    if (!plans.any((plan) => plan.isLocked)) return;
+    final unlocked = [for (final plan in plans) plan.unlocked()];
+    await TripPlanStorage.savePlans(unlocked);
+    if (!isClosed) emit(state.copyWith(savedPlans: unlocked));
   }
 
   void selectStartDate(DateTime date) => emit(state.copyWith(startDate: date));
@@ -59,13 +93,18 @@ class MyTripCubit extends Cubit<MyTripState> {
 
     emit(form.copyWith(isGenerating: true));
     try {
-      final plan = await _planner.generatePlan(
+      final generated = await _planner.generatePlan(
         startDate: form.startDate!,
         lengthInDays: form.stayLengthDays!,
         location: form.location.trim(),
         categories: form.categories.toList()..sort(),
         languageCode: languageCode,
       );
+      // Without a subscription this is the one free plan, and it stays locked
+      // until the user subscribes.
+      final locks = Paywall.locksPlans;
+      final plan = locks ? generated.locked() : generated;
+      if (locks) await (await SharedPreferences.getInstance()).setBool(_freePlanUsedKey, true);
       // A new plan joins the others, unless it is for the same trip as one of them.
       final others = await TripPlanStorage.loadPlans();
       final plans = [plan, ...others.where((saved) => saved.id != plan.id)];

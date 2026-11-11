@@ -175,5 +175,8 @@
   "itineraryAdd": "Hinzufügen",
   "itineraryItemRemoved": "Von diesem Tag entfernt",
   "itineraryUndo": "Rückgängig",
+  "planLockedTitle": "Dein Plan ist fertig",
+  "planLockedText": "Hol dir Pro, um jeden Tag deiner Dubai-Reise zu sehen.",
+  "planLockedButton": "Meinen Plan freischalten",
   "itineraryMoveItem": "Verschieben"
 }

@@ -1,7 +1,9 @@
 import 'dart:math' as math;
+import 'dart:ui' show ImageFilter;
 
 import 'package:dubai_trip_planner/app/theme/app_theme.dart';
 import 'package:dubai_trip_planner/core/constants/app_palette.dart';
+import 'package:dubai_trip_planner/core/paywall/paywall.dart';
 import 'package:dubai_trip_planner/core/widgets/glass_card.dart';
 import 'package:dubai_trip_planner/features/my_trip/cubit/my_trip_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/trip_labels.dart';
@@ -24,9 +26,14 @@ class ItineraryScreen extends StatefulWidget {
   const ItineraryScreen({
     super.key,
     required this.plan,
+    this.showPaywallNow = false,
   });
 
   final TripPlan plan;
+
+  /// Opens the results paywall at once: for a locked plan that has just been
+  /// made.
+  final bool showPaywallNow;
 
   @override
   State<ItineraryScreen> createState() => _ItineraryScreenState();
@@ -34,6 +41,26 @@ class ItineraryScreen extends StatefulWidget {
 
 class _ItineraryScreenState extends State<ItineraryScreen> with SingleTickerProviderStateMixin {
   late TripPlan _plan = widget.plan;
+
+  /// A locked plan shows blurred under a card that leads to the paywall.
+  bool get _isLocked => _plan.isLocked && Paywall.locksPlans;
+
+  @override
+  void initState() {
+    super.initState();
+    Paywall.subscribed.addListener(_onSubscriptionChanged);
+    if (widget.showPaywallNow && _isLocked) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _unlock());
+    }
+  }
+
+  void _onSubscriptionChanged() {
+    if (!mounted || !Paywall.subscribed.value || !_plan.isLocked) return;
+    // MyTripCubit saves every plan as unlocked; this one shows it at once.
+    setState(() => _plan = _plan.unlocked());
+  }
+
+  void _unlock() => Paywall.showPlanUnlock();
 
   // Where the deck is, in cards. It may go a little past both ends while dragged.
   late final AnimationController _deck = AnimationController.unbounded(vsync: this);
@@ -45,6 +72,7 @@ class _ItineraryScreenState extends State<ItineraryScreen> with SingleTickerProv
 
   @override
   void dispose() {
+    Paywall.subscribed.removeListener(_onSubscriptionChanged);
     _deck.dispose();
     super.dispose();
   }
@@ -197,36 +225,122 @@ class _ItineraryScreenState extends State<ItineraryScreen> with SingleTickerProv
                   TripTopBar(
                     title: context.l10n.itineraryTitle,
                     onBack: () => Navigator.maybePop(context),
-                    trailing: _ViewToggle(
-                      showsGrid: _showsGrid,
-                      onPressed: () => setState(() {
-                        _showsGrid = !_showsGrid;
-                        _isEditing = false;
-                      }),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 28, 16, 12),
-                    child: _TripOverview(plan: _plan, dateOf: _dateOf),
+                    trailing: _isLocked
+                        ? null
+                        : _ViewToggle(
+                            showsGrid: _showsGrid,
+                            onPressed: () => setState(() {
+                              _showsGrid = !_showsGrid;
+                              _isEditing = false;
+                            }),
+                          ),
                   ),
                   Expanded(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      child: _showsGrid
-                          ? DayGrid(
-                              key: const ValueKey('grid'),
-                              days: _plan.days,
-                              dateOf: _dateOf,
-                              currentDay: _currentDay,
-                              onTapDay: _showInDeck,
-                            )
-                          : _buildDeck(),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        _LockedBlur(
+                          isLocked: _isLocked,
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(16, 28, 16, 12),
+                                child: _TripOverview(plan: _plan, dateOf: _dateOf),
+                              ),
+                              Expanded(
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 250),
+                                  child: _showsGrid
+                                      ? DayGrid(
+                                          key: const ValueKey('grid'),
+                                          days: _plan.days,
+                                          dateOf: _dateOf,
+                                          currentDay: _currentDay,
+                                          onTapDay: _showInDeck,
+                                        )
+                                      : _buildDeck(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (_isLocked) _LockedPlanCard(onUnlock: _unlock),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Blurs a locked plan beyond reading, and keeps it from taps and from screen
+/// readers.
+class _LockedBlur extends StatelessWidget {
+  const _LockedBlur({required this.isLocked, required this.child});
+
+  final bool isLocked;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!isLocked) return child;
+    return ExcludeSemantics(
+      child: IgnorePointer(
+        child: ImageFiltered(
+          imageFilter: ImageFilter.blur(sigmaX: 14, sigmaY: 14, tileMode: TileMode.decal),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+/// Over a locked plan: the plan is ready, and a subscription shows it.
+class _LockedPlanCard extends StatelessWidget {
+  const _LockedPlanCard({required this.onUnlock});
+
+  final VoidCallback onUnlock;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final palette = context.palette;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: GlassCard(
+          padding: const EdgeInsets.fromLTRB(22, 26, 22, 22),
+          radius: 28,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: const BoxDecoration(shape: BoxShape.circle, gradient: TripFormButton.gradient),
+                child: const Icon(Icons.lock_rounded, color: Colors.white, size: 30),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                l10n.planLockedTitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: palette.ink, fontSize: 22, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l10n.planLockedText,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: palette.muted, fontSize: 15, height: 1.4),
+              ),
+              const SizedBox(height: 20),
+              TripFormButton(label: l10n.planLockedButton, icon: Icons.lock_open_rounded, onPressed: onUnlock),
+            ],
+          ),
         ),
       ),
     );

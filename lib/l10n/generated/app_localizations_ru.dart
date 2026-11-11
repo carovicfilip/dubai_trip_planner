@@ -608,5 +608,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get itineraryUndo => 'Отменить';
 
   @override
+  String get planLockedTitle => 'Ваш план готов';
+
+  @override
+  String get planLockedText =>
+      'Оформите Pro, чтобы увидеть все дни вашей поездки в Дубай.';
+
+  @override
+  String get planLockedButton => 'Открыть мой план';
+
+  @override
   String get itineraryMoveItem => 'Переместить';
 }

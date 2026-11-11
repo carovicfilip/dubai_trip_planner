@@ -175,5 +175,8 @@
   "itineraryAdd": "Ajouter",
   "itineraryItemRemoved": "Retiré de cette journée",
   "itineraryUndo": "Annuler",
+  "planLockedTitle": "Votre plan est prêt",
+  "planLockedText": "Passez à Pro pour voir chaque jour de votre voyage à Dubaï.",
+  "planLockedButton": "Débloquer mon plan",
   "itineraryMoveItem": "Déplacer"
 }

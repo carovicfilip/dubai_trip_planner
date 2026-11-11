@@ -599,5 +599,8 @@
   "itineraryAdd": "Add",
   "itineraryItemRemoved": "Removed from this day",
   "itineraryUndo": "Undo",
+  "planLockedTitle": "Your plan is ready",
+  "planLockedText": "Subscribe to Pro to see every day of your Dubai trip.",
+  "planLockedButton": "Unlock my plan",
   "itineraryMoveItem": "Move"
 }

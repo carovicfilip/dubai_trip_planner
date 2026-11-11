@@ -175,5 +175,8 @@
   "itineraryAdd": "إضافة",
   "itineraryItemRemoved": "تمت الإزالة من هذا اليوم",
   "itineraryUndo": "تراجع",
+  "planLockedTitle": "خطتك جاهزة",
+  "planLockedText": "اشترك في Pro لترى كل أيام رحلتك إلى دبي.",
+  "planLockedButton": "افتح خطتي",
   "itineraryMoveItem": "نقل"
 }

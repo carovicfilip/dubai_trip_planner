@@ -82,12 +82,18 @@ class TripPlan {
   final List<String> categories;
   final List<DailyPlan> days;
 
+  /// A locked plan shows only blurred until the user subscribes. Once
+  /// unlocked, a plan stays unlocked, even if the subscription ends. Plans
+  /// saved before subscriptions existed have no flag and count as unlocked.
+  final bool isLocked;
+
   const TripPlan({
     required this.location,
     required this.startDate,
     required this.lengthInDays,
     required this.categories,
     required this.days,
+    this.isLocked = false,
   });
 
   factory TripPlan.fromJson(Map<String, dynamic> json) {
@@ -102,6 +108,7 @@ class TripPlan {
       days: daysJson
           .map((item) => DailyPlan.fromJson(item as Map<String, dynamic>))
           .toList(growable: false),
+      isLocked: json['locked'] == true,
     );
   }
 
@@ -111,21 +118,29 @@ class TripPlan {
         'lengthInDays': lengthInDays,
         'categories': categories,
         'days': days.map((day) => day.toJson()).toList(growable: false),
+        if (isLocked) 'locked': true,
       };
 
-  /// Which trip this is: a plan for the same place, dates and length is a new
-  /// version of the same trip.
-  String get id => '$location|${startDate.toIso8601String()}|$lengthInDays';
-
-  TripPlan withDay(int index, DailyPlan day) {
+  TripPlan _copy({List<DailyPlan>? days, bool? isLocked}) {
     return TripPlan(
       location: location,
       startDate: startDate,
       lengthInDays: lengthInDays,
       categories: categories,
-      days: List.of(days)..[index] = day,
+      days: days ?? this.days,
+      isLocked: isLocked ?? this.isLocked,
     );
   }
+
+  TripPlan locked() => _copy(isLocked: true);
+
+  TripPlan unlocked() => _copy(isLocked: false);
+
+  /// Which trip this is: a plan for the same place, dates and length is a new
+  /// version of the same trip.
+  String get id => '$location|${startDate.toIso8601String()}|$lengthInDays';
+
+  TripPlan withDay(int index, DailyPlan day) => _copy(days: List.of(days)..[index] = day);
 
   String serialize() => jsonEncode(toJson());
 
