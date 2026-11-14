@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+5
+version: 1.0.0+6
 
 environment:
   sdk: ^3.13.0
@@ -54,12 +54,13 @@ flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   # Kept out of the bundled assets folders: only this tool reads it.
-  image_path: "assets/launcher/app_icon_glass_pin.png"
-  # Android 8+ adaptive icon. The foreground is the full-size pin, building and
-  # "DUBAI" on transparency; the tool insets it by 16% per side, and the
-  # background is pre-scaled by the same 0.68 so the glass lines up with it.
-  adaptive_icon_background: "assets/launcher/app_icon_glass_pin_android_bg.png"
-  adaptive_icon_foreground: "assets/launcher/app_icon_glass_pin_android_fg.png"
+  image_path: "assets/launcher/app_icon_dubai_tower.png"
+  # Android 8+ adaptive icon. The foreground is the tower and "TRIP PLANNER" on
+  # transparency at 96%, so the text stays inside the 66dp safe circle; the tool
+  # insets it by 16% per side, and the background is pre-scaled by the same 0.68
+  # (margins mirrored) so it looks like the iOS icon.
+  adaptive_icon_background: "assets/launcher/app_icon_dubai_tower_android_bg.png"
+  adaptive_icon_foreground: "assets/launcher/app_icon_dubai_tower_android_fg.png"
 
 dev_dependencies:
   flutter_test:

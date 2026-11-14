@@ -106,5 +106,10 @@ app signing key, and a lost upload key can be reset in the Play Console.
   of `material_ui` do not read. The texts of the places are in
   `lib/l10n/places/`, by place id, and a test fails if one is missing.
 - Launcher icons are generated with `dart run flutter_launcher_icons` from
-  `assets/launcher/app_icon2.png`; the configuration is in `pubspec.yaml`.
-  `assets/launcher/` is not bundled into the app.
+  `assets/launcher/app_icon_dubai_tower.png` (plus the Android adaptive
+  layers); the configuration is in `pubspec.yaml`. `assets/launcher/` is not
+  bundled into the app. The dark icon for the App Store A/B test is the
+  alternate set `ios/Runner/Assets.xcassets/AppIconDark.appiconset`, resized
+  by hand from `assets/launcher/app_icon_dubai_tower_dark.png`, because the
+  tool only writes `AppIcon`. The tool also rewrites every `ASSETCATALOG_*`
+  value in `project.pbxproj` to "AppIcon", so check that file after a run.
