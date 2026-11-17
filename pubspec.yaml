@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+6
+version: 1.0.0+7
 
 environment:
   sdk: ^3.13.0
@@ -55,8 +55,8 @@ flutter_launcher_icons:
   ios: true
   # Kept out of the bundled assets folders: only this tool reads it.
   image_path: "assets/launcher/app_icon_dubai_tower.png"
-  # Android 8+ adaptive icon. The foreground is the tower and "TRIP PLANNER" on
-  # transparency at 96%, so the text stays inside the 66dp safe circle; the tool
+  # Android 8+ adaptive icon. The foreground is the tower (no text) on
+  # transparency at full size; it stays inside the 66dp safe circle. The tool
   # insets it by 16% per side, and the background is pre-scaled by the same 0.68
   # (margins mirrored) so it looks like the iOS icon.
   adaptive_icon_background: "assets/launcher/app_icon_dubai_tower_android_bg.png"
