@@ -602,5 +602,10 @@
   "planLockedTitle": "Your plan is ready",
   "planLockedText": "Subscribe to Pro to see every day of your Dubai trip.",
   "planLockedButton": "Unlock my plan",
-  "itineraryMoveItem": "Move"
+  "itineraryMoveItem": "Move",
+  "reviewerCodeTitle": "Reviewer code",
+  "reviewerCodeHint": "Enter the code",
+  "reviewerCodeInvalid": "This code is not valid.",
+  "reviewerCodeUnlock": "Unlock",
+  "reviewerCodeUnlocked": "Pro is unlocked on this device."
 }

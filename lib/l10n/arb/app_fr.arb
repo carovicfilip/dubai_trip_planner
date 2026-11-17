@@ -178,5 +178,10 @@
   "planLockedTitle": "Votre plan est prêt",
   "planLockedText": "Passez à Pro pour voir chaque jour de votre voyage à Dubaï.",
   "planLockedButton": "Débloquer mon plan",
-  "itineraryMoveItem": "Déplacer"
+  "itineraryMoveItem": "Déplacer",
+  "reviewerCodeTitle": "Code examinateur",
+  "reviewerCodeHint": "Saisissez le code",
+  "reviewerCodeInvalid": "Ce code n'est pas valide.",
+  "reviewerCodeUnlock": "Débloquer",
+  "reviewerCodeUnlocked": "Pro est débloqué sur cet appareil."
 }

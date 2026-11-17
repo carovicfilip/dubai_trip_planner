@@ -178,5 +178,10 @@
   "planLockedTitle": "Ваш план готов",
   "planLockedText": "Оформите Pro, чтобы увидеть все дни вашей поездки в Дубай.",
   "planLockedButton": "Открыть мой план",
-  "itineraryMoveItem": "Переместить"
+  "itineraryMoveItem": "Переместить",
+  "reviewerCodeTitle": "Код рецензента",
+  "reviewerCodeHint": "Введите код",
+  "reviewerCodeInvalid": "Этот код недействителен.",
+  "reviewerCodeUnlock": "Разблокировать",
+  "reviewerCodeUnlocked": "Pro разблокирован на этом устройстве."
 }

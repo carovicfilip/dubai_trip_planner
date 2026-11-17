@@ -612,4 +612,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get itineraryMoveItem => 'Move';
+
+  @override
+  String get reviewerCodeTitle => 'Reviewer code';
+
+  @override
+  String get reviewerCodeHint => 'Enter the code';
+
+  @override
+  String get reviewerCodeInvalid => 'This code is not valid.';
+
+  @override
+  String get reviewerCodeUnlock => 'Unlock';
+
+  @override
+  String get reviewerCodeUnlocked => 'Pro is unlocked on this device.';
 }

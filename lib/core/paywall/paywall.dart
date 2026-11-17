@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:dubai_trip_planner/core/paywall/reviewer_code.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:superwallkit_flutter/superwallkit_flutter.dart';
@@ -66,25 +67,68 @@ abstract final class Paywall {
   static DateTime? _closedAt;
   static DateTime? _sentOutAt;
 
-  /// Whether the user has an active subscription, kept up to date by
-  /// Superwall.
+  /// Whether the store reports an active subscription.
+  static bool _storeSubscription = false;
+
+  /// Whether the reviewer code was entered on this device ([ReviewerCode]).
+  static bool _reviewerAccess = false;
+
+  /// Whether the user has Pro: an active subscription, kept up to date by
+  /// Superwall, or the reviewer code.
   static final subscribed = ValueNotifier<bool>(false);
 
   /// Whether trip plans are locked for this user: paywalls are on and there is
   /// no subscription. Builds without a Superwall key never lock anything.
   static bool get locksPlans => _configured && !subscribed.value;
 
+  /// Whether Pro comes from the reviewer code on this device.
+  static bool get hasReviewerAccess => _reviewerAccess;
+
   static const _resultsOfferShownKey = 'results_offer_shown';
+  static const _reviewerAccessKey = 'reviewer_access';
 
   @visibleForTesting
-  static void debugSetUp({required bool configured, bool subscribed = false}) {
+  static void debugSetUp({required bool configured, bool subscribed = false, bool reviewerAccess = false}) {
     _configured = configured;
-    Paywall.subscribed.value = subscribed;
+    _storeSubscription = subscribed;
+    _reviewerAccess = reviewerAccess;
+    _updateSubscribed();
+  }
+
+  static void _setStoreSubscription(bool active) {
+    _storeSubscription = active;
+    _updateSubscribed();
+  }
+
+  static void _updateSubscribed() => subscribed.value = _storeSubscription || _reviewerAccess;
+
+  /// Gives this device Pro if [code] is the reviewer code, and remembers it.
+  /// Returns whether it was.
+  static Future<bool> unlockWithReviewerCode(String code) async {
+    if (!ReviewerCode.isAvailable || !ReviewerCode.matches(code)) return false;
+    await (await SharedPreferences.getInstance()).setBool(_reviewerAccessKey, true);
+    _reviewerAccess = true;
+    _updateSubscribed();
+    return true;
+  }
+
+  /// Reads whether the reviewer code was entered before. Awaited before the
+  /// first screen, so a reviewer never gets a paywall on starting the app.
+  static Future<void> _loadReviewerAccess() async {
+    if (!ReviewerCode.isAvailable) return;
+    try {
+      _reviewerAccess = (await SharedPreferences.getInstance()).getBool(_reviewerAccessKey) ?? false;
+      _updateSubscribed();
+    } catch (error) {
+      debugPrint('Reviewer access unavailable: $error');
+    }
   }
 
   /// Starts Superwall. Without a key for this platform (tests, or a build made
   /// without superwall_keys.json) the app simply runs without paywalls.
-  static void configure() {
+  /// First it reads whether the reviewer code was entered on this device.
+  static Future<void> configure() async {
+    await _loadReviewerAccess();
     if (kIsWeb || !(Platform.isIOS || Platform.isAndroid)) return;
     final apiKey = Platform.isIOS ? _iosApiKey : _androidApiKey;
     if (apiKey.isEmpty) {
@@ -113,18 +157,19 @@ abstract final class Paywall {
   /// status below has come back, configure has been handled.
   static Future<void> _followSubscription() async {
     try {
-      subscribed.value = (await Superwall.shared.getSubscriptionStatus()).isActive;
+      _setStoreSubscription((await Superwall.shared.getSubscriptionStatus()).isActive);
     } catch (error) {
       debugPrint('Superwall subscription status unavailable: $error');
     }
     Superwall.shared.subscriptionStatus.listen((status) {
       if (kDebugMode) debugPrint('Superwall subscription active: ${status.isActive}');
-      subscribed.value = status.isActive;
+      _setStoreSubscription(status.isActive);
     });
   }
 
   /// Asks Superwall for the paywall of [placement]. The dashboard decides
-  /// whether one shows: a subscriber, for example, gets none.
+  /// whether one shows: a subscriber, for example, gets none. With the
+  /// reviewer code none shows either, since Superwall does not know about it.
   ///
   /// [onDeclined] runs when the paywall is closed without buying, and
   /// [onPurchased] when it ends in a purchase or a restore.
@@ -134,7 +179,7 @@ abstract final class Paywall {
     VoidCallback? onPurchased,
     VoidCallback? onPresented,
   }) async {
-    if (!_configured || _requesting || _showing) return;
+    if (!_configured || _reviewerAccess || _requesting || _showing) return;
     _requesting = true;
     final handler = PaywallPresentationHandler()
       ..onPresent((_) => onPresented?.call())
@@ -145,7 +190,7 @@ abstract final class Paywall {
           case PurchasedPaywallResult() || RestoredPaywallResult():
             // Superwall's status comes a moment later; what runs next (making
             // the plan) must already see the subscription.
-            subscribed.value = true;
+            _setStoreSubscription(true);
             onPurchased?.call();
         }
       })

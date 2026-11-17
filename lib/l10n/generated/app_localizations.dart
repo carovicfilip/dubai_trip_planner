@@ -1177,6 +1177,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Move'**
   String get itineraryMoveItem;
+
+  /// No description provided for @reviewerCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewer code'**
+  String get reviewerCodeTitle;
+
+  /// No description provided for @reviewerCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code'**
+  String get reviewerCodeHint;
+
+  /// No description provided for @reviewerCodeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'This code is not valid.'**
+  String get reviewerCodeInvalid;
+
+  /// No description provided for @reviewerCodeUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get reviewerCodeUnlock;
+
+  /// No description provided for @reviewerCodeUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro is unlocked on this device.'**
+  String get reviewerCodeUnlocked;
 }
 
 class _AppLocalizationsDelegate

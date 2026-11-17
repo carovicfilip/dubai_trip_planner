@@ -616,4 +616,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get itineraryMoveItem => 'نقل';
+
+  @override
+  String get reviewerCodeTitle => 'رمز المراجِع';
+
+  @override
+  String get reviewerCodeHint => 'أدخل الرمز';
+
+  @override
+  String get reviewerCodeInvalid => 'هذا الرمز غير صالح.';
+
+  @override
+  String get reviewerCodeUnlock => 'فتح';
+
+  @override
+  String get reviewerCodeUnlocked => 'تم فتح Pro على هذا الجهاز.';
 }

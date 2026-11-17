@@ -619,4 +619,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get itineraryMoveItem => 'Переместить';
+
+  @override
+  String get reviewerCodeTitle => 'Код рецензента';
+
+  @override
+  String get reviewerCodeHint => 'Введите код';
+
+  @override
+  String get reviewerCodeInvalid => 'Этот код недействителен.';
+
+  @override
+  String get reviewerCodeUnlock => 'Разблокировать';
+
+  @override
+  String get reviewerCodeUnlocked => 'Pro разблокирован на этом устройстве.';
 }

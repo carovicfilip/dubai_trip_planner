@@ -178,5 +178,10 @@
   "planLockedTitle": "خطتك جاهزة",
   "planLockedText": "اشترك في Pro لترى كل أيام رحلتك إلى دبي.",
   "planLockedButton": "افتح خطتي",
-  "itineraryMoveItem": "نقل"
+  "itineraryMoveItem": "نقل",
+  "reviewerCodeTitle": "رمز المراجِع",
+  "reviewerCodeHint": "أدخل الرمز",
+  "reviewerCodeInvalid": "هذا الرمز غير صالح.",
+  "reviewerCodeUnlock": "فتح",
+  "reviewerCodeUnlocked": "تم فتح Pro على هذا الجهاز."
 }

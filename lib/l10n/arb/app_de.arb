@@ -178,5 +178,10 @@
   "planLockedTitle": "Dein Plan ist fertig",
   "planLockedText": "Hol dir Pro, um jeden Tag deiner Dubai-Reise zu sehen.",
   "planLockedButton": "Meinen Plan freischalten",
-  "itineraryMoveItem": "Verschieben"
+  "itineraryMoveItem": "Verschieben",
+  "reviewerCodeTitle": "Prüfer-Code",
+  "reviewerCodeHint": "Code eingeben",
+  "reviewerCodeInvalid": "Dieser Code ist ungültig.",
+  "reviewerCodeUnlock": "Freischalten",
+  "reviewerCodeUnlocked": "Pro ist auf diesem Gerät freigeschaltet."
 }

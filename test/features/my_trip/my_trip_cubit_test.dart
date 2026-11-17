@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
 import 'package:dubai_trip_planner/core/paywall/paywall.dart';
+import 'package:dubai_trip_planner/core/paywall/reviewer_code.dart';
 import 'package:dubai_trip_planner/features/my_trip/cubit/my_trip_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/models/trip_plan.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_plan_storage.dart';
 import 'package:dubai_trip_planner/features/my_trip/services/trip_planner_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -284,6 +288,28 @@ void main() {
 
       expect(trip.state.savedPlans.single.isLocked, isFalse);
       expect((await loadPlan())?.isLocked, isFalse);
+    });
+
+    test('the reviewer code unlocks the saved plan, and a new plan needs nothing more', () async {
+      ReviewerCode.debugSha256 = sha256.convert(utf8.encode('TESTCODE')).toString();
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      addTearDown(() {
+        ReviewerCode.debugSha256 = null;
+        debugDefaultTargetPlatformOverride = null;
+      });
+      Paywall.debugSetUp(configured: true);
+      final trip = withValidForm(answer: itinerary);
+      await trip.generatePlan();
+      expect(await trip.needsSubscriptionForNewPlan(), isTrue);
+
+      expect(await Paywall.unlockWithReviewerCode('TESTCODE'), isTrue);
+      await pumpEventQueue();
+
+      expect(trip.state.savedPlans.single.isLocked, isFalse);
+      expect((await loadPlan())?.isLocked, isFalse);
+      expect(await trip.needsSubscriptionForNewPlan(), isFalse);
+      final next = withValidForm(answer: itinerary);
+      expect((await next.generatePlan()).isLocked, isFalse);
     });
 
     test('without a subscription a locked plan stays locked', () async {

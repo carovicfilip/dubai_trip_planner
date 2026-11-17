@@ -615,4 +615,19 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get itineraryMoveItem => 'Verschieben';
+
+  @override
+  String get reviewerCodeTitle => 'Prüfer-Code';
+
+  @override
+  String get reviewerCodeHint => 'Code eingeben';
+
+  @override
+  String get reviewerCodeInvalid => 'Dieser Code ist ungültig.';
+
+  @override
+  String get reviewerCodeUnlock => 'Freischalten';
+
+  @override
+  String get reviewerCodeUnlocked => 'Pro ist auf diesem Gerät freigeschaltet.';
 }

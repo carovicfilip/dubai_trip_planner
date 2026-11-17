@@ -2,11 +2,13 @@ import 'package:dubai_trip_planner/app/theme/app_theme.dart';
 import 'package:dubai_trip_planner/app/theme/theme_cubit.dart';
 import 'package:dubai_trip_planner/core/constants/app_palette.dart';
 import 'package:dubai_trip_planner/core/paywall/paywall.dart';
+import 'package:dubai_trip_planner/core/paywall/reviewer_code.dart';
 import 'package:dubai_trip_planner/core/widgets/gradient_hero.dart';
 import 'package:dubai_trip_planner/core/widgets/places_card.dart';
 import 'package:dubai_trip_planner/features/favorites/cubit/favorites_cubit.dart';
 import 'package:dubai_trip_planner/features/my_trip/ui/widgets/promo_banner.dart';
 import 'package:dubai_trip_planner/features/place_details/ui/place_details_screen.dart';
+import 'package:dubai_trip_planner/features/profile/ui/reviewer_code_dialog.dart';
 import 'package:dubai_trip_planner/l10n/l10n.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
@@ -105,6 +107,8 @@ class ProfileScreen extends StatelessWidget {
                         await launchUrl(uri, mode: LaunchMode.externalApplication);
                       }
                     },
+                    // Google Play's reviewers enter their code here; see ReviewerCode.
+                    onLongPress: ReviewerCode.isAvailable ? () => showReviewerCodeDialog(context) : null,
                   ),
                   // ListTile(leading: Icon(Icons.support_agent), title: Text("Support"), onTap: () {}),
                   // ListTile(leading: Icon(Icons.star_rate), title: Text("Rate the app"), onTap: () {}),

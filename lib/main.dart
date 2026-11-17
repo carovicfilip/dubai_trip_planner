@@ -22,7 +22,7 @@ import 'features/splash/ui/splash_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _startAppCheck();
-  Paywall.configure();
+  await Paywall.configure();
   final prefs = await SharedPreferences.getInstance();
   final onboardingCompleted = await OnboardingService.isOnboardingCompleted();
   runApp(MyApp(prefs: prefs, onboardingCompleted: onboardingCompleted));
