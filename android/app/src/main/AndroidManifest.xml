@@ -3,6 +3,11 @@
          network access. Debug and profile builds get this permission from
          their own manifests; release builds only get it from here. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- The activity is locked to portrait, which Android turns into a required
+         android.hardware.screen.portrait feature: Play then hides the app from
+         devices without a portrait screen and refuses the release for it.
+         Optional keeps the portrait lock without that restriction. -->
+    <uses-feature android:name="android.hardware.screen.portrait" android:required="false"/>
     <application
         android:label="Dubai Trip Planner"
         android:icon="@mipmap/launcher_icon">
